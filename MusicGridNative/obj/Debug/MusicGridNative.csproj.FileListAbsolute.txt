@@ -1,0 +1,17 @@
+O:\Projects\MusicGridNative\MusicGridNative\bin\Debug\MusicGridNative.exe
+O:\Projects\MusicGridNative\MusicGridNative\bin\Debug\MusicGridNative.pdb
+O:\Projects\MusicGridNative\MusicGridNative\bin\Debug\NAudio.dll
+O:\Projects\MusicGridNative\MusicGridNative\bin\Debug\SFML.Audio.dll
+O:\Projects\MusicGridNative\MusicGridNative\bin\Debug\SFML.Graphics.dll
+O:\Projects\MusicGridNative\MusicGridNative\bin\Debug\SFML.System.dll
+O:\Projects\MusicGridNative\MusicGridNative\bin\Debug\SFML.Window.dll
+O:\Projects\MusicGridNative\MusicGridNative\bin\Debug\NAudio.xml
+O:\Projects\MusicGridNative\MusicGridNative\bin\Debug\SFML.Audio.xml
+O:\Projects\MusicGridNative\MusicGridNative\bin\Debug\SFML.Graphics.xml
+O:\Projects\MusicGridNative\MusicGridNative\bin\Debug\SFML.System.xml
+O:\Projects\MusicGridNative\MusicGridNative\bin\Debug\SFML.Window.xml
+O:\Projects\MusicGridNative\MusicGridNative\obj\Debug\MusicGridNative.csprojAssemblyReference.cache
+O:\Projects\MusicGridNative\MusicGridNative\obj\Debug\MusicGridNative.csproj.CoreCompileInputs.cache
+O:\Projects\MusicGridNative\MusicGridNative\obj\Debug\MusicGridNative.csproj.CopyComplete
+O:\Projects\MusicGridNative\MusicGridNative\obj\Debug\MusicGridNative.exe
+O:\Projects\MusicGridNative\MusicGridNative\obj\Debug\MusicGridNative.pdb
