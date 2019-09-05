@@ -9,7 +9,7 @@ namespace MusicGridNative
         public uint WindowHeight;
         public bool OpenLastOpenedAtLaunch;
 
-        public Configuration(uint windowWidth = 430, uint windowHeight = 430, bool openLastOpenedAtLaunch = true)
+        public Configuration(uint windowWidth, uint windowHeight, bool openLastOpenedAtLaunch)
         {
             WindowWidth = windowWidth;
             WindowHeight = windowHeight;

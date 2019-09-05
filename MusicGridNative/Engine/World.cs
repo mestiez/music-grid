@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace MusicGridNative
 {
     public class World
-    {
+    { 
         private bool dirtyList;
 
         private List<Entity> entities = new List<Entity>();

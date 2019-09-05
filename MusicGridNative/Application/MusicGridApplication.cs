@@ -1,4 +1,5 @@
 ﻿using SFML.Graphics;
+using SFML.System;
 using SFML.Window;
 using System;
 using System.Drawing;
@@ -10,10 +11,14 @@ namespace MusicGridNative
     {
         public static MusicGridApplication Main { get; private set; }
 
+        public static Globals Globals { get; private set; }
+
         private readonly RenderWindow window;
 
         public readonly World World;
         public readonly Assets Assets;
+
+        private float time;
 
         public MusicGridApplication(uint width, uint height, uint framerate, string title)
         {
@@ -46,18 +51,31 @@ namespace MusicGridNative
 
             World.Add(new DistrictEntity());
 
+            Input.SetWindow(window);
+
             MainLoop();
         }
 
         private void MainLoop()
         {
+            Clock clock = new Clock();
+
             while (window.IsOpen)
             {
-                window.DispatchEvents();
                 window.Clear();
+                Input.Reset();
+                window.DispatchEvents();
                 World.Step();
                 window.Display();
+
+                float dt = clock.ElapsedTime.AsSeconds();
+                time += dt;
+                Globals = new Globals(time, dt);
+
+                clock.Restart();
             }
+
+            clock.Dispose();
         }
     }
 }
