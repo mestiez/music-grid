@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using SFML.Graphics;
+using System.Collections.Generic;
 
 namespace MusicGridNative
 {
@@ -10,6 +11,13 @@ namespace MusicGridNative
 
         private List<Entity> createBuffer = new List<Entity>();
         private List<Entity> destroyBuffer = new List<Entity>();
+
+        public RenderTarget RenderTarget;
+
+        public World(RenderTarget target)
+        {
+            this.RenderTarget = target;
+        }
 
         public void Step()
         {
@@ -50,6 +58,8 @@ namespace MusicGridNative
                 createBuffer.Remove(entity);
                 entities.Remove(entity);
             }
+
+            destroyBuffer.Clear();
         }
 
         private void HandleCreationBuffer()
@@ -62,16 +72,19 @@ namespace MusicGridNative
 
             foreach (var entity in createBuffer)
                 entity.Initialised();
+
+            createBuffer.Clear();
         }
 
         public void Destroy(Entity entity)
         {
-            destroyBuffer.Add(entity);
             dirtyList = true;
+            destroyBuffer.Add(entity);
         }
 
         public void Add(Entity entity)
         {
+            dirtyList = true;
             entity.World = this;
             createBuffer.Add(entity);
         }
