@@ -22,7 +22,7 @@ namespace MusicGridNative
             title.CharacterSize = 16;
             title.FillColor = new Color(255, 255, 255, 125);
 
-            title.
+            title.Position = new SFML.System.Vector2f(0, 0);
         }
 
         public override void Render()
@@ -30,7 +30,7 @@ namespace MusicGridNative
             base.Render();
 
             World.RenderTarget.Draw(background);
-            World.RenderTarget.Draw(text);
+            World.RenderTarget.Draw(title);
         }
     }
 }
