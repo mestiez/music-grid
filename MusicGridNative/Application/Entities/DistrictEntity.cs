@@ -10,19 +10,19 @@ namespace MusicGridNative
         public readonly District District = new District();
 
         private RectangleShape background;
-        private Vertex[] resizeHandle;
+        private Vertex[] resizeHandleVertices;
         private Text title;
 
         private readonly UiElement element = new UiElement();
+        private readonly UiElement resizeHandle = new UiElement();
 
         private const float HandleSize = 16;
-        private const float HandlePadding = 0;
 
         private static readonly Vector2f[] handleShape = new Vector2f[3]
             {
-                new Vector2f(-HandlePadding, -HandlePadding),
-                new Vector2f(-HandleSize -HandlePadding, -HandlePadding),
-                new Vector2f(-HandlePadding, -HandleSize - HandlePadding)
+                new Vector2f(0, 0),
+                new Vector2f(-HandleSize, 0),
+                new Vector2f(0, -HandleSize)
             };
 
         public override void Created()
@@ -40,23 +40,21 @@ namespace MusicGridNative
                 Position = new Vector2f(0, 0)
             };
 
-            resizeHandle = new Vertex[3]
+            resizeHandleVertices = new Vertex[3]
             {
                 new Vertex(handleShape[0], title.FillColor),
                 new Vertex(handleShape[1], title.FillColor),
                 new Vertex(handleShape[2], title.FillColor)
-            };
-
-            element.OnClick += (sender, e) =>
-            {
-                Console.Write("e");
             };
         }
 
         public override void Update()
         {
             element.InteractionStep();
+            resizeHandle.InteractionStep();
+
             SyncElement();
+            SyncResizeHandle();
         }
 
         private void SyncElement()
@@ -73,12 +71,25 @@ namespace MusicGridNative
 
             title.Position = background.Position;
             title.CharacterSize = (uint)Math.Sqrt(District.Size.X * District.Size.Y * 0.01f);
+        }
 
+        private void SyncResizeHandle()
+        {
             Vector2f offset = District.Position + District.Size;
 
-            resizeHandle[0].Position = offset + handleShape[0];
-            resizeHandle[1].Position = offset + handleShape[1];
-            resizeHandle[2].Position = offset + handleShape[2];
+            resizeHandleVertices[0].Position = offset + handleShape[0];
+            resizeHandleVertices[1].Position = offset + handleShape[1];
+            resizeHandleVertices[2].Position = offset + handleShape[2];
+
+            resizeHandle.Color = title.FillColor;
+            resizeHandle.ActiveColor = Utilities.Lerp(title.FillColor, Color.Black, 0.2f);
+            resizeHandle.HoverColor = Utilities.Lerp(title.FillColor, Color.White, 0.2f);
+            resizeHandle.Position = offset - new Vector2f(HandleSize, HandleSize);
+            resizeHandle.Size = new Vector2f(HandleSize, HandleSize);
+
+            resizeHandleVertices[0].Color = resizeHandle.ComputedColor;
+            resizeHandleVertices[1].Color = resizeHandle.ComputedColor;
+            resizeHandleVertices[2].Color = resizeHandle.ComputedColor;
         }
 
         public override void Render()
@@ -87,7 +98,7 @@ namespace MusicGridNative
 
             target.Draw(background);
             target.Draw(title);
-            target.Draw(resizeHandle, PrimitiveType.Triangles);
+            target.Draw(resizeHandleVertices, PrimitiveType.Triangles);
         }
     }
 }
