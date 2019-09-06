@@ -7,13 +7,15 @@ namespace MusicGridNative
 {
     public class DistrictEntity : Entity
     {
-        public readonly District District = new District();
+        public readonly District District;
 
-        private RectangleShape background;
         private Vertex[] resizeHandleVertices;
+        private RectangleShape background;
         private Text title;
 
-        private readonly UiElement element = new UiElement();
+        private UiControllerEntity uiController;
+
+        private readonly UiElement backgroundElement = new UiElement();
         private readonly UiElement resizeHandle = new UiElement();
 
         private const float HandleSize = 16;
@@ -24,6 +26,11 @@ namespace MusicGridNative
                 new Vector2f(-HandleSize, 0),
                 new Vector2f(0, -HandleSize)
             };
+
+        public DistrictEntity(District district)
+        {
+            District = district;
+        }
 
         public override void Created()
         {
@@ -46,31 +53,66 @@ namespace MusicGridNative
                 new Vertex(handleShape[1], title.FillColor),
                 new Vertex(handleShape[2], title.FillColor)
             };
+
+            uiController = World.GetEntityByType<UiControllerEntity>();
+
+            resizeHandle.DepthContainer = backgroundElement;
+
+            uiController.Register(resizeHandle);
+            uiController.Register(backgroundElement);
+
+            backgroundElement.Depth++;
         }
 
         public override void Update()
         {
-            element.InteractionStep();
-            resizeHandle.InteractionStep();
-
             SyncElement();
             SyncResizeHandle();
+
+            HandleDragging();
+            HandleResizing();
+        }
+
+        private void HandleDragging()
+        {
+            if (backgroundElement.IsBeingHeld)
+                District.Position += Input.MouseDelta;
+        }
+
+        private void HandleResizing()
+        {
+            if (resizeHandle.IsBeingHeld)
+            {
+                District.Size += Input.MouseDelta;
+
+                if (District.Size.X < 64)
+                    District.Size.X = 64;
+
+                if (District.Size.Y < 64)
+                    District.Size.Y = 64;
+            }
         }
 
         private void SyncElement()
         {
-            element.Color = District.Color;
-            element.ActiveColor = Utilities.Lerp(District.Color, Color.Black, 0.2f);
-            element.HoverColor = Utilities.Lerp(District.Color, Color.White, 0.2f);
-            element.Position = District.Position;
-            element.Size = District.Size;
+            backgroundElement.Color = District.Color;
+            backgroundElement.ActiveColor = Utilities.Lerp(District.Color, Color.Black, 0.2f);
+            backgroundElement.HoverColor = Utilities.Lerp(District.Color, Color.White, 0.2f);
+            backgroundElement.Position = District.Position;
+            backgroundElement.Size = District.Size;
 
-            background.Position = element.Position;
-            background.Size = element.Size;
-            background.FillColor = element.ComputedColor;
+            background.Position = backgroundElement.Position;
+            background.Size = backgroundElement.Size;
+            background.FillColor = backgroundElement.ComputedColor;
 
-            title.Position = background.Position;
-            title.CharacterSize = (uint)Math.Sqrt(District.Size.X * District.Size.Y * 0.01f);
+            var titleBounds = title.GetGlobalBounds();
+
+            //title.CharacterSize = (uint)Math.Sqrt(District.Size.X * District.Size.Y * 0.02f);
+
+            float scale = (float)Math.Min(District.Size.X, District.Size.Y) / 128f;
+            title.Scale = new Vector2f(scale, scale);
+
+            title.Position = background.Position + background.Size / 2 - new Vector2f(titleBounds.Width / 2, titleBounds.Height / 2 + scale*2.5f);
         }
 
         private void SyncResizeHandle()
@@ -99,6 +141,14 @@ namespace MusicGridNative
             target.Draw(background);
             target.Draw(title);
             target.Draw(resizeHandleVertices, PrimitiveType.Triangles);
+        }
+
+        public override void Destroyed()
+        {
+            uiController.Deregister(backgroundElement);
+            uiController.Deregister(resizeHandle);
+            title.Dispose();
+            background.Dispose();
         }
     }
 }

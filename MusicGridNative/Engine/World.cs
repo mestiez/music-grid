@@ -1,22 +1,25 @@
 ﻿using SFML.Graphics;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace MusicGridNative
 {
     public class World
-    { 
+    {
         private bool dirtyList;
 
-        private List<Entity> entities = new List<Entity>();
+        private readonly List<Entity> entities = new List<Entity>();
 
-        private List<Entity> createBuffer = new List<Entity>();
-        private List<Entity> destroyBuffer = new List<Entity>();
+        private readonly Dictionary<Entity, int> createBuffer = new Dictionary<Entity, int>();
+        private readonly List<Entity> destroyBuffer = new List<Entity>();
 
-        public RenderTarget RenderTarget;
+        public RenderTarget RenderTarget { get; set; }
+        public Color ClearColor { get; set; }
 
         public World(RenderTarget target)
         {
-            this.RenderTarget = target;
+            RenderTarget = target;
         }
 
         public void Step()
@@ -64,14 +67,14 @@ namespace MusicGridNative
 
         private void HandleCreationBuffer()
         {
-            foreach (var entity in createBuffer)
-                entity.Created();
+            foreach (var entityOrderPair in createBuffer)
+                entityOrderPair.Key.Created();
 
-            foreach (var entity in createBuffer)
-                entities.Add(entity);
+            foreach (var entityOrderPair in createBuffer)
+                entities.Insert(entityOrderPair.Value, entityOrderPair.Key);
 
-            foreach (var entity in createBuffer)
-                entity.Initialised();
+            foreach (var entityOrderPair in createBuffer)
+                entityOrderPair.Key.Initialised();
 
             createBuffer.Clear();
         }
@@ -82,11 +85,22 @@ namespace MusicGridNative
             destroyBuffer.Add(entity);
         }
 
-        public void Add(Entity entity)
+        public void Add(Entity entity, int executionOrder = 0)
         {
             dirtyList = true;
             entity.World = this;
-            createBuffer.Add(entity);
+            createBuffer.Add(entity, executionOrder);
+        }
+
+        public T GetEntityByType<T>() where T : Entity
+        {
+            foreach (Entity entity in entities)
+                if (entity is T typed) return typed;
+
+            foreach (var entity in createBuffer)
+                if (entity.Key is T typed) return typed;
+
+            return null;
         }
     }
 }

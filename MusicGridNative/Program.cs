@@ -10,7 +10,7 @@ namespace MusicGridNative
     {
         static void Main(string[] args)
         {
-            _ = new MusicGridApplication(430, 430, 120, "music grid");
+            _ = new MusicGridApplication(430, 430, 120, "Music Grid");
         }
     }
 }

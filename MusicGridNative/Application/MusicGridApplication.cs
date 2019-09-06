@@ -30,9 +30,9 @@ namespace MusicGridNative
             using (var ms = new MemoryStream())
             {
                 Properties.Resources.favicon_32x32.Save(ms, System.Drawing.Imaging.ImageFormat.Bmp);
-                SFML.Graphics.Image imag = new SFML.Graphics.Image(ms);
-                window.SetIcon(32, 32, imag.Pixels);
-                imag.Dispose();
+                SFML.Graphics.Image image = new SFML.Graphics.Image(ms);
+                window.SetIcon(32, 32, image.Pixels);
+                image.Dispose();
             }
 
 
@@ -49,7 +49,15 @@ namespace MusicGridNative
             World = new World(window);
             Assets = new Assets();
 
-            World.Add(new DistrictEntity());
+            World.Add(new UiControllerEntity());
+
+            for (int i = 0; i < 5000; i++)
+                World.Add(new DistrictEntity(new District(
+                        "District " + i,
+                        new Vector2f(i, i),
+                        new Vector2f(128, 128),
+                        new SFML.Graphics.Color(125, 0, 255)
+                    )));
 
             Input.SetWindow(window);
 
@@ -62,10 +70,12 @@ namespace MusicGridNative
 
             while (window.IsOpen)
             {
-                window.Clear();
+                window.Clear(World.ClearColor);
+
                 Input.Reset();
                 window.DispatchEvents();
                 World.Step();
+
                 window.Display();
 
                 float dt = clock.ElapsedTime.AsSeconds();

@@ -11,5 +11,13 @@ namespace MusicGridNative
         public Vector2f Position = new Vector2f(0, 0);
         public Vector2f Size = new Vector2f(256, 256);
         public Color Color = new Color(52, 168, 235);
+
+        public District(string name, Vector2f position, Vector2f size, Color color)
+        {
+            Name = name;
+            Position = position;
+            Size = size;
+            Color = color;
+        }
     }
 }

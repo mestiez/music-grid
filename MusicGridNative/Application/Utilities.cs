@@ -31,8 +31,9 @@ namespace MusicGridNative
             byte red = (byte)Lerp(a.R, b.R, t);
             byte green = (byte)Lerp(a.G, b.G, t);
             byte blue = (byte)Lerp(a.B, b.B, t);
+            byte alpha = (byte)Lerp(a.A, b.A, t);
 
-            return new Color(red, green, blue);
+            return new Color(red, green, blue, alpha);
         }
     }
 }
