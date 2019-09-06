@@ -11,6 +11,8 @@ namespace MusicGridNative
 
         private readonly List<Entity> entities = new List<Entity>();
 
+        private readonly List<Entity> entitiesByLayer = new List<Entity>();
+
         private readonly Dictionary<Entity, int> createBuffer = new Dictionary<Entity, int>();
         private readonly List<Entity> destroyBuffer = new List<Entity>();
 
@@ -40,15 +42,23 @@ namespace MusicGridNative
             foreach (var entity in entities)
                 entity.PostUpdate();
 
-
             foreach (var entity in entities)
                 entity.PreRender();
 
-            foreach (var entity in entities)
-                entity.Render();
+            SortAndRender();
 
             foreach (var entity in entities)
                 entity.PostRender();
+        }
+
+        private void SortAndRender()
+        {
+            var tasks = new List<IRenderTask>();
+            foreach (Entity entity in entities)
+                tasks.AddRange(entity.Render());
+
+            foreach (var task in tasks.OrderByDescending(t => t.Depth))
+                task.Render(RenderTarget);
         }
 
         private void HandleDestructionBuffer()

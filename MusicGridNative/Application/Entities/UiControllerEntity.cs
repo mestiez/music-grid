@@ -32,9 +32,9 @@ namespace MusicGridNative
         {
             var ordered = new List<UiElement>();
 
-            foreach (var element in elements.Where(elem => elem.DepthContainer == null).OrderByDescending(elem => elem.Depth))
+            foreach (var element in elements.Where(elem => elem.DepthContainer == null).OrderBy(elem => elem.Depth))
             {
-                foreach (var child in elements.Where(elem => elem.DepthContainer == element).OrderByDescending(elem => elem.Depth))
+                foreach (var child in elements.Where(elem => elem.DepthContainer == element).OrderBy(elem => elem.Depth))
                     ordered.Add(child);
                 ordered.Add(element);
             }

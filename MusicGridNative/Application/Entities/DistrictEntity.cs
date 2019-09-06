@@ -2,6 +2,8 @@
 using SFML.System;
 using SFML.Window;
 using System;
+using System.Collections;
+using System.Collections.Generic;
 
 namespace MusicGridNative
 {
@@ -17,6 +19,8 @@ namespace MusicGridNative
 
         private readonly UiElement backgroundElement = new UiElement();
         private readonly UiElement resizeHandle = new UiElement();
+
+        private static int MinimumDepth = 100;
 
         private const float HandleSize = 16;
 
@@ -44,7 +48,8 @@ namespace MusicGridNative
             title = new Text("Empty", MusicGridApplication.Main.Assets.DefaultFont)
             {
                 FillColor = new Color(255, 255, 255, 125),
-                Position = new Vector2f(0, 0)
+                Position = new Vector2f(0, 0),
+                CharacterSize = 48
             };
 
             resizeHandleVertices = new Vertex[3]
@@ -58,10 +63,19 @@ namespace MusicGridNative
 
             resizeHandle.DepthContainer = backgroundElement;
 
+            resizeHandle.OnMouseDown += (o,e) => BringToFront();
+            backgroundElement.OnMouseDown += (o, e) => BringToFront();
+
             uiController.Register(resizeHandle);
             uiController.Register(backgroundElement);
 
-            backgroundElement.Depth++;
+            BringToFront();
+        }
+
+        private void BringToFront()
+        {
+            MinimumDepth--;
+            backgroundElement.Depth = MinimumDepth;
         }
 
         public override void Update()
@@ -109,10 +123,10 @@ namespace MusicGridNative
 
             //title.CharacterSize = (uint)Math.Sqrt(District.Size.X * District.Size.Y * 0.02f);
 
-            float scale = (float)Math.Min(District.Size.X, District.Size.Y) / 128f;
+            float scale = (float)Math.Min(District.Size.X, District.Size.Y) / 200f;
             title.Scale = new Vector2f(scale, scale);
-
-            title.Position = background.Position + background.Size / 2 - new Vector2f(titleBounds.Width / 2, titleBounds.Height / 2 + scale*2.5f);
+            title.DisplayedString = backgroundElement.Depth.ToString();
+            title.Position = background.Position + background.Size / 2 - new Vector2f(titleBounds.Width / 2, titleBounds.Height / 2 + scale * 2.5f);
         }
 
         private void SyncResizeHandle()
@@ -134,13 +148,11 @@ namespace MusicGridNative
             resizeHandleVertices[2].Color = resizeHandle.ComputedColor;
         }
 
-        public override void Render()
+        public override IEnumerable<IRenderTask> Render()
         {
-            var target = World.RenderTarget;
-
-            target.Draw(background);
-            target.Draw(title);
-            target.Draw(resizeHandleVertices, PrimitiveType.Triangles);
+            yield return new ShapeRenderTask(background, backgroundElement.Depth);
+            yield return new ShapeRenderTask(title, backgroundElement.Depth);
+            yield return new PrimitiveRenderTask(resizeHandleVertices, PrimitiveType.Triangles, backgroundElement.Depth);
         }
 
         public override void Destroyed()

@@ -28,8 +28,8 @@ namespace MusicGridNative
 
             set
             {
-                OnDepthChanged?.Invoke(this, EventArgs.Empty);
                 depthContainer = value;
+                OnDepthChanged?.Invoke(this, EventArgs.Empty);
             }
         }
 
@@ -39,8 +39,8 @@ namespace MusicGridNative
 
             set
             {
-                OnDepthChanged?.Invoke(this, EventArgs.Empty);
                 depth = value;
+                OnDepthChanged?.Invoke(this, EventArgs.Empty);
             }
         }
 

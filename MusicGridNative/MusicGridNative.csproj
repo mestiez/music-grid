@@ -102,6 +102,9 @@
     <Compile Include="Application\MusicGridApplication.cs" />
     <Compile Include="Engine\Globals.cs" />
     <Compile Include="Engine\Input.cs" />
+    <Compile Include="Engine\PrimitiveRenderTask.cs" />
+    <Compile Include="Engine\IRenderTask.cs" />
+    <Compile Include="Engine\ShapeRenderTask.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>

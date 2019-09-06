@@ -1,4 +1,8 @@
-﻿namespace MusicGridNative
+﻿using SFML.Graphics;
+using System.Collections;
+using System.Collections.Generic;
+
+namespace MusicGridNative
 {
     public abstract class Entity
     {
@@ -26,7 +30,7 @@
         public virtual void PostUpdate() { }
 
         public virtual void PreRender() { }
-        public virtual void Render() { }
+        public virtual IEnumerable<IRenderTask> Render() { yield break; }
         public virtual void PostRender() { }
     }
 }
