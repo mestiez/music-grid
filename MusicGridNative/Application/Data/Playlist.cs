@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace MusicGridNative
 {
@@ -6,7 +7,13 @@ namespace MusicGridNative
     public class Playlist
     {
         public string Name;
-        public District[] Districts;
+        public List<District> Districts = new List<District>();
         public string RootPath;
+
+        public Playlist(string name, string rootPath)
+        {
+            Name = name;
+            RootPath = rootPath;
+        }
     }
 }

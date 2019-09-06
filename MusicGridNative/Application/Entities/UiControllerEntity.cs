@@ -15,17 +15,17 @@ namespace MusicGridNative
         public void Register(UiElement element)
         {
             elements.Add(element);
-
             element.Controller = this;
             element.OnDepthChanged += ReSortElements;
+            ConsoleEntity.Show("UI Element registered");
         }
 
         public void Deregister(UiElement element)
         {
             elements.Remove(element);
             element.Controller = null;
-
             element.OnDepthChanged -= ReSortElements;
+            ConsoleEntity.Show("UI Element deregistered");
         }
 
         private void ReSortElements(object sender, EventArgs e)

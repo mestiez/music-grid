@@ -1,6 +1,5 @@
 ﻿using SFML.Graphics;
 using SFML.System;
-using SFML.Window;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -45,7 +44,7 @@ namespace MusicGridNative
                 FillColor = new Color(125, 0, 15)
             };
 
-            title = new Text("Empty", MusicGridApplication.Main.Assets.DefaultFont)
+            title = new Text("District", MusicGridApplication.Assets.DefaultFont)
             {
                 FillColor = new Color(255, 255, 255, 125),
                 Position = new Vector2f(0, 0),
@@ -63,7 +62,7 @@ namespace MusicGridNative
 
             resizeHandle.DepthContainer = backgroundElement;
 
-            resizeHandle.OnMouseDown += (o,e) => BringToFront();
+            resizeHandle.OnMouseDown += (o, e) => BringToFront();
             backgroundElement.OnMouseDown += (o, e) => BringToFront();
 
             uiController.Register(resizeHandle);
@@ -121,11 +120,8 @@ namespace MusicGridNative
 
             var titleBounds = title.GetGlobalBounds();
 
-            //title.CharacterSize = (uint)Math.Sqrt(District.Size.X * District.Size.Y * 0.02f);
-
             float scale = (float)Math.Min(District.Size.X, District.Size.Y) / 200f;
             title.Scale = new Vector2f(scale, scale);
-            title.DisplayedString = backgroundElement.Depth.ToString();
             title.Position = background.Position + background.Size / 2 - new Vector2f(titleBounds.Width / 2, titleBounds.Height / 2 + scale * 2.5f);
         }
 

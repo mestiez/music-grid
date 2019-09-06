@@ -14,7 +14,10 @@ namespace MusicGridNative
         public static Vector2f MousePosition { get; private set; }
         public static Vector2f PreviousMousePosition { get; private set; }
         public static Vector2f MouseDelta { get; private set; }
+
         public static Vector2i ScreenMousePosition { get; private set; }
+        public static Vector2i PreviousScreenMousePosition { get; private set; }
+        public static Vector2i ScreenMouseDelta { get; private set; }
 
         private static HashSet<Keyboard.Key> PressedKeys = new HashSet<Keyboard.Key>();
         private static HashSet<Keyboard.Key> HeldKeys = new HashSet<Keyboard.Key>();
@@ -56,6 +59,11 @@ namespace MusicGridNative
         {
             MouseDelta = MousePosition - PreviousMousePosition;
             PreviousMousePosition = MousePosition;
+
+            ScreenMouseDelta = ScreenMousePosition - PreviousScreenMousePosition;
+            PreviousScreenMousePosition = ScreenMousePosition;
+
+            MouseWheelDelta = 0;
 
             PressedButtons.Clear();
             ReleasedButtons.Clear();

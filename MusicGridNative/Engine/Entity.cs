@@ -31,6 +31,7 @@ namespace MusicGridNative
 
         public virtual void PreRender() { }
         public virtual IEnumerable<IRenderTask> Render() { yield break; }
+        public virtual IEnumerable<IRenderTask> RenderScreen() { yield break; }
         public virtual void PostRender() { }
     }
 }

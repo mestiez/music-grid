@@ -12,11 +12,11 @@ namespace MusicGridNative
         public static MusicGridApplication Main { get; private set; }
 
         public static Globals Globals { get; private set; }
+        public static Assets Assets { get; private set; }
 
         private readonly RenderWindow window;
 
         public readonly World World;
-        public readonly Assets Assets;
 
         private float time;
 
@@ -37,33 +37,30 @@ namespace MusicGridNative
 
 
             window.Closed += (object sender, EventArgs args) => { window.Close(); };
-            window.Resized += (object sender, SizeEventArgs args) =>
-            {
-                window.Size = new SFML.System.Vector2u(Math.Max(args.Width, 430), Math.Max(args.Height, 430));
-
-                var view = window.GetView();
-                view.Size = new SFML.System.Vector2f(window.Size.X, window.Size.Y);
-                window.SetView(view);
-            };
 
             World = new World(window);
             Assets = new Assets();
 
             Random rand = new Random();
+            World.Add(new ConsoleEntity(true));
 
-            for (int i = 0; i < 250; i++)
+            for (int i = 0; i < 5; i++)
                 World.Add(new DistrictEntity(new District(
                         "District " + i,
-                        new Vector2f(i, i),
+                        new Vector2f(5 * i, 5 * i),
                         new Vector2f(128, 128),
                         new SFML.Graphics.Color((byte)rand.Next(255), (byte)rand.Next(255), (byte)rand.Next(255))
                     )));
 
             World.Add(new UiControllerEntity());
+            World.Add(new CameraControllerEnity());
             Input.SetWindow(window);
 
             MainLoop();
         }
+
+        public Vector2i WorldToScreen(Vector2f value) => window.MapCoordsToPixel(value);
+        public Vector2f ScreenToWorld(Vector2i value) => window.MapPixelToCoords(value);
 
         private void MainLoop()
         {

@@ -1,4 +1,5 @@
 ﻿using SFML.Graphics;
+using SFML.System;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -54,11 +55,24 @@ namespace MusicGridNative
         private void SortAndRender()
         {
             var tasks = new List<IRenderTask>();
+            var screenSpaceTasks = new List<IRenderTask>();
             foreach (Entity entity in entities)
+            {
                 tasks.AddRange(entity.Render());
+                screenSpaceTasks.AddRange(entity.RenderScreen());
+            }
 
             foreach (var task in tasks.OrderByDescending(t => t.Depth))
                 task.Render(RenderTarget);
+
+            var oldView = new View(RenderTarget.GetView());
+            var floatSize = (Vector2f)RenderTarget.Size;
+            RenderTarget.SetView(new View(floatSize/2, floatSize));
+
+            foreach (var task in screenSpaceTasks.OrderByDescending(t => t.Depth))
+                task.Render(RenderTarget);
+
+            RenderTarget.SetView(oldView);
         }
 
         private void HandleDestructionBuffer()

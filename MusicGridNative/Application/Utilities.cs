@@ -35,5 +35,10 @@ namespace MusicGridNative
 
             return new Color(red, green, blue, alpha);
         }
+
+        public static bool IsTooBright(Color color)
+        {
+            return ((0.2126 * color.R + 0.7152 * color.G + 0.0722 * color.B) / 255) < 0.6;
+        }
     }
 }
