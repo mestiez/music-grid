@@ -13,7 +13,7 @@ namespace MusicGridNative
         private Text display;
         private Queue<string> history = new Queue<string>();
 
-        public ConsoleEntity(bool showFramerate = false, uint maximumMessages = 16)
+        public ConsoleEntity(bool showFramerate = false, uint maximumMessages = 32)
         {
             ShowFramerate = showFramerate;
             MaximumMessages = maximumMessages;
@@ -47,7 +47,7 @@ namespace MusicGridNative
             string fps = "[" + Math.Round(1 / MusicGridApplication.Globals.DeltaTime) + " fps]";
 
             string separator = "";
-            for (int i = 0; i < Math.Floor(World.RenderTarget.Size.X / 16f); i++)
+            for (int i = 0; i < Math.Floor(World.RenderTarget.Size.X / (float)display.CharacterSize); i++)
                 separator += "一";
 
             if (ConsoleIsOpen)

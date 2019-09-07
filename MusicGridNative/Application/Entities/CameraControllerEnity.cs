@@ -39,7 +39,6 @@ namespace MusicGridNative
             view.Size = (Vector2f)World.RenderTarget.Size * CurrentZoom;
             view.Center = CurrentPan;
             World.RenderTarget.SetView(view);
-            ConsoleEntity.Show(CurrentZoom);
         }
     }
 }

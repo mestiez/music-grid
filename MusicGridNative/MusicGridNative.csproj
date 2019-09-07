@@ -108,7 +108,7 @@
     <Compile Include="Application\Data\Configuration.cs" />
     <Compile Include="Application\Data\District.cs" />
     <Compile Include="Application\Data\DistrictEntry.cs" />
-    <Compile Include="Application\Data\Playlist.cs" />
+    <Compile Include="Application\Data\Grid.cs" />
     <Compile Include="ApplicationVersion.cs" />
     <Compile Include="Application\Entities\CameraControllerEnity.cs" />
     <Compile Include="Application\Entities\ConsoleEntity.cs" />
@@ -116,6 +116,7 @@
     <Compile Include="Application\Entities\UiControllerEntity.cs" />
     <Compile Include="Application\UiElement.cs" />
     <Compile Include="Application\Utilities.cs" />
+    <Compile Include="Engine\ActionRenderTask.cs" />
     <Compile Include="Engine\Entity.cs" />
     <Compile Include="Application\MusicGridApplication.cs" />
     <Compile Include="Engine\Globals.cs" />

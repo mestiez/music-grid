@@ -44,13 +44,20 @@ namespace MusicGridNative
             Random rand = new Random();
             World.Add(new ConsoleEntity(true));
 
-            for (int i = 0; i < 5; i++)
-                World.Add(new DistrictEntity(new District(
+            for (int i = 0; i < 400; i++)
+            {
+                var district = new District(
                         "District " + i,
-                        new Vector2f(5 * i, 5 * i),
-                        new Vector2f(128, 128),
+                        new Vector2f(5 * i - 128, 5 * i - 128),
+                        new Vector2f(256, 256),
                         new SFML.Graphics.Color((byte)rand.Next(255), (byte)rand.Next(255), (byte)rand.Next(255))
-                    )));
+                    );
+
+                for (int o = 0; o < 3; o++)
+                    district.Entries.Add(new DistrictEntry("Entry " + rand.Next(255), ""));
+
+                World.Add(new DistrictEntity(district));
+            }
 
             World.Add(new UiControllerEntity());
             World.Add(new CameraControllerEnity());

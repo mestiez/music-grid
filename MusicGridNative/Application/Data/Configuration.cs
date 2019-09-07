@@ -3,17 +3,20 @@
 namespace MusicGridNative
 {
     [Serializable]
-    public struct Configuration
+    public class Configuration
     {
-        public uint WindowWidth;
-        public uint WindowHeight;
-        public bool OpenLastOpenedAtLaunch;
+        public static Configuration CurrentConfiguration = new Configuration();
 
-        public Configuration(uint windowWidth, uint windowHeight, bool openLastOpenedAtLaunch)
-        {
-            WindowWidth = windowWidth;
-            WindowHeight = windowHeight;
-            OpenLastOpenedAtLaunch = openLastOpenedAtLaunch;
-        }
+        //State
+        public uint WindowWidth = 500;
+        public uint WindowHeight = 500;
+        public float Zoom = 1;
+        public float PanX = 0;
+        public float PanY = 0;
+
+        //Settings
+        public bool OpenLastOpenedAtLaunch = true;
+        public float ZoomIntensity = 1;
+        public float SnappingSize = 8;
     }
 }

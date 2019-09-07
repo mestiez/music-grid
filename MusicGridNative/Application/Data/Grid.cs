@@ -1,19 +1,21 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 
 namespace MusicGridNative
 {
     [Serializable]
-    public class Playlist
+    public class Grid
     {
         public string Name;
         public List<District> Districts = new List<District>();
+
+        [JsonIgnore]
         public string RootPath;
 
-        public Playlist(string name, string rootPath)
+        public Grid(string name)
         {
             Name = name;
-            RootPath = rootPath;
         }
     }
 }
