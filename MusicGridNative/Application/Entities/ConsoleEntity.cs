@@ -39,7 +39,7 @@ namespace MusicGridNative
         public static void Show(object message)
         {
             if (Main.history.Count >= Main.MaximumMessages) Main.history.Dequeue();
-            Main.history.Enqueue(message.ToString());
+            Main.history.Enqueue($"[{DateTime.Now.ToLongTimeString()}] " + message.ToString());
         }
 
         public override void PreRender()

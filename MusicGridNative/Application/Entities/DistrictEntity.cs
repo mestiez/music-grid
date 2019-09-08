@@ -23,6 +23,8 @@ namespace MusicGridNative
         private RectangleShape entryBackground;
         private Text entryText;
 
+        private readonly int characterSize = 72;
+
         private static int MinimumDepth = 100;
 
         private const float HandleSize = 16;
@@ -59,14 +61,14 @@ namespace MusicGridNative
             {
                 FillColor = new Color(255, 255, 255, 125),
                 Position = new Vector2f(0, 0),
-                CharacterSize = 48
+                CharacterSize = (uint)characterSize
             };
 
             title = new Text("District", MusicGridApplication.Assets.DefaultFont)
             {
                 FillColor = new Color(255, 255, 255, 125),
                 Position = new Vector2f(0, 0),
-                CharacterSize = 48
+                CharacterSize = (uint)characterSize
             };
 
             resizeHandleVertices = new Vertex[3]
@@ -112,6 +114,9 @@ namespace MusicGridNative
             SyncResizeHandle();
 
             CalculateLayout();
+
+            if (Input.IsKeyReleased(SFML.Window.Keyboard.Key.Space) && backgroundElement.IsUnderMouse)
+                District.Entries.Add(new DistrictEntry("test", ""));
         }
 
         private void CalculateLayout()
@@ -184,7 +189,7 @@ namespace MusicGridNative
             var titleBounds = title.GetGlobalBounds();
 
             float scale = (float)Math.Min(District.Size.X, District.Size.Y) / 200f;
-            title.Scale = new Vector2f(scale, scale);
+            title.Scale = new Vector2f(scale, scale) / (characterSize / 48f);
             title.Position = background.Position + background.Size / 2 - new Vector2f(titleBounds.Width / 2, titleBounds.Height / 2 + scale * 2.5f);
             title.FillColor = GetFrontColor();
         }
@@ -231,7 +236,7 @@ namespace MusicGridNative
                     var textBounds = entryText.GetGlobalBounds();
 
                     float scale = (float)Math.Min(elem.Size.X, elem.Size.Y) / 200f;
-                    entryText.Scale = new Vector2f(scale, scale);
+                    entryText.Scale = new Vector2f(scale, scale) / (characterSize / 48f);
                     entryText.Position = elem.Position + elem.Size / 2 - new Vector2f(textBounds.Width / 2, textBounds.Height / 2 + scale * 2.5f);
 
                     target.Draw(entryBackground);

@@ -44,7 +44,7 @@ namespace MusicGridNative
             Random rand = new Random();
             World.Add(new ConsoleEntity(true));
 
-            for (int i = 0; i < 400; i++)
+            for (int i = 0; i < 3; i++)
             {
                 var district = new District(
                         "District " + i,
