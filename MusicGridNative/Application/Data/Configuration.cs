@@ -18,5 +18,6 @@ namespace MusicGridNative
         public bool OpenLastOpenedAtLaunch = true;
         public float ZoomIntensity = 1;
         public float SnappingSize = 8;
+        public float TextClarity = 72;
     }
 }

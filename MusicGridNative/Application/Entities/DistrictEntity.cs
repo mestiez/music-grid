@@ -3,6 +3,7 @@ using SFML.System;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace MusicGridNative
 {
@@ -18,16 +19,15 @@ namespace MusicGridNative
 
         private readonly UiElement backgroundElement = new UiElement();
         private readonly UiElement resizeHandle = new UiElement();
+        private readonly Dictionary<DistrictEntry, UiElement> entryElements = new Dictionary<DistrictEntry, UiElement>();
 
-        private Dictionary<DistrictEntry, UiElement> entryElements = new Dictionary<DistrictEntry, UiElement>();
         private RectangleShape entryBackground;
         private Text entryText;
 
-        private readonly int characterSize = 72;
-
+        private static int CharacterSize = 72;
         private static int MinimumDepth = 100;
-
         private const float HandleSize = 16;
+        private const float EntryMargin = 5;
 
         private static readonly Vector2f[] handleShape = new Vector2f[3]
             {
@@ -59,16 +59,16 @@ namespace MusicGridNative
 
             entryText = new Text("Entry", MusicGridApplication.Assets.DefaultFont)
             {
-                FillColor = new Color(255, 255, 255, 125),
+                FillColor = new Color(255, 255, 255, 255),
                 Position = new Vector2f(0, 0),
-                CharacterSize = (uint)characterSize
+                CharacterSize = (uint)CharacterSize
             };
 
             title = new Text("District", MusicGridApplication.Assets.DefaultFont)
             {
                 FillColor = new Color(255, 255, 255, 125),
                 Position = new Vector2f(0, 0),
-                CharacterSize = (uint)characterSize
+                CharacterSize = (uint)CharacterSize
             };
 
             resizeHandleVertices = new Vertex[3]
@@ -97,9 +97,9 @@ namespace MusicGridNative
             backgroundElement.Depth = MinimumDepth;
         }
 
-        private Color GetFrontColor()
+        private Color GetFrontColor(byte alpha = 125)
         {
-            return Utilities.IsTooBright(District.Color) ? new Color(0, 0, 0, 125) : new Color(255, 255, 255, 125);
+            return Utilities.IsTooBright(District.Color) ? new Color(0, 0, 0, alpha) : new Color(255, 255, 255, alpha);
         }
 
         public override void Update()
@@ -122,12 +122,31 @@ namespace MusicGridNative
         private void CalculateLayout()
         {
             int index = 0;
+
+
+            float containerWidth = District.Size.X;
+            float flexBasis = entryElements.Count * (64 + EntryMargin) + EntryMargin;
+            float remainingSpace = containerWidth - flexBasis;
+
+            int rowItemCount = 1 + (int)Math.Floor(flexBasis / District.Size.X);
+
+            float flexSpace = (1f / entryElements.Count) * remainingSpace;
+            float entryHeight = (District.Size.Y - EntryMargin * 2);
+
+            float previousEndPosition = 0;
+
+            ConsoleEntity.Show(rowItemCount);
+
             foreach (var pair in entryElements)
             {
-                pair.Value.Color = new Color(255, 255, 255, 50);
-                pair.Value.ActiveColor = new Color(255, 255, 255, 50);
-                pair.Value.HoverColor = new Color(255, 255, 255, 125);
-                pair.Value.Position = new Vector2f(0, 0) + District.Position + new Vector2f(85 * index, 0);
+                 pair.Value.Color = GetFrontColor(50);
+                pair.Value.HoverColor = GetFrontColor(80);
+                pair.Value.ActiveColor = GetFrontColor(50);
+
+                pair.Value.Size = new Vector2f(flexSpace + 64, entryHeight);
+                pair.Value.Position = new Vector2f(0, 0) + District.Position + new Vector2f(previousEndPosition + EntryMargin, EntryMargin);
+
+                previousEndPosition = pair.Value.Position.X + pair.Value.Size.X - District.Position.X;
 
                 index++;
             }
@@ -177,8 +196,8 @@ namespace MusicGridNative
         private void SyncElement()
         {
             backgroundElement.Color = District.Color;
-            backgroundElement.ActiveColor = Utilities.Lerp(District.Color, Color.Black, 0.2f);
-            backgroundElement.HoverColor = Utilities.Lerp(District.Color, Color.White, 0.2f);
+            backgroundElement.ActiveColor = District.Color;
+            backgroundElement.HoverColor = District.Color;
             backgroundElement.Position = District.Position;
             backgroundElement.Size = District.Size;
 
@@ -189,7 +208,7 @@ namespace MusicGridNative
             var titleBounds = title.GetGlobalBounds();
 
             float scale = (float)Math.Min(District.Size.X, District.Size.Y) / 200f;
-            title.Scale = new Vector2f(scale, scale) / (characterSize / 48f);
+            title.Scale = new Vector2f(scale, scale) / (CharacterSize / 48f);
             title.Position = background.Position + background.Size / 2 - new Vector2f(titleBounds.Width / 2, titleBounds.Height / 2 + scale * 2.5f);
             title.FillColor = GetFrontColor();
         }
@@ -236,7 +255,8 @@ namespace MusicGridNative
                     var textBounds = entryText.GetGlobalBounds();
 
                     float scale = (float)Math.Min(elem.Size.X, elem.Size.Y) / 200f;
-                    entryText.Scale = new Vector2f(scale, scale) / (characterSize / 48f);
+                    //entryText.FillColor = GetFrontColor(255);
+                    entryText.Scale = new Vector2f(scale, scale) / (CharacterSize / 48f);
                     entryText.Position = elem.Position + elem.Size / 2 - new Vector2f(textBounds.Width / 2, textBounds.Height / 2 + scale * 2.5f);
 
                     target.Draw(entryBackground);
