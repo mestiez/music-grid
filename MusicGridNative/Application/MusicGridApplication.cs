@@ -49,11 +49,11 @@ namespace MusicGridNative
                 var district = new District(
                         "District " + i,
                         new Vector2f(5 * i - 128, 5 * i - 128),
-                        new Vector2f(256, 256),
+                        new Vector2f(1212, 743),
                         new SFML.Graphics.Color((byte)rand.Next(255), (byte)rand.Next(255), (byte)rand.Next(255))
                     );
 
-                for (int o = 0; o < 4; o++)
+                for (int o = 0; o < 6; o++)
                     district.Entries.Add(new DistrictEntry("Entry " + rand.Next(255), ""));
 
                 World.Add(new DistrictEntity(district));
