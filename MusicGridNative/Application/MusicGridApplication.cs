@@ -44,7 +44,7 @@ namespace MusicGridNative
             Random rand = new Random();
             World.Add(new ConsoleEntity(true));
 
-            for (int i = 0; i < 1; i++)
+            for (int i = 0; i < 25; i++)
             {
                 var district = new District(
                         "District " + i,
@@ -53,7 +53,7 @@ namespace MusicGridNative
                         new SFML.Graphics.Color((byte)rand.Next(255), (byte)rand.Next(255), (byte)rand.Next(255))
                     );
 
-                for (int o = 0; o < 6; o++)
+                for (int o = 0; o < 130; o++)
                     district.Entries.Add(new DistrictEntry("Entry " + rand.Next(255), ""));
 
                 World.Add(new DistrictEntity(district));

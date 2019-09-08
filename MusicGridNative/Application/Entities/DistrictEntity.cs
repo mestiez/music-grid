@@ -20,6 +20,7 @@ namespace MusicGridNative
         private readonly UiElement backgroundElement = new UiElement();
         private readonly UiElement resizeHandle = new UiElement();
         private readonly Dictionary<DistrictEntry, UiElement> entryElements = new Dictionary<DistrictEntry, UiElement>();
+        private readonly List<float> entryWidths = new List<float>();
 
         private RectangleShape entryBackground;
         private Text entryText;
@@ -28,7 +29,7 @@ namespace MusicGridNative
         private static int CharacterSize = 72;
         private static int MinimumDepth = 100;
         private const float HandleSize = 16;
-        private const float EntryMargin = 5;
+        private const float EntryMargin = 3;
 
         private static readonly Vector2f[] handleShape = new Vector2f[3]
             {
@@ -125,9 +126,17 @@ namespace MusicGridNative
             if (!needToRecalculateLayout) return;
             needToRecalculateLayout = false;
 
-            float preferredSize = 32;
+            entryWidths.Clear();
+            foreach (var pair in entryElements)
+            {
+                entryWidths.Add(pair.Key.Name.Length * 32 + 32);
+            }
 
-            int rowItemCount = (int)Math.Floor(District.Size.X / (entryElements.Count * (preferredSize + EntryMargin) + EntryMargin));
+            float preferredSize = 128;
+            float scaledMargin = EntryMargin * (Math.Min(District.Size.X, District.Size.Y) / 256f);
+
+            int rowItemCount = (int)Math.Round(District.Size.X / preferredSize);//(int)Math.Ceiling(District.Size.X / (Math.Min(entryElements.Count, 10) * (preferredSize + EntryMargin) + EntryMargin)) ;
+            if (rowItemCount > 10) rowItemCount = 10;
             if (rowItemCount > entryElements.Count) rowItemCount = entryElements.Count;
             if (rowItemCount < 1) rowItemCount = 1;
             int rowCount = (int)Math.Ceiling(entryElements.Count / (float)rowItemCount);
@@ -140,11 +149,13 @@ namespace MusicGridNative
             {
                 int thisRowItemCount = Math.Min(rowItemCount, entryElements.Count - totalIndex);
 
+                float myWidth = entryWidths[totalIndex];
+
                 float containerWidth = District.Size.X;
-                float flexBasis = thisRowItemCount * (preferredSize + EntryMargin) + EntryMargin;
+                float flexBasis = thisRowItemCount * (myWidth + scaledMargin) + scaledMargin;
                 float remainingSpace = containerWidth - flexBasis;
                 float flexSpace = (1f / thisRowItemCount) * remainingSpace;
-                float entryHeight = (District.Size.Y - EntryMargin) / rowCount - EntryMargin;
+                float entryHeight = (District.Size.Y - scaledMargin) / rowCount - scaledMargin;
                 float previousEndPosition = 0;
 
                 for (int i = 0; i < thisRowItemCount; i++)
@@ -155,8 +166,8 @@ namespace MusicGridNative
                     element.HoverColor = GetFrontColor(80);
                     element.ActiveColor = GetFrontColor(50);
 
-                    element.Size = new Vector2f(flexSpace + preferredSize, entryHeight);
-                    element.Position = new Vector2f(0, 0) + District.Position + new Vector2f(previousEndPosition + EntryMargin, EntryMargin + (entryHeight + EntryMargin) * rowIndex);
+                    element.Size = new Vector2f(flexSpace + myWidth, entryHeight);
+                    element.Position = new Vector2f(0, 0) + District.Position + new Vector2f(previousEndPosition + scaledMargin, scaledMargin + (entryHeight + scaledMargin) * rowIndex);
 
                     previousEndPosition = element.Position.X + element.Size.X - District.Position.X;
 
@@ -226,11 +237,13 @@ namespace MusicGridNative
             background.Size = backgroundElement.Size;
             background.FillColor = backgroundElement.ComputedColor;
 
-            var titleBounds = title.GetGlobalBounds();
+
+            var titleBounds = title.GetLocalBounds();
+            title.Origin = new Vector2f(titleBounds.Width, titleBounds.Height) / 2;
 
             float scale = (float)Math.Min(District.Size.X / (titleBounds.Width / titleBounds.Height), District.Size.Y) / 150f;
             title.Scale = new Vector2f(scale, scale) / (CharacterSize / 48f);
-            title.Position = background.Position + background.Size / 2 - new Vector2f(titleBounds.Width / 2, titleBounds.Height / 2 + scale * 2.5f);
+            title.Position = background.Position + background.Size / 2;
             title.FillColor = GetFrontColor();
 
             if (title.DisplayedString != District.Name)
