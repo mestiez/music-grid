@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 
 namespace MusicGridNative
 {
@@ -7,6 +8,9 @@ namespace MusicGridNative
     {
         public string Name;
         public string RelativePath;
+
+        [JsonIgnore]
+        public bool IsDirty;
 
         public DistrictEntry(string name, string relativePath)
         {

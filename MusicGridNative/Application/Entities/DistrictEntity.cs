@@ -20,6 +20,9 @@ namespace MusicGridNative
         private readonly UiElement backgroundElement = new UiElement();
         private readonly UiElement resizeHandle = new UiElement();
         private readonly Dictionary<DistrictEntry, UiElement> entryElements = new Dictionary<DistrictEntry, UiElement>();
+        private readonly Dictionary<DistrictEntry, ActionRenderTask> renderTasks = new Dictionary<DistrictEntry, ActionRenderTask>();
+
+        private Vertex[] entryVertices;
 
         private RectangleShape entryBackground;
         private Text entryText;
@@ -160,6 +163,13 @@ namespace MusicGridNative
                     element.Size = new Vector2f(flexSpace + preferredSize, entryHeight);
                     element.Position = new Vector2f(0, 0) + District.Position + new Vector2f(previousEndPosition + scaledMargin, scaledMargin + (entryHeight + scaledMargin) * rowIndex);
 
+                    int vertexIndex = totalIndex * 4;
+                    var computed = element.Color;
+                    entryVertices[vertexIndex] = new Vertex(element.Position, computed);
+                    entryVertices[vertexIndex + 1] = new Vertex(new Vector2f(element.Position.X + element.Size.X, element.Position.Y), computed);
+                    entryVertices[vertexIndex + 2] = new Vertex(element.Position + element.Size, computed);
+                    entryVertices[vertexIndex + 3] = new Vertex(new Vector2f(element.Position.X, element.Position.Y + element.Size.Y), computed);
+
                     previousEndPosition = element.Position.X + element.Size.X - District.Position.X;
 
                     totalIndex++;
@@ -169,10 +179,13 @@ namespace MusicGridNative
 
         private void RegenerateEntryElements()
         {
+            entryVertices = new Vertex[District.Entries.Count * 4];
+
             foreach (var entry in entryElements)
                 uiController.Deregister(entry.Value);
 
             entryElements.Clear();
+            renderTasks.Clear();
 
             for (int i = 0; i < District.Entries.Count; i++)
             {
@@ -186,6 +199,23 @@ namespace MusicGridNative
                 {
                     e.PropagateEvent();
                 };
+
+                renderTasks.Add(entry, new ActionRenderTask((target) =>
+                {
+                    entryText.Position = element.Position;
+
+                    if (entry.IsDirty)
+                        entryText.DisplayedString = entry.Name;
+
+                    var textBounds = entryText.GetLocalBounds();
+                    entryText.Origin = new Vector2f(textBounds.Width, textBounds.Height) / 2;
+
+                    float scale = Math.Min(element.Size.X / (textBounds.Width / textBounds.Height), element.Size.Y) / 150f;
+                    entryText.Scale = new Vector2f(scale, scale) / (CharacterSize / 48f);
+                    entryText.Position = element.Position + element.Size / 2;
+
+                    target.Draw(entryText);
+                }, backgroundElement.Depth));
 
                 entryElements.Add(entry, element);
             }
@@ -270,35 +300,13 @@ namespace MusicGridNative
         {
             yield return new ShapeRenderTask(background, backgroundElement.Depth);
             yield return new ShapeRenderTask(title, backgroundElement.Depth);
+            yield return new PrimitiveRenderTask(entryVertices, PrimitiveType.Quads, backgroundElement.Depth);
 
-            //now to render all the entries
-            foreach (var pair in entryElements)
+            foreach (var entry in District.Entries)
             {
-                var elem = pair.Value;
-                var entry = pair.Key;
-
-                yield return new ActionRenderTask((target) =>
-                {
-                    entryBackground.Position = elem.Position;
-                    entryBackground.Size = elem.Size;
-                    entryBackground.FillColor = elem.ComputedColor;
-
-                    entryText.Position = elem.Position;
-
-                    if (entryText.DisplayedString != entry.Name)
-                        entryText.DisplayedString = entry.Name;
-
-                    var textBounds = entryText.GetLocalBounds();
-                    entryText.Origin = new Vector2f(textBounds.Width, textBounds.Height) / 2;
-
-                    float scale = (float)Math.Min(elem.Size.X / (textBounds.Width / textBounds.Height), elem.Size.Y) / 150f;
-                    entryText.Scale = new Vector2f(scale, scale) / (CharacterSize / 48f);
-                    entryText.Position = elem.Position + elem.Size / 2;
-
-                    target.Draw(entryBackground);
-                    target.Draw(entryText);
-                },
-                backgroundElement.Depth);
+                var task = renderTasks[entry];
+                task.Depth = backgroundElement.Depth;
+                yield return task;
             }
 
             yield return new PrimitiveRenderTask(resizeHandleVertices, PrimitiveType.Triangles, backgroundElement.Depth);
