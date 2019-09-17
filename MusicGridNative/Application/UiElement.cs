@@ -49,10 +49,12 @@ namespace MusicGridNative
         public bool IsBeingHeld { get; private set; }
         public Color ComputedColor { get; private set; }
 
-        public event EventHandler OnMouseDown;
-        public event EventHandler OnMouseUp;
+        public event EventHandler<MouseEventArgs> OnMouseDown;
+        public event EventHandler<MouseEventArgs> OnMouseUp;
 
         public event EventHandler OnDepthChanged;
+
+        public FloatRect GetLocalBounds() => new FloatRect(Position, Size);
 
         public bool EvaluateInteraction(bool firstHasBeenServed)
         {
@@ -68,9 +70,14 @@ namespace MusicGridNative
 
                 if (IsUnderMouse && Input.IsButtonPressed(Mouse.Button.Left))
                 {
-                    Controller.FocusedElement = this;
-                    IsBeingHeld = true;
-                    OnMouseDown?.Invoke(this, EventArgs.Empty);
+                    var args = new MouseEventArgs(Mouse.Button.Left, Input.MousePosition);
+                    OnMouseDown?.Invoke(this, args);
+                    if (!args.IsPermeable)
+                    {
+                        Controller.FocusedElement = this;
+                        IsBeingHeld = true;
+                    }
+                    else return false;
                 }
             }
 
@@ -79,7 +86,7 @@ namespace MusicGridNative
                 if (Controller.FocusedElement == this)
                     Controller.FocusedElement = null;
                 IsBeingHeld = false;
-                OnMouseUp?.Invoke(this, EventArgs.Empty);
+                OnMouseUp?.Invoke(this, new MouseEventArgs(Mouse.Button.Left, Input.MousePosition));
             }
 
             if (IsActive || IsBeingHeld)

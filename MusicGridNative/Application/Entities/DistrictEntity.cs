@@ -20,7 +20,6 @@ namespace MusicGridNative
         private readonly UiElement backgroundElement = new UiElement();
         private readonly UiElement resizeHandle = new UiElement();
         private readonly Dictionary<DistrictEntry, UiElement> entryElements = new Dictionary<DistrictEntry, UiElement>();
-        private readonly List<float> entryWidths = new List<float>();
 
         private RectangleShape entryBackground;
         private Text entryText;
@@ -126,16 +125,10 @@ namespace MusicGridNative
             if (!needToRecalculateLayout) return;
             needToRecalculateLayout = false;
 
-            entryWidths.Clear();
-            foreach (var pair in entryElements)
-            {
-                entryWidths.Add(pair.Key.Name.Length * 32 + 32);
-            }
-
-            float preferredSize = 128;
+            const float preferredSize = 256;
             float scaledMargin = EntryMargin * (Math.Min(District.Size.X, District.Size.Y) / 256f);
 
-            int rowItemCount = (int)Math.Round(District.Size.X / preferredSize);//(int)Math.Ceiling(District.Size.X / (Math.Min(entryElements.Count, 10) * (preferredSize + EntryMargin) + EntryMargin)) ;
+            int rowItemCount = (int)Math.Floor(District.Size.X / preferredSize);//(int)Math.Ceiling(District.Size.X / (Math.Min(entryElements.Count, 10) * (preferredSize + EntryMargin) + EntryMargin)) ;
             if (rowItemCount > 10) rowItemCount = 10;
             if (rowItemCount > entryElements.Count) rowItemCount = entryElements.Count;
             if (rowItemCount < 1) rowItemCount = 1;
@@ -149,10 +142,8 @@ namespace MusicGridNative
             {
                 int thisRowItemCount = Math.Min(rowItemCount, entryElements.Count - totalIndex);
 
-                float myWidth = entryWidths[totalIndex];
-
                 float containerWidth = District.Size.X;
-                float flexBasis = thisRowItemCount * (myWidth + scaledMargin) + scaledMargin;
+                float flexBasis = thisRowItemCount * (preferredSize + scaledMargin) + scaledMargin;
                 float remainingSpace = containerWidth - flexBasis;
                 float flexSpace = (1f / thisRowItemCount) * remainingSpace;
                 float entryHeight = (District.Size.Y - scaledMargin) / rowCount - scaledMargin;
@@ -166,7 +157,7 @@ namespace MusicGridNative
                     element.HoverColor = GetFrontColor(80);
                     element.ActiveColor = GetFrontColor(50);
 
-                    element.Size = new Vector2f(flexSpace + myWidth, entryHeight);
+                    element.Size = new Vector2f(flexSpace + preferredSize, entryHeight);
                     element.Position = new Vector2f(0, 0) + District.Position + new Vector2f(previousEndPosition + scaledMargin, scaledMargin + (entryHeight + scaledMargin) * rowIndex);
 
                     previousEndPosition = element.Position.X + element.Size.X - District.Position.X;
@@ -190,6 +181,12 @@ namespace MusicGridNative
                 element.DepthContainer = backgroundElement;
                 element.Position = new Vector2f(i * 5, i * 5);
                 element.Size = new Vector2f(80, 32);
+
+                element.OnMouseDown += (o, e) =>
+                {
+                    e.PropagateEvent();
+                };
+
                 entryElements.Add(entry, element);
             }
 

@@ -110,6 +110,7 @@
     <Compile Include="Application\Data\DistrictEntry.cs" />
     <Compile Include="Application\Data\Grid.cs" />
     <Compile Include="ApplicationVersion.cs" />
+    <Compile Include="Application\Data\MouseEventArgs.cs" />
     <Compile Include="Application\Entities\CameraControllerEnity.cs" />
     <Compile Include="Application\Entities\ConsoleEntity.cs" />
     <Compile Include="Application\Entities\DistrictEntity.cs" />
