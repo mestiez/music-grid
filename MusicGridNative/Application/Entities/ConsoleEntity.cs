@@ -12,6 +12,9 @@ namespace MusicGridNative
 
         private Text display;
         private Queue<string> history = new Queue<string>();
+        private int framesCounted = 0;
+        private int framesLastSecond = 0;
+        private float t = 0;
 
         public ConsoleEntity(bool showFramerate = false, uint maximumMessages = 32)
         {
@@ -32,6 +35,14 @@ namespace MusicGridNative
 
         public override void Update()
         {
+            framesCounted++;
+            t += MusicGridApplication.Globals.DeltaTime;
+            if (t >= 1)
+            {
+                framesLastSecond = framesCounted;
+                framesCounted = 0;
+                t = 0;
+            }
             if (Input.IsKeyReleased(SFML.Window.Keyboard.Key.F12))
                 ConsoleIsOpen = !ConsoleIsOpen;
         }
@@ -44,8 +55,7 @@ namespace MusicGridNative
 
         public override void PreRender()
         {
-            string fps = "[" + Math.Round(1 / MusicGridApplication.Globals.DeltaTime) + " fps]";
-
+            string fps = "[" + framesLastSecond + " fps]";
             string separator = "";
             for (int i = 0; i < Math.Floor(World.RenderTarget.Size.X / (float)display.CharacterSize); i++)
                 separator += "一";

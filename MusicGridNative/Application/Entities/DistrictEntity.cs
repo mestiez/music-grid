@@ -22,6 +22,11 @@ namespace MusicGridNative
         private readonly Dictionary<DistrictEntry, UiElement> entryElements = new Dictionary<DistrictEntry, UiElement>();
         private readonly Dictionary<DistrictEntry, ActionRenderTask> renderTasks = new Dictionary<DistrictEntry, ActionRenderTask>();
 
+        private ShapeRenderTask backgroundTask;
+        private ShapeRenderTask titleTask;
+        private PrimitiveRenderTask entryTask;
+        private PrimitiveRenderTask handleTask;
+
         private Vertex[] entryVertices;
 
         private RectangleShape entryBackground;
@@ -91,6 +96,11 @@ namespace MusicGridNative
 
             uiController.Register(resizeHandle);
             uiController.Register(backgroundElement);
+
+            backgroundTask = new ShapeRenderTask(background, backgroundElement.Depth);
+            titleTask = new ShapeRenderTask(title, backgroundElement.Depth);
+            entryTask = new PrimitiveRenderTask(entryVertices, PrimitiveType.Quads, backgroundElement.Depth);
+            handleTask = new PrimitiveRenderTask(resizeHandleVertices, PrimitiveType.Triangles, backgroundElement.Depth);
 
             BringToFront();
         }
@@ -214,7 +224,7 @@ namespace MusicGridNative
                     entryText.Scale = new Vector2f(scale, scale) / (CharacterSize / 48f);
                     entryText.Position = element.Position + element.Size / 2;
 
-                    target.Draw(entryText);
+                   // target.Draw(entryText);
                 }, backgroundElement.Depth));
 
                 entryElements.Add(entry, element);
@@ -298,10 +308,30 @@ namespace MusicGridNative
 
         public override IEnumerable<IRenderTask> Render()
         {
-            yield return new ShapeRenderTask(background, backgroundElement.Depth);
-            yield return new ShapeRenderTask(title, backgroundElement.Depth);
-            yield return new PrimitiveRenderTask(entryVertices, PrimitiveType.Quads, backgroundElement.Depth);
+            backgroundTask.Depth = backgroundElement.Depth;
+            titleTask.Depth = backgroundElement.Depth;
+            handleTask.Depth = backgroundElement.Depth;
 
+            for (int i = 0; i < District.Entries.Count; i++)
+            {
+                var entry = District.Entries[i];
+                var element = entryElements[entry];
+                int vertexIndex = i * 4;
+                var computed = element.ComputedColor;
+                entryVertices[vertexIndex] = new Vertex(element.Position, computed);
+                entryVertices[vertexIndex + 1] = new Vertex(new Vector2f(element.Position.X + element.Size.X, element.Position.Y), computed);
+                entryVertices[vertexIndex + 2] = new Vertex(element.Position + element.Size, computed);
+                entryVertices[vertexIndex + 3] = new Vertex(new Vector2f(element.Position.X, element.Position.Y + element.Size.Y), computed);
+            }
+
+            entryTask.Depth = backgroundElement.Depth;
+            entryTask.Vertices = entryVertices;
+
+            yield return backgroundTask;
+            yield return titleTask;
+            yield return entryTask;
+
+            // render entry titles because i cannot batch these :(
             foreach (var entry in District.Entries)
             {
                 var task = renderTasks[entry];
@@ -309,7 +339,7 @@ namespace MusicGridNative
                 yield return task;
             }
 
-            yield return new PrimitiveRenderTask(resizeHandleVertices, PrimitiveType.Triangles, backgroundElement.Depth);
+            yield return handleTask;
         }
 
         public override void Destroyed()
