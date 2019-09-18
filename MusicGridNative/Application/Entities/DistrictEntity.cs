@@ -224,7 +224,7 @@ namespace MusicGridNative
                     entryText.Scale = new Vector2f(scale, scale) / (CharacterSize / 48f);
                     entryText.Position = element.Position + element.Size / 2;
 
-                   // target.Draw(entryText);
+                  target.Draw(entryText);
                 }, backgroundElement.Depth));
 
                 entryElements.Add(entry, element);
@@ -327,8 +327,8 @@ namespace MusicGridNative
             entryTask.Depth = backgroundElement.Depth;
             entryTask.Vertices = entryVertices;
 
-            yield return backgroundTask;
-            yield return titleTask;
+            yield return backgroundTask; // i wish i could batch these oh my god
+           // yield return titleTask;
             yield return entryTask;
 
             // render entry titles because i cannot batch these :(
