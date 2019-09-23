@@ -6,38 +6,33 @@ namespace MusicGridNative
 {
     public class CameraControllerEnity : Entity
     {
-        public float ZoomSensitivity { get; set; } = 1;
-        public float ZoomLowerBound { get; set; } = .01f;
-        public float ZoomUpperBound { get; set; } = 10f;
-
-        public float CurrentZoom { get; private set; } = 1;
-        public Vector2f CurrentPan { get; private set; }
-
-        private View view = new View();
+        private readonly View view = new View();
 
         public override void Update()
         {
-            float zoomDelta = ZoomSensitivity * 1.2f;
+            var config = Configuration.CurrentConfiguration;
 
-            float zoomScalar = CurrentZoom;
+            float zoomDelta = config.ZoomSensitivity * 1.2f;
+
+            float zoomScalar = config.Zoom;
 
             if (Input.MouseWheelDelta > .1f)
-                CurrentZoom /= zoomDelta;
+                config.Zoom /= zoomDelta;
             else if (Input.MouseWheelDelta < -.1f)
-                CurrentZoom *= zoomDelta;
+                config.Zoom *= zoomDelta;
 
-            if (CurrentZoom > ZoomUpperBound) CurrentZoom = ZoomUpperBound;
-            if (CurrentZoom < ZoomLowerBound) CurrentZoom = ZoomLowerBound;
+            if (config.Zoom > config.ZoomUpperBound) config.Zoom = config.ZoomUpperBound;
+            if (config.Zoom < config.ZoomLowerBound) config.Zoom = config.ZoomLowerBound;
 
-            zoomScalar -= CurrentZoom;
+            zoomScalar -= config.Zoom;
 
-            CurrentPan += ((Vector2f)Input.ScreenMousePosition - (Vector2f)World.RenderTarget.Size / 2) * zoomScalar;
+            config.Pan += ((Vector2f)Input.ScreenMousePosition - (Vector2f)World.RenderTarget.Size / 2) * zoomScalar;
 
             if (Input.IsButtonHeld(Mouse.Button.Middle))
-                CurrentPan -= (Vector2f)Input.ScreenMouseDelta * CurrentZoom;
+                config.Pan -= (Vector2f)Input.ScreenMouseDelta * config.Zoom;
 
-            view.Size = (Vector2f)World.RenderTarget.Size * CurrentZoom;
-            view.Center = CurrentPan;
+            view.Size = (Vector2f)World.RenderTarget.Size * config.Zoom;
+            view.Center = config.Pan;
             World.RenderTarget.SetView(view);
         }
     }

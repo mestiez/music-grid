@@ -11,7 +11,7 @@ namespace MusicGridNative
         public static ConsoleEntity Main { get; private set; }
 
         private Text display;
-        private Queue<string> history = new Queue<string>();
+        private static readonly Queue<string> history = new Queue<string>();
         private int framesCounted = 0;
         private int framesLastSecond = 0;
         private float t = 0;
@@ -49,8 +49,8 @@ namespace MusicGridNative
 
         public static void Show(object message)
         {
-            if (Main.history.Count >= Main.MaximumMessages) Main.history.Dequeue();
-            Main.history.Enqueue($"[{DateTime.Now.ToLongTimeString()}] " + message.ToString());
+            if (history.Count >= (Main?.MaximumMessages ?? 32)) history.Dequeue();
+            history.Enqueue($"[{DateTime.Now.ToLongTimeString()}] " + message.ToString());
         }
 
         public override void PreRender()

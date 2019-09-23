@@ -17,7 +17,6 @@ namespace MusicGridNative
             elements.Add(element);
             element.Controller = this;
             element.OnDepthChanged += ReSortElements;
-            ConsoleEntity.Show("UI Element registered");
         }
 
         public void Deregister(UiElement element)
@@ -25,7 +24,6 @@ namespace MusicGridNative
             elements.Remove(element);
             element.Controller = null;
             element.OnDepthChanged -= ReSortElements;
-            ConsoleEntity.Show("UI Element deregistered");
         }
 
         private void ReSortElements(object sender, EventArgs e)

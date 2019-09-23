@@ -147,8 +147,6 @@ namespace MusicGridNative
             if (rowItemCount < 1) rowItemCount = 1;
             int rowCount = (int)Math.Ceiling(entryElements.Count / (float)rowItemCount);
 
-            ConsoleEntity.Show("rows: " + rowCount + ", items/row: " + rowItemCount);
-
             int totalIndex = 0;
 
             for (int rowIndex = 0; rowIndex < rowCount; rowIndex++)
@@ -328,7 +326,7 @@ namespace MusicGridNative
             entryTask.Vertices = entryVertices;
 
             yield return backgroundTask; // i wish i could batch these oh my god
-           // yield return titleTask;
+            yield return titleTask;
             yield return entryTask;
 
             // render entry titles because i cannot batch these :(

@@ -10,7 +10,14 @@ namespace MusicGridNative
     {
         static void Main(string[] args)
         {
-            _ = new MusicGridApplication(500, 500, 500, "Music Grid");
+            Configuration.LoadConfiguration();
+
+            _ = new MusicGridApplication(
+                Configuration.CurrentConfiguration.WindowWidth, 
+                Configuration.CurrentConfiguration.WindowHeight, 
+                Configuration.CurrentConfiguration.FramerateCap, "Music Grid");
+
+            Configuration.SaveConfiguration();
         }
     }
 }

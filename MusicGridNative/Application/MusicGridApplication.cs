@@ -40,8 +40,6 @@ namespace MusicGridNative
 
             World = new World(window);
             Assets = new Assets();
-            //Assets.DefaultFont.GetTexture(72).GenerateMipmap();
-
 
             Random rand = new Random();
             World.Add(new ConsoleEntity(true));
@@ -66,6 +64,9 @@ namespace MusicGridNative
             Input.SetWindow(window);
 
             MainLoop();
+
+            Configuration.CurrentConfiguration.WindowHeight = window.Size.Y;
+            Configuration.CurrentConfiguration.WindowWidth = window.Size.X;
         }
 
         public Vector2i WorldToScreen(Vector2f value) => window.MapCoordsToPixel(value);
