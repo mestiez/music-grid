@@ -11,7 +11,7 @@ namespace MusicGridNative
 {
     public class TaskMenu : Entity
     {
-        private List<Button> buttons = new List<Button>();
+        private readonly List<Button> buttons = new List<Button>();
         private float height = 32;
         private RectangleShape background;
         private RectangleShape buttonBackground;

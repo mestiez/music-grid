@@ -21,7 +21,6 @@ namespace MusicGridNative
             requiresElementResort = true;
             FocusedElement = null;
             element.EvaluateInteraction(false);
-            ConsoleEntity.Show("Registered UI element");
         }
 
         public void Deregister(UiElement element)
@@ -34,7 +33,6 @@ namespace MusicGridNative
             element.Controller = null;
             element.OnDepthChanged -= OnDepthChange;
             requiresElementResort = true;
-            ConsoleEntity.Show("Deregistered UI element");
         }
 
         private void OnDepthChange(object obj, EventArgs e)

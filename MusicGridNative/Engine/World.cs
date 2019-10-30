@@ -12,8 +12,6 @@ namespace MusicGridNative
 
         private readonly List<Entity> entities = new List<Entity>();
 
-        private readonly List<Entity> entitiesByLayer = new List<Entity>();
-
         private readonly Dictionary<Entity, int> createBuffer = new Dictionary<Entity, int>();
         private readonly List<Entity> destroyBuffer = new List<Entity>();
 

@@ -32,7 +32,7 @@ namespace MusicGridNative
         private Text entryText;
         private bool needToRecalculateLayout = true;
 
-        private static uint CharacterSize = 72;
+        private const uint CharacterSize = 72;
         private static int MinimumDepth = 100;
         private const float HandleSize = 16;
         private const float EntryMargin = 3;
@@ -188,10 +188,12 @@ namespace MusicGridNative
             for (int i = 0; i < District.Entries.Count; i++)
             {
                 DistrictEntry entry = District.Entries[i];
-                UiElement element = new UiElement();
-                element.DepthContainer = backgroundElement;
-                element.Position = new Vector2f(i * 5, i * 5);
-                element.Size = new Vector2f(80, 32);
+                UiElement element = new UiElement
+                {
+                    DepthContainer = backgroundElement,
+                    Position = new Vector2f(i * 5, i * 5),
+                    Size = new Vector2f(80, 32)
+                };
 
                 element.OnMouseDown += (o, e) =>
                 {
