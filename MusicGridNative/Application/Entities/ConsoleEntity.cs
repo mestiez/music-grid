@@ -72,7 +72,7 @@ namespace MusicGridNative
                 separator += "一";
 
             if (ConsoleIsOpen)
-                display.DisplayedString = $"MUSIC GRID v{ApplicationVersion.Version} ({ApplicationVersion.Build}) by mestiez {(ShowFramerate ? fps : "")}\n{separator}\n{string.Join("\n", history.Reverse())}";
+                display.DisplayedString = $"MUSIC GRID v{ApplicationVersion.Version} ({ApplicationVersion.Build}) by mestiez {fps}\n{separator}\n{string.Join("\n", history.Reverse())}";
             else if (ShowFramerate)
                 display.DisplayedString = fps;
         }

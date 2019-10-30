@@ -22,5 +22,10 @@ namespace MusicGridNative
             Size = size;
             Color = color;
         }
+
+        public District(string name)
+        {
+            Name = name;
+        }
     }
 }

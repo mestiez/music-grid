@@ -1,4 +1,5 @@
-﻿using SFML.Graphics;
+﻿using Microsoft.Win32;
+using SFML.Graphics;
 using SFML.System;
 using System.Collections.Generic;
 using System.Linq;
@@ -37,12 +38,28 @@ namespace MusicGridNative
                 CharacterSize = CharacterSize
             };
 
-            buttons.Add(new Button("import m3u8", () => { ConsoleEntity.Show("now we should open an \"open file\" dialog"); }));
+            buttons.Add(new Button("import m3u8", () =>
+            {
+                OpenFileDialog dialog = new OpenFileDialog
+                {
+                    DefaultExt = ".m3u8",
+                    Multiselect = true,
+                    Title = "Import m3u8",
+                    Filter = "M3U8 Playlists (.m3u8)|*.m3u8"
+                };
+                var result = dialog.ShowDialog();
+                if (result == false) return;
+                ConsoleEntity.Show(string.Join(", ", dialog.FileNames));
+                foreach (var path in dialog.FileNames)
+                {
+                    var district = FileModelConverter.LoadM3U(path);
+                    World.Add(new DistrictEntity(district));
+                }
+            }));
+
             buttons.Add(new Button("load grid", () => { ConsoleEntity.Show("should load a grid from file"); }));
             buttons.Add(Button.Separator);
             buttons.Add(new Button("save grid", () => { ConsoleEntity.Show("save file dialog time"); }));
-            //buttons.Add(Button.Separator);
-            //buttons.Add(new Button("about", () => { ConsoleEntity.Main.ConsoleIsOpen = true; ConsoleEntity.Show("Press F12 to leave this screen"); }));
 
             RecalculateLayout();
 

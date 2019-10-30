@@ -12,22 +12,10 @@ namespace MusicGridNative
 {
     static class FileModelConverter
     {
-        public static DistrictEntry FileToEntry(string absolutePath, string newRoot = "")
+        public static DistrictEntry FileToEntry(string absolutePath)
         {
-            Uri path = new Uri(absolutePath);
-            Uri relative = null;
-            FileInfo info = new FileInfo(path.AbsolutePath);
-
-            try
-            {
-                relative = path.MakeRelativeUri(new Uri(newRoot));
-            }
-            catch (Exception)
-            {
-                ConsoleEntity.Show($"Failed to assign relative path to " + path.AbsolutePath);
-            }
-
-            return new DistrictEntry(info.Name, relative.ToString());
+            FileInfo info = new FileInfo(absolutePath);
+            return new DistrictEntry(info.Name, absolutePath);
         }
 
 
@@ -41,7 +29,7 @@ namespace MusicGridNative
             {
                 try
                 {
-                    entries.Add(FileToEntry(item.Location));
+                    entries.Add(FileToEntry(Path.Combine(info.Directory.FullName, item.Location)));
                 }
                 catch (Exception e)
                 {
@@ -49,7 +37,7 @@ namespace MusicGridNative
                 }
             }
 
-            District district = new District(info.Name, new Vector2f(), new Vector2f(), Color.White);
+            District district = new District(info.Name);
             district.Entries.AddRange(entries);
 
             return district;

@@ -110,9 +110,6 @@ namespace MusicGridNative
 
         public override void Update()
         {
-            if (Input.IsKeyReleased(SFML.Window.Keyboard.Key.Space) && backgroundElement.IsUnderMouse)
-                District.Entries.Add(new DistrictEntry("test", ""));
-
             if (entryElements.Count != District.Entries.Count)
                 RegenerateEntryElements();
 
@@ -131,7 +128,7 @@ namespace MusicGridNative
             needToRecalculateLayout = false;
 
             const float preferredSize = 256;
-            float scaledMargin = EntryMargin * (Math.Min(District.Size.X, District.Size.Y) / 256f);
+            float scaledMargin = EntryMargin;
 
             int rowItemCount = (int)Math.Floor(District.Size.X / preferredSize);//(int)Math.Ceiling(District.Size.X / (Math.Min(entryElements.Count, 10) * (preferredSize + EntryMargin) + EntryMargin)) ;
             if (rowItemCount > 10) rowItemCount = 10;
@@ -204,13 +201,12 @@ namespace MusicGridNative
                 {
                     entryText.Position = element.Position;
 
-                    if (entry.IsDirty)
-                        entryText.DisplayedString = entry.Name;
+                    entryText.DisplayedString = entry.Name;
 
                     var textBounds = entryText.GetLocalBounds();
                     entryText.Origin = new Vector2f(textBounds.Width, textBounds.Height) / 2;
 
-                    float scale = Math.Min(element.Size.X / (textBounds.Width / textBounds.Height), element.Size.Y) / 150f;
+                    float scale = Math.Min(element.Size.X / (textBounds.Width / textBounds.Height), element.Size.Y) / CharacterSize;
                     entryText.Scale = new Vector2f(scale, scale) / (CharacterSize / 48f);
                     entryText.Position = element.Position + element.Size / 2;
 
@@ -317,16 +313,18 @@ namespace MusicGridNative
             entryTask.Depth = backgroundElement.Depth;
             entryTask.Vertices = entryVertices;
 
-            yield return backgroundTask; // i wish i could batch these oh my god
+            yield return backgroundTask; 
             yield return titleTask;
-            yield return entryTask;
 
-            // render entry titles because i cannot batch these :(
-            foreach (var entry in District.Entries)
+            if (District.Entries.Any())
             {
-                var task = renderTasks[entry];
-                task.Depth = backgroundElement.Depth;
-                yield return task;
+                yield return entryTask;
+                foreach (var entry in District.Entries)
+                {
+                    var task = renderTasks[entry];
+                    task.Depth = backgroundElement.Depth;
+                    yield return task;
+                }
             }
 
             yield return handleTask;

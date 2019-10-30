@@ -8,6 +8,7 @@ namespace MusicGridNative
 {
     public class Program
     {
+        [STAThread]
         static void Main(string[] args)
         {
             Configuration.LoadConfiguration();
