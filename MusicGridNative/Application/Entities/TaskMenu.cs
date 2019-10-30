@@ -1,6 +1,7 @@
 ﻿using Microsoft.Win32;
 using SFML.Graphics;
 using SFML.System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -53,6 +54,9 @@ namespace MusicGridNative
                 foreach (var path in dialog.FileNames)
                 {
                     var district = FileModelConverter.LoadM3U(path);
+                    district.Size = new Vector2f(250 * (float)Math.Ceiling( district.Entries.Count / 20f), 64 * Math.Min(district.Entries.Count, 30));
+                    district.Position = MusicGridApplication.Main.ScreenToWorld(new Vector2i(15, 15));
+                    district.Color = new Color(Utilities.RandomByte(), Utilities.RandomByte(), Utilities.RandomByte());
                     World.Add(new DistrictEntity(district));
                 }
             }));
@@ -60,6 +64,9 @@ namespace MusicGridNative
             buttons.Add(new Button("load grid", () => { ConsoleEntity.Show("should load a grid from file"); }));
             buttons.Add(Button.Separator);
             buttons.Add(new Button("save grid", () => { ConsoleEntity.Show("save file dialog time"); }));
+            buttons.Add(Button.Separator);
+            buttons.Add(new Button("fit view to grid", () => { ConsoleEntity.Show("check everything and set the camera up correctly"); }));
+            buttons.Add(new Button("reset camera", () => { Configuration.CurrentConfiguration.Pan = default; Configuration.CurrentConfiguration.Zoom = 1; }));
 
             RecalculateLayout();
 

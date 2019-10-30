@@ -55,6 +55,8 @@ namespace MusicGridNative
 
         public override void Update()
         {
+            if (!Input.WindowHasFocus) return;
+
             if (requiresElementResort)
                 ReSortElements();
 

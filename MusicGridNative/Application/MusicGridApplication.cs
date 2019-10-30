@@ -3,6 +3,7 @@ using SFML.System;
 using SFML.Window;
 using System;
 using System.IO;
+using System.Threading;
 
 namespace MusicGridNative
 {
@@ -43,20 +44,20 @@ namespace MusicGridNative
             World.Add(new ConsoleEntity());
             World.Add(new TaskMenu());
 
-           //for (int i = 0; i < 50; i++)
-           //{
-           //    var district = new District(
-           //            "District " + i,
-           //            new Vector2f(5 * i - 128, 5 * i - 128),
-           //            new Vector2f(1212, 743),
-           //            new SFML.Graphics.Color((byte)rand.Next(255), (byte)rand.Next(255), (byte)rand.Next(255))
-           //        );
+            //for (int i = 0; i < 50; i++)
+            //{
+            //    var district = new District(
+            //            "District " + i,
+            //            new Vector2f(5 * i - 128, 5 * i - 128),
+            //            new Vector2f(1212, 743),
+            //            new SFML.Graphics.Color((byte)rand.Next(255), (byte)rand.Next(255), (byte)rand.Next(255))
+            //        );
 
-           //    for (int o = 0; o < 0; o++)
-           //        district.Entries.Add(new DistrictEntry("Entry " + rand.Next(255), ""));
+            //    for (int o = 0; o < 0; o++)
+            //        district.Entries.Add(new DistrictEntry("Entry " + rand.Next(255), ""));
 
-           //    World.Add(new DistrictEntity(district));
-           //}
+            //    World.Add(new DistrictEntity(district));
+            //}
 
             World.Add(new UiControllerEntity());
             World.Add(new CameraControllerEnity());
@@ -83,7 +84,9 @@ namespace MusicGridNative
                 renderWindow.DispatchEvents();
                 World.Step();
 
-                renderWindow.Display();
+                if (Input.WindowHasFocus)
+                    renderWindow.Display();
+                else Thread.Sleep(100);
 
                 float dt = clock.ElapsedTime.AsSeconds();
                 time += dt;

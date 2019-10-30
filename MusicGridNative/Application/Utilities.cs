@@ -10,6 +10,8 @@ namespace MusicGridNative
 {
     public struct Utilities
     {
+        private static Random random = new Random();
+
         public static bool IsInside(Vector2f point, Vector2f topleft, Vector2f size)
         {
             if (point.X < topleft.X) return false;
@@ -39,6 +41,11 @@ namespace MusicGridNative
         public static bool IsTooBright(Color color)
         {
             return ((0.2126 * color.R + 0.7152 * color.G + 0.0722 * color.B) / 255) > 0.6;
+        }
+
+        public static byte RandomByte()
+        {
+            return (byte)random.Next(0, 256);
         }
     }
 }

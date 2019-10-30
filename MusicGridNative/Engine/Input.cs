@@ -29,6 +29,7 @@ namespace MusicGridNative
         private static readonly HashSet<Mouse.Button> ReleasedButtons = new HashSet<Mouse.Button>();
 
         public static Vector2u WindowSize => window.Size;
+        public static bool WindowHasFocus => window.HasFocus();
 
         public static EventHandler<SizeEventArgs> WindowResized;
 

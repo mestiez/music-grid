@@ -53,7 +53,7 @@ namespace MusicGridNative
         //State
         public uint WindowWidth = 500;
         public uint WindowHeight = 500;
-        public uint FramerateCap = 300;
+        public uint FramerateCap = 60;
         public float Zoom = 1;
         public Vector2f Pan = default;
 

@@ -43,13 +43,16 @@ namespace MusicGridNative
             foreach (var entity in entities)
                 entity.PostUpdate();
 
-            foreach (var entity in entities)
-                entity.PreRender();
+            if (Input.WindowHasFocus)
+            {
+                foreach (var entity in entities)
+                    entity.PreRender();
 
-            SortAndRender();
+                SortAndRender();
 
-            foreach (var entity in entities)
-                entity.PostRender();
+                foreach (var entity in entities)
+                    entity.PostRender();
+            }
         }
 
         private void SortAndRender()
@@ -67,7 +70,7 @@ namespace MusicGridNative
 
             var oldView = new View(RenderTarget.GetView());
             var floatSize = (Vector2f)RenderTarget.Size;
-            RenderTarget.SetView(new View(floatSize/2, floatSize));
+            RenderTarget.SetView(new View(floatSize / 2, floatSize));
 
             foreach (var task in screenSpaceTasks.OrderByDescending(t => t.Depth))
                 task.Render(RenderTarget);
