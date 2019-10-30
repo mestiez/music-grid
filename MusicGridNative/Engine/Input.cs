@@ -47,6 +47,9 @@ namespace MusicGridNative
                 window.MouseButtonReleased -= MouseButtonReleased;
 
                 window.Resized -= OnWindowResized;
+
+                window.LostFocus -= ResetEventHandler;
+                window.GainedFocus -= ResetEventHandler;
             }
 
             Reset();
@@ -63,6 +66,9 @@ namespace MusicGridNative
             window.MouseButtonReleased += MouseButtonReleased;
 
             window.Resized += OnWindowResized;
+
+            window.LostFocus += ResetEventHandler;
+            window.GainedFocus += ResetEventHandler;
         }
 
         public static void Reset()
@@ -82,10 +88,12 @@ namespace MusicGridNative
             ReleasedKeys.Clear();
         }
 
-        private static void OnWindowResized(object sender, SizeEventArgs e)
+        private static void ResetEventHandler(object sender, EventArgs e)
         {
-            WindowResized?.Invoke(sender, e);
+            Reset();
         }
+
+        private static void OnWindowResized(object sender, SizeEventArgs e) => WindowResized?.Invoke(sender, e);
 
         public static bool IsKeyHeld(Keyboard.Key key) => HeldKeys.Contains(key);
         public static bool IsKeyPressed(Keyboard.Key key) => PressedKeys.Contains(key);

@@ -54,7 +54,7 @@ namespace MusicGridNative
                 foreach (var path in dialog.FileNames)
                 {
                     var district = FileModelConverter.LoadM3U(path);
-                    district.Size = new Vector2f(250 * (float)Math.Ceiling( district.Entries.Count / 20f), 64 * Math.Min(district.Entries.Count, 30));
+                    district.Size = new Vector2f(250 * (float)Math.Ceiling(district.Entries.Count / 20f), 64 * Math.Min(district.Entries.Count, 30));
                     district.Position = MusicGridApplication.Main.ScreenToWorld(new Vector2i(15, 15));
                     district.Color = new Color(Utilities.RandomByte(), Utilities.RandomByte(), Utilities.RandomByte());
                     World.Add(new DistrictEntity(district));

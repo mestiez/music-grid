@@ -1,23 +1,11 @@
 ﻿using SFML.Graphics;
 using SFML.System;
-using SharpLua;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace MusicGridNative
 {
-    public class LuaConsole
-    {
-        private LuaInterface luaInterface = new LuaInterface();
-
-        public string[] Execute(string lua)
-        {
-            var result = luaInterface.DoString(lua);
-            return result.Select(e => e.ToString()).ToArray();
-        }
-    }
-
     public class ConsoleEntity : Entity
     {
         public static ConsoleEntity Main { get; private set; }
@@ -28,7 +16,6 @@ namespace MusicGridNative
         private int framesCounted = 0;
         private int framesLastSecond = 0;
         private float t = 0;
-        private readonly LuaConsole luaConsole = new LuaConsole();
 
         private ShapeRenderTask backgroundTask;
         private ShapeRenderTask displayTask;
@@ -55,10 +42,7 @@ namespace MusicGridNative
 
             backgroundTask = new ShapeRenderTask(background, int.MinValue);
             displayTask = new ShapeRenderTask(display, int.MinValue);
-            foreach (var item in luaConsole.Execute("return (\"lol\")"))
-            {
-                Show(item);
-            }
+            World.Lua.LinkFunction<object>("print", this, AddToHistory);
         }
 
         public override void Update()
@@ -79,6 +63,11 @@ namespace MusicGridNative
         {
             if (history.Count >= (Main?.MaximumMessages ?? 32)) history.Dequeue();
             history.Enqueue($"[{DateTime.Now.ToLongTimeString()}] " + message.ToString());
+        }
+
+        private void AddToHistory(object message)
+        {
+            Show(message);
         }
 
         public override void PreRender()

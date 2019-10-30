@@ -15,12 +15,14 @@ namespace MusicGridNative
         private readonly Dictionary<Entity, int> createBuffer = new Dictionary<Entity, int>();
         private readonly List<Entity> destroyBuffer = new List<Entity>();
 
+        public LuaConsole Lua = new LuaConsole();
         public RenderTarget RenderTarget { get; set; }
         public Color ClearColor { get; set; }
 
         public World(RenderTarget target)
         {
             RenderTarget = target;
+            Lua.LinkFunction("get_world", this, () => this);
         }
 
         public void Step()
@@ -115,6 +117,11 @@ namespace MusicGridNative
             dirtyList = true;
             entity.World = this;
             createBuffer.Add(entity, executionOrder);
+        }
+
+        public IReadOnlyList<Entity> GetEntities()
+        {
+            return entities.AsReadOnly();
         }
 
         public T GetEntityByType<T>() where T : Entity

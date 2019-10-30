@@ -177,7 +177,7 @@ namespace MusicGridNative
         private void RegenerateEntryElements()
         {
             entryVertices = new Vertex[District.Entries.Count * 4];
-            const float textPadding = 10;
+            const float textPadding = 20;
 
             foreach (var entry in entryElements)
                 uiController.Deregister(entry.Value);
