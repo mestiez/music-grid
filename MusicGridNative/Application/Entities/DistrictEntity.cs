@@ -29,11 +29,10 @@ namespace MusicGridNative
 
         private Vertex[] entryVertices;
 
-        private RectangleShape entryBackground;
         private Text entryText;
         private bool needToRecalculateLayout = true;
 
-        private static int CharacterSize = 72;
+        private static uint CharacterSize = 72;
         private static int MinimumDepth = 100;
         private const float HandleSize = 16;
         private const float EntryMargin = 3;
@@ -59,25 +58,18 @@ namespace MusicGridNative
                 FillColor = new Color(125, 0, 15)
             };
 
-            entryBackground = new RectangleShape
-            {
-                Position = new Vector2f(0, 0),
-                Size = new Vector2f(256, 256),
-                FillColor = new Color(125, 0, 15)
-            };
-
             entryText = new Text("Entry", MusicGridApplication.Assets.DefaultFont)
             {
                 FillColor = new Color(255, 255, 255, 255),
                 Position = new Vector2f(0, 0),
-                CharacterSize = (uint)CharacterSize
+                CharacterSize = CharacterSize
             };
 
             title = new Text("District", MusicGridApplication.Assets.DefaultFont)
             {
                 FillColor = new Color(255, 255, 255, 125),
                 Position = new Vector2f(0, 0),
-                CharacterSize = (uint)CharacterSize
+                CharacterSize = CharacterSize
             };
 
             resizeHandleVertices = new Vertex[3]
@@ -222,7 +214,7 @@ namespace MusicGridNative
                     entryText.Scale = new Vector2f(scale, scale) / (CharacterSize / 48f);
                     entryText.Position = element.Position + element.Size / 2;
 
-                  target.Draw(entryText);
+                    target.Draw(entryText);
                 }, backgroundElement.Depth));
 
                 entryElements.Add(entry, element);

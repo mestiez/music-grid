@@ -11,10 +11,14 @@ namespace MusicGridNative
         public static ConsoleEntity Main { get; private set; }
 
         private Text display;
+        private RectangleShape background;
         private static readonly Queue<string> history = new Queue<string>();
         private int framesCounted = 0;
         private int framesLastSecond = 0;
         private float t = 0;
+
+        private ShapeRenderTask backgroundTask;
+        private ShapeRenderTask displayTask;
 
         public ConsoleEntity(bool showFramerate = false, uint maximumMessages = 32)
         {
@@ -29,8 +33,15 @@ namespace MusicGridNative
         public override void Created()
         {
             Main = this;
+
             display = new Text("", MusicGridApplication.Assets.DefaultFont, 16);
             display.Position = new Vector2f(5, 5);
+
+            background = new RectangleShape(new Vector2f(4000, 4000));
+            background.FillColor = new Color(0, 0, 0, 200);
+
+            backgroundTask = new ShapeRenderTask(background, int.MinValue);
+            displayTask = new ShapeRenderTask(display, int.MinValue);
         }
 
         public override void Update()
@@ -61,14 +72,17 @@ namespace MusicGridNative
                 separator += "一";
 
             if (ConsoleIsOpen)
-                display.DisplayedString = $"MUSIC GRID v{ApplicationVersion.Version} ({ApplicationVersion.Build}) by mestiez {(ShowFramerate ? fps : "")}\n{separator}\n{string.Join("\n", history)}";
+                display.DisplayedString = $"MUSIC GRID v{ApplicationVersion.Version} ({ApplicationVersion.Build}) by mestiez {(ShowFramerate ? fps : "")}\n{separator}\n{string.Join("\n", history.Reverse())}";
             else if (ShowFramerate)
                 display.DisplayedString = fps;
         }
 
         public override IEnumerable<IRenderTask> RenderScreen()
         {
-            yield return new ShapeRenderTask(display, int.MinValue);
+            if (!ConsoleIsOpen && !ShowFramerate) yield break;
+            background.Size = (Vector2f)World.RenderTarget.Size;
+            yield return backgroundTask;
+            yield return displayTask;
         }
     }
 }

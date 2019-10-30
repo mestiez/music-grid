@@ -4,6 +4,8 @@ using SFML.Window;
 using System;
 using System.Drawing;
 using System.IO;
+using System.Linq;
+using System.Windows.Forms;
 
 namespace MusicGridNative
 {
@@ -35,16 +37,16 @@ namespace MusicGridNative
                 image.Dispose();
             }
 
-
             window.Closed += (object sender, EventArgs args) => { window.Close(); };
 
             World = new World(window);
             Assets = new Assets();
 
             Random rand = new Random();
-            World.Add(new ConsoleEntity(true));
+            World.Add(new ConsoleEntity());
+            World.Add(new TaskMenu());
 
-            for (int i = 0; i < 54; i++)
+            for (int i = 0; i < 50; i++)
             {
                 var district = new District(
                         "District " + i,
@@ -53,7 +55,7 @@ namespace MusicGridNative
                         new SFML.Graphics.Color((byte)rand.Next(255), (byte)rand.Next(255), (byte)rand.Next(255))
                     );
 
-                for (int o = 0; o < 25; o++)
+                for (int o = 0; o < 10; o++)
                     district.Entries.Add(new DistrictEntry("Entry " + rand.Next(255), ""));
 
                 World.Add(new DistrictEntity(district));

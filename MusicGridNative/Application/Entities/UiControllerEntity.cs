@@ -8,7 +8,8 @@ namespace MusicGridNative
 {
     public class UiControllerEntity : Entity
     {
-        public List<UiElement> elements = new List<UiElement>();
+        private List<UiElement> elements = new List<UiElement>();
+        private bool requiresElementResort = false;
 
         public UiElement FocusedElement { get; set; }
 
@@ -16,18 +17,30 @@ namespace MusicGridNative
         {
             elements.Add(element);
             element.Controller = this;
-            element.OnDepthChanged += ReSortElements;
+            element.OnDepthChanged += OnDepthChange;
+            requiresElementResort = true;
         }
 
         public void Deregister(UiElement element)
         {
             elements.Remove(element);
+
+            if (FocusedElement == element)
+                FocusedElement = null;
+
             element.Controller = null;
-            element.OnDepthChanged -= ReSortElements;
+            element.OnDepthChanged -= OnDepthChange;
+            requiresElementResort = true;
         }
 
-        private void ReSortElements(object sender, EventArgs e)
+        private void OnDepthChange(object obj, EventArgs e)
         {
+            requiresElementResort = true;
+        }
+
+        private void ReSortElements()
+        {
+            requiresElementResort = true;
             var ordered = new List<UiElement>();
 
             foreach (var element in elements.Where(elem => elem.DepthContainer == null).OrderBy(elem => elem.Depth))
@@ -42,6 +55,9 @@ namespace MusicGridNative
 
         public override void Update()
         {
+            if (requiresElementResort)
+                ReSortElements();
+
             bool firstServed = false;
             if (FocusedElement != null)
                 FocusedElement.EvaluateInteraction(false);

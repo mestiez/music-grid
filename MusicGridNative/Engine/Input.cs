@@ -1,6 +1,7 @@
 ﻿using SFML.Graphics;
 using SFML.System;
 using SFML.Window;
+using System;
 using System.Collections.Generic;
 
 namespace MusicGridNative
@@ -19,13 +20,17 @@ namespace MusicGridNative
         public static Vector2i PreviousScreenMousePosition { get; private set; }
         public static Vector2i ScreenMouseDelta { get; private set; }
 
-        private static HashSet<Keyboard.Key> PressedKeys = new HashSet<Keyboard.Key>();
-        private static HashSet<Keyboard.Key> HeldKeys = new HashSet<Keyboard.Key>();
-        private static HashSet<Keyboard.Key> ReleasedKeys = new HashSet<Keyboard.Key>();
+        private static readonly HashSet<Keyboard.Key> PressedKeys = new HashSet<Keyboard.Key>();
+        private static readonly HashSet<Keyboard.Key> HeldKeys = new HashSet<Keyboard.Key>();
+        private static readonly HashSet<Keyboard.Key> ReleasedKeys = new HashSet<Keyboard.Key>();
 
-        private static HashSet<Mouse.Button> PressedButtons = new HashSet<Mouse.Button>();
-        private static HashSet<Mouse.Button> HeldButtons = new HashSet<Mouse.Button>();
-        private static HashSet<Mouse.Button> ReleasedButtons = new HashSet<Mouse.Button>();
+        private static readonly HashSet<Mouse.Button> PressedButtons = new HashSet<Mouse.Button>();
+        private static readonly HashSet<Mouse.Button> HeldButtons = new HashSet<Mouse.Button>();
+        private static readonly HashSet<Mouse.Button> ReleasedButtons = new HashSet<Mouse.Button>();
+
+        public static Vector2u WindowSize => window.Size;
+
+        public static EventHandler<SizeEventArgs> WindowResized;
 
         public static void SetWindow(RenderWindow window)
         {
@@ -39,6 +44,8 @@ namespace MusicGridNative
 
                 window.MouseButtonPressed -= MouseButtonPressed;
                 window.MouseButtonReleased -= MouseButtonReleased;
+
+                window.Resized -= OnWindowResized;
             }
 
             Reset();
@@ -53,6 +60,8 @@ namespace MusicGridNative
 
             window.MouseButtonPressed += MouseButtonPressed;
             window.MouseButtonReleased += MouseButtonReleased;
+
+            window.Resized += OnWindowResized;
         }
 
         public static void Reset()
@@ -70,6 +79,11 @@ namespace MusicGridNative
 
             PressedKeys.Clear();
             ReleasedKeys.Clear();
+        }
+
+        private static void OnWindowResized(object sender, SizeEventArgs e)
+        {
+            WindowResized?.Invoke(sender, e);
         }
 
         public static bool IsKeyHeld(Keyboard.Key key) => HeldKeys.Contains(key);

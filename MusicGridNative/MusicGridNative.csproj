@@ -74,12 +74,16 @@
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="M3U.NET, Version=1.0.0.3, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\M3U.NET.1.0.0.3\lib\net45\M3U.NET.dll</HintPath>
+    </Reference>
     <Reference Include="NAudio, Version=1.9.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\NAudio.1.9.0\lib\net35\NAudio.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.12.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
+    <Reference Include="PresentationFramework" />
     <Reference Include="SFML.Audio, Version=2.5.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\SFML.Audio.2.5.0\lib\netstandard2.0\SFML.Audio.dll</HintPath>
     </Reference>
@@ -111,10 +115,13 @@
     <Compile Include="Application\Data\Grid.cs" />
     <Compile Include="ApplicationVersion.cs" />
     <Compile Include="Application\Data\MouseEventArgs.cs" />
+    <Compile Include="Application\Data\Button.cs" />
     <Compile Include="Application\Entities\CameraControllerEnity.cs" />
     <Compile Include="Application\Entities\ConsoleEntity.cs" />
     <Compile Include="Application\Entities\DistrictEntity.cs" />
+    <Compile Include="Application\Entities\TaskMenu.cs" />
     <Compile Include="Application\Entities\UiControllerEntity.cs" />
+    <Compile Include="Application\FileModelConverter.cs" />
     <Compile Include="Application\UiElement.cs" />
     <Compile Include="Application\Utilities.cs" />
     <Compile Include="Engine\ActionRenderTask.cs" />
@@ -125,6 +132,7 @@
     <Compile Include="Engine\PrimitiveRenderTask.cs" />
     <Compile Include="Engine\IRenderTask.cs" />
     <Compile Include="Engine\ShapeRenderTask.cs" />
+    <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>

@@ -20,6 +20,9 @@ namespace MusicGridNative
         public Color Color { get; set; }
         public Color HoverColor { get; set; }
         public Color ActiveColor { get; set; }
+        public Color DisabledColor { get; set; }
+
+        public bool IsScreenSpace { get; set; }
 
         public UiControllerEntity Controller { get; set; }
         public UiElement DepthContainer
@@ -49,6 +52,8 @@ namespace MusicGridNative
         public bool IsBeingHeld { get; private set; }
         public Color ComputedColor { get; private set; }
 
+        public bool Disabled { get; set; }
+
         public event EventHandler<MouseEventArgs> OnMouseDown;
         public event EventHandler<MouseEventArgs> OnMouseUp;
 
@@ -58,6 +63,15 @@ namespace MusicGridNative
 
         public bool EvaluateInteraction(bool firstHasBeenServed)
         {
+            if (Disabled)
+            {
+                ComputedColor = DisabledColor;
+                return false;
+            }
+
+
+            var mousePos = IsScreenSpace ? (Vector2f)Input.ScreenMousePosition : Input.MousePosition;
+
             if (firstHasBeenServed)
             {
                 IsUnderMouse = false;
@@ -65,12 +79,12 @@ namespace MusicGridNative
             }
             else
             {
-                IsUnderMouse = Utilities.IsInside(Input.MousePosition, Position, Size);
+                IsUnderMouse = Utilities.IsInside(mousePos, Position, Size);
                 IsActive = IsUnderMouse && Input.IsButtonHeld(Mouse.Button.Left);
 
                 if (IsUnderMouse && Input.IsButtonPressed(Mouse.Button.Left))
                 {
-                    var args = new MouseEventArgs(Mouse.Button.Left, Input.MousePosition);
+                    var args = new MouseEventArgs(Mouse.Button.Left, mousePos);
                     OnMouseDown?.Invoke(this, args);
                     if (!args.IsPermeable)
                     {
@@ -86,7 +100,7 @@ namespace MusicGridNative
                 if (Controller.FocusedElement == this)
                     Controller.FocusedElement = null;
                 IsBeingHeld = false;
-                OnMouseUp?.Invoke(this, new MouseEventArgs(Mouse.Button.Left, Input.MousePosition));
+                OnMouseUp?.Invoke(this, new MouseEventArgs(Mouse.Button.Left, mousePos));
             }
 
             if (IsActive || IsBeingHeld)
