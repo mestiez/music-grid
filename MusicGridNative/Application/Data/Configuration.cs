@@ -23,11 +23,13 @@ namespace MusicGrid
             {
                 switch (e)
                 {
-                    case FileNotFoundException _:
+                    case FileNotFoundException fe:
                         ConsoleEntity.Show("Configuration not found at " + path);
+                        ConsoleEntity.Show(fe);
                         break;
-                    case JsonException _:
+                    case JsonException je:
                         ConsoleEntity.Show("Invalid configuration at " + path);
+                        ConsoleEntity.Show(je);
                         break;
                     default:
                         ConsoleEntity.Show(e.ToString());
@@ -64,5 +66,8 @@ namespace MusicGrid
         public float ZoomUpperBound = 10f;
         public float SnappingSize = 8;
         public float TextClarity = 72;
+
+        //Last session
+        public District[] Districts = { };
     }
 }

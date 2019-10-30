@@ -2,6 +2,7 @@
 using SFML.System;
 using SFML.Window;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 
@@ -39,19 +40,30 @@ namespace MusicGrid
 
             World = new World(renderWindow);
             Assets = new Assets();
+            var districtManager = new DistrictManager();
 
             Random rand = new Random();
             World.Add(new ConsoleEntity());
             World.Add(new TaskMenu());
             World.Add(new UiControllerEntity());
             World.Add(new CameraControllerEnity());
+            World.Add(districtManager);
             Input.SetWindow(renderWindow);
 
+            foreach (var district in Configuration.CurrentConfiguration.Districts)
+                districtManager.AddDistrict(district);
+
             World.Lua.LinkFunction("quit", this, () => renderWindow.Close());
-            World.Lua.LinkFunction("set_framerate_cap", this, () => renderWindow.Close());
+            World.Lua.LinkFunction("set_framerate_cap", this, (int c) =>
+            {
+                renderWindow.SetFramerateLimit((uint)c);
+                Configuration.CurrentConfiguration.FramerateCap = (uint)c;
+                ConsoleEntity.Show("Set framerate cap to " + c);
+            });
 
             MainLoop();
 
+            Configuration.CurrentConfiguration.Districts = new List<District>(districtManager.Districts).ToArray();
             Configuration.CurrentConfiguration.WindowHeight = renderWindow.Size.Y;
             Configuration.CurrentConfiguration.WindowWidth = renderWindow.Size.X;
         }

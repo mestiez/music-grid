@@ -10,9 +10,6 @@ namespace MusicGrid
         public string Name;
         public List<District> Districts = new List<District>();
 
-        [JsonIgnore]
-        public string RootPath;
-
         public Grid(string name)
         {
             Name = name;

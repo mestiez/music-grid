@@ -27,5 +27,9 @@ namespace MusicGrid
         {
             Name = name;
         }
+
+        public District()
+        {
+        }
     }
 }

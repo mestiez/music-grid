@@ -18,7 +18,6 @@ namespace MusicGrid
             return new DistrictEntry(info.Name, absolutePath);
         }
 
-
         public static District LoadM3U(string path)
         {
             FileInfo info = new FileInfo(path);
@@ -37,7 +36,7 @@ namespace MusicGrid
                 }
             }
 
-            District district = new District(info.Name);
+            District district = new District(info.Name.Substring(0, info.Name.LastIndexOf('.')));
             district.Entries.AddRange(entries);
 
             return district;

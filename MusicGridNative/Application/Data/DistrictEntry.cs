@@ -7,12 +7,12 @@ namespace MusicGrid
     public class DistrictEntry
     {
         public string Name;
-        public string RelativePath;
+        public string Path;
 
-        public DistrictEntry(string name, string relativePath)
+        public DistrictEntry(string name, string path)
         {
             Name = name;
-            RelativePath = relativePath;
+            Path = path;
         }
     }
 }

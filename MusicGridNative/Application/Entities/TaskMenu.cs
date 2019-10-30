@@ -25,13 +25,23 @@ namespace MusicGrid
         private float buttonPos;
         private static readonly uint CharacterSize = 16;
         private UiControllerEntity uiController;
+        private DistrictManager districtManager;
 
-        public float Height { get => height; set => height = value; }
+        public float Height
+        {
+            get => height;
+            set
+            {
+                height = value;
+                RecalculateLayout();
+            }
+        }
         public IReadOnlyList<Button> Buttons => buttons.AsReadOnly();
 
         public override void Created()
         {
             uiController = World.GetEntityByType<UiControllerEntity>();
+            districtManager = World.GetEntityByType<DistrictManager>();
             buttonText = new Text("invalid!", MusicGridApplication.Assets.DefaultFont)
             {
                 FillColor = Color.White,
@@ -39,28 +49,7 @@ namespace MusicGrid
                 CharacterSize = CharacterSize
             };
 
-            buttons.Add(new Button("import m3u8", () =>
-            {
-                OpenFileDialog dialog = new OpenFileDialog
-                {
-                    DefaultExt = ".m3u8",
-                    Multiselect = true,
-                    Title = "Import m3u8",
-                    Filter = "M3U8 Playlists|*.m3u8"
-                };
-                var result = dialog.ShowDialog();
-                if (result == false) return;
-                ConsoleEntity.Show(string.Join(", ", dialog.FileNames));
-                foreach (var path in dialog.FileNames)
-                {
-                    var district = FileModelConverter.LoadM3U(path);
-                    district.Size = new Vector2f(250 * (float)Math.Ceiling(district.Entries.Count / 20f), 64 * Math.Min(district.Entries.Count, 30));
-                    district.Position = MusicGridApplication.Main.ScreenToWorld(new Vector2i(15, 15));
-                    district.Color = new Color(Utilities.RandomByte(), Utilities.RandomByte(), Utilities.RandomByte());
-                    World.Add(new DistrictEntity(district));
-                }
-            }));
-
+            buttons.Add(new Button("import m3u8", districtManager.AskImportPlaylist));
             buttons.Add(new Button("load grid", () => { ConsoleEntity.Show("should load a grid from file"); }));
             buttons.Add(Button.Separator);
             buttons.Add(new Button("save grid", () => { ConsoleEntity.Show("save file dialog time"); }));
