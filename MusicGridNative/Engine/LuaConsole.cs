@@ -3,9 +3,9 @@ using System;
 using System.Linq;
 using System.Reflection;
 
-namespace MusicGridNative
+namespace MusicGrid
 {
-    public class LuaConsole
+    public class LuaConsole : ILuaConsole
     {
         private readonly Lua state;
 
@@ -35,6 +35,11 @@ namespace MusicGridNative
             state.RegisterFunction(name, target, action.Method);
         }
 
+        public void LinkFunction(string name, object target, Action action)
+        {
+            state.RegisterFunction(name, target, action.Method);
+        }
+
         public void LinkFunction<T>(string name, object target, Func<T> function)
         {
             state.RegisterFunction(name, target, function.Method);
@@ -42,7 +47,15 @@ namespace MusicGridNative
 
         public object[] Execute(string code)
         {
-            var result = state.DoString(code);
+            object[] result;
+            try
+            {
+                result = state.DoString(code);
+            }
+            catch (Exception e)
+            {
+                result = new[] { e };
+            }
             return result;
         }
     }

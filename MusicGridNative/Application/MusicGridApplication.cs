@@ -5,7 +5,7 @@ using System;
 using System.IO;
 using System.Threading;
 
-namespace MusicGridNative
+namespace MusicGrid
 {
     public class MusicGridApplication
     {
@@ -43,25 +43,12 @@ namespace MusicGridNative
             Random rand = new Random();
             World.Add(new ConsoleEntity());
             World.Add(new TaskMenu());
-
-            //for (int i = 0; i < 50; i++)
-            //{
-            //    var district = new District(
-            //            "District " + i,
-            //            new Vector2f(5 * i - 128, 5 * i - 128),
-            //            new Vector2f(1212, 743),
-            //            new SFML.Graphics.Color((byte)rand.Next(255), (byte)rand.Next(255), (byte)rand.Next(255))
-            //        );
-
-            //    for (int o = 0; o < 0; o++)
-            //        district.Entries.Add(new DistrictEntry("Entry " + rand.Next(255), ""));
-
-            //    World.Add(new DistrictEntity(district));
-            //}
-
             World.Add(new UiControllerEntity());
             World.Add(new CameraControllerEnity());
             Input.SetWindow(renderWindow);
+
+            World.Lua.LinkFunction("quit", this, () => renderWindow.Close());
+            World.Lua.LinkFunction("set_framerate_cap", this, () => renderWindow.Close());
 
             MainLoop();
 

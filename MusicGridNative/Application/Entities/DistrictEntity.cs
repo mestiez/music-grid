@@ -5,7 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace MusicGridNative
+namespace MusicGrid
 {
     public class DistrictEntity : Entity
     {

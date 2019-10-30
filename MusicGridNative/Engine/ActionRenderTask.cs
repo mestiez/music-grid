@@ -1,7 +1,7 @@
 ﻿using SFML.Graphics;
 using System;
 
-namespace MusicGridNative
+namespace MusicGrid
 {
     public class ActionRenderTask : IRenderTask
     {

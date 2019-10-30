@@ -6,7 +6,7 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{0D7B8483-EC4B-430E-8EE1-852786E3257D}</ProjectGuid>
     <OutputType>WinExe</OutputType>
-    <RootNamespace>MusicGridNative</RootNamespace>
+    <RootNamespace>MusicGrid</RootNamespace>
     <AssemblyName>Music Grid</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -129,7 +129,8 @@
     <Compile Include="Application\Entities\CameraControllerEnity.cs" />
     <Compile Include="Application\Entities\ConsoleEntity.cs" />
     <Compile Include="Application\Entities\DistrictEntity.cs" />
-    <Compile Include="Application\Entities\LuaConsole.cs" />
+    <Compile Include="Engine\ILuaConsole.cs" />
+    <Compile Include="Engine\LuaConsole.cs" />
     <Compile Include="Application\Entities\TaskMenu.cs" />
     <Compile Include="Application\Entities\UiControllerEntity.cs" />
     <Compile Include="Application\FileModelConverter.cs" />

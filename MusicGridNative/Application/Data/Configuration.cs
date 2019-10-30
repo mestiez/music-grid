@@ -3,7 +3,7 @@ using SFML.System;
 using System;
 using System.IO;
 
-namespace MusicGridNative
+namespace MusicGrid
 {
     [Serializable]
     public class Configuration

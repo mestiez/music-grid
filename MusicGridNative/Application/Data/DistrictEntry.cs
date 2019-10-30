@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 
-namespace MusicGridNative
+namespace MusicGrid
 {
     [Serializable]
     public class DistrictEntry

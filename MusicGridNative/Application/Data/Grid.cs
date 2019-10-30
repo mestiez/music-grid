@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace MusicGridNative
+namespace MusicGrid
 {
     [Serializable]
     public class Grid

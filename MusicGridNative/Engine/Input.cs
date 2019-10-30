@@ -4,7 +4,7 @@ using SFML.Window;
 using System;
 using System.Collections.Generic;
 
-namespace MusicGridNative
+namespace MusicGrid
 {
     public static class Input
     {
@@ -31,6 +31,8 @@ namespace MusicGridNative
         public static Vector2u WindowSize => window.Size;
         public static bool WindowHasFocus => window.HasFocus();
 
+        public static string TextEntered { get; private set; }
+
         public static EventHandler<SizeEventArgs> WindowResized;
 
         public static void SetWindow(RenderWindow window)
@@ -42,6 +44,7 @@ namespace MusicGridNative
 
                 window.KeyPressed -= KeyPressed;
                 window.KeyReleased -= KeyReleased;
+                window.TextEntered -= OnTextEntered;
 
                 window.MouseButtonPressed -= MouseButtonPressed;
                 window.MouseButtonReleased -= MouseButtonReleased;
@@ -61,6 +64,7 @@ namespace MusicGridNative
 
             window.KeyPressed += KeyPressed;
             window.KeyReleased += KeyReleased;
+            window.TextEntered += OnTextEntered;
 
             window.MouseButtonPressed += MouseButtonPressed;
             window.MouseButtonReleased += MouseButtonReleased;
@@ -73,6 +77,8 @@ namespace MusicGridNative
 
         public static void Reset()
         {
+            TextEntered = "";
+
             MouseDelta = MousePosition - PreviousMousePosition;
             PreviousMousePosition = MousePosition;
 
@@ -102,6 +108,11 @@ namespace MusicGridNative
         public static bool IsButtonHeld(Mouse.Button button) => HeldButtons.Contains(button);
         public static bool IsButtonPressed(Mouse.Button button) => PressedButtons.Contains(button);
         public static bool IsButtonReleased(Mouse.Button button) => ReleasedButtons.Contains(button);
+
+        private static void OnTextEntered(object sender, TextEventArgs e)
+        {
+            TextEntered += e.Unicode;
+        }
 
         private static void MouseButtonReleased(object sender, MouseButtonEventArgs e)
         {

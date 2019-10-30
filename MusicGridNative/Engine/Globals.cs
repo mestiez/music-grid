@@ -1,4 +1,4 @@
-﻿namespace MusicGridNative
+﻿namespace MusicGrid
 {
     public struct Globals
     {

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace MusicGridNative
+namespace MusicGrid
 {
     public struct Button
     {

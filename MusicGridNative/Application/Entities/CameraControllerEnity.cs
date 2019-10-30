@@ -2,7 +2,7 @@
 using SFML.System;
 using SFML.Window;
 
-namespace MusicGridNative
+namespace MusicGrid
 {
     public class CameraControllerEnity : Entity
     {

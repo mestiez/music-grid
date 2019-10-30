@@ -1,6 +1,6 @@
 ﻿using SFML.Graphics;
 
-namespace MusicGridNative
+namespace MusicGrid
 {
     public class ShapeRenderTask : IRenderTask
     {

@@ -2,7 +2,7 @@
 using SFML.Window;
 using System;
 
-namespace MusicGridNative
+namespace MusicGrid
 {
     public class MouseEventArgs : EventArgs
     {

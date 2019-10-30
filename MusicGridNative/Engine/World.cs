@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace MusicGridNative
+namespace MusicGrid
 {
     public class World
     {
@@ -15,14 +15,20 @@ namespace MusicGridNative
         private readonly Dictionary<Entity, int> createBuffer = new Dictionary<Entity, int>();
         private readonly List<Entity> destroyBuffer = new List<Entity>();
 
-        public LuaConsole Lua = new LuaConsole();
+        public ILuaConsole Lua = new LuaConsole();
         public RenderTarget RenderTarget { get; set; }
         public Color ClearColor { get; set; }
 
         public World(RenderTarget target)
         {
             RenderTarget = target;
-            Lua.LinkFunction("get_world", this, () => this);
+
+            Lua.LinkFunction("get_entities", this, () => entities.AsReadOnly());
+            Lua.LinkFunction("delete_all_entities", this, () =>
+            {
+                foreach (var entity in entities)
+                    Destroy(entity);
+            });
         }
 
         public void Step()

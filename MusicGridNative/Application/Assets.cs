@@ -1,7 +1,7 @@
 ﻿using SFML.Graphics;
 using System.Collections.Generic;
 
-namespace MusicGridNative
+namespace MusicGrid
 {
     public class Assets
     {
