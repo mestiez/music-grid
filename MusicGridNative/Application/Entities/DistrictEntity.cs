@@ -127,8 +127,8 @@ namespace MusicGridNative
             if (!needToRecalculateLayout) return;
             needToRecalculateLayout = false;
 
-            const float preferredSize = 256;
-            float scaledMargin = EntryMargin;
+            float preferredSize = 256;
+            float scaledMargin = (float)Math.Min(EntryMargin, District.Size.X / 256);
 
             int rowItemCount = (int)Math.Floor(District.Size.X / preferredSize);//(int)Math.Ceiling(District.Size.X / (Math.Min(entryElements.Count, 10) * (preferredSize + EntryMargin) + EntryMargin)) ;
             if (rowItemCount > 10) rowItemCount = 10;
@@ -177,6 +177,7 @@ namespace MusicGridNative
         private void RegenerateEntryElements()
         {
             entryVertices = new Vertex[District.Entries.Count * 4];
+            const float textPadding = 10;
 
             foreach (var entry in entryElements)
                 uiController.Deregister(entry.Value);
@@ -207,7 +208,7 @@ namespace MusicGridNative
                     entryText.Origin = new Vector2f(textBounds.Width, textBounds.Height) / 2;
 
                     float scale = Math.Min(element.Size.X / (textBounds.Width / textBounds.Height), element.Size.Y) / CharacterSize;
-                    entryText.Scale = new Vector2f(scale, scale) / (CharacterSize / 48f);
+                    entryText.Scale = new Vector2f(scale, scale) / (CharacterSize / (72f - textPadding));
                     entryText.Position = element.Position + element.Size / 2;
 
                     target.Draw(entryText);
@@ -260,12 +261,11 @@ namespace MusicGridNative
             background.Size = backgroundElement.Size;
             background.FillColor = backgroundElement.ComputedColor;
 
-
             var titleBounds = title.GetLocalBounds();
             title.Origin = new Vector2f(titleBounds.Width, titleBounds.Height) / 2;
 
             float scale = (float)Math.Min(District.Size.X / (titleBounds.Width / titleBounds.Height), District.Size.Y) / 150f;
-            title.Scale = new Vector2f(scale, scale) / (CharacterSize / 48f);
+            title.Scale = new Vector2f(scale, scale) / (CharacterSize / 72f);
             title.Position = background.Position + background.Size / 2;
             title.FillColor = GetFrontColor();
 
@@ -313,7 +313,7 @@ namespace MusicGridNative
             entryTask.Depth = backgroundElement.Depth;
             entryTask.Vertices = entryVertices;
 
-            yield return backgroundTask; 
+            yield return backgroundTask;
             yield return titleTask;
 
             if (District.Entries.Any())

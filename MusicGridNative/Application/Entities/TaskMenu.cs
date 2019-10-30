@@ -46,7 +46,7 @@ namespace MusicGridNative
                     DefaultExt = ".m3u8",
                     Multiselect = true,
                     Title = "Import m3u8",
-                    Filter = "M3U8 Playlists (.m3u8)|*.m3u8"
+                    Filter = "M3U8 Playlists|*.m3u8"
                 };
                 var result = dialog.ShowDialog();
                 if (result == false) return;

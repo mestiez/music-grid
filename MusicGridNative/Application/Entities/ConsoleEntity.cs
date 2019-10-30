@@ -20,7 +20,7 @@ namespace MusicGridNative
         private ShapeRenderTask backgroundTask;
         private ShapeRenderTask displayTask;
 
-        public ConsoleEntity(bool showFramerate = false, uint maximumMessages = 32)
+        public ConsoleEntity(bool showFramerate = false, uint maximumMessages = 64)
         {
             ShowFramerate = showFramerate;
             MaximumMessages = maximumMessages;

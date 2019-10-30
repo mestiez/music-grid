@@ -63,12 +63,13 @@ namespace MusicGridNative
 
         public bool EvaluateInteraction(bool firstHasBeenServed)
         {
+            ComputedColor = Color;
+
             if (Disabled)
             {
                 ComputedColor = DisabledColor;
                 return false;
             }
-
 
             var mousePos = IsScreenSpace ? (Vector2f)Input.ScreenMousePosition : Input.MousePosition;
 

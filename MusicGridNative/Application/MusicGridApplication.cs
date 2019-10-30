@@ -72,6 +72,8 @@ namespace MusicGridNative
         public Vector2i WorldToScreen(Vector2f value) => renderWindow.MapCoordsToPixel(value);
         public Vector2f ScreenToWorld(Vector2i value) => renderWindow.MapPixelToCoords(value);
 
+        public void RequestFocus() => renderWindow.RequestFocus();
+
         private void MainLoop()
         {
             Clock clock = new Clock();
