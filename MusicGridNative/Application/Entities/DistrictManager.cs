@@ -31,13 +31,26 @@ namespace MusicGrid
                 DefaultExt = ".m3u8",
                 Multiselect = true,
                 Title = "Import m3u8",
-                Filter = "M3U8 Playlists|*.m3u8"
+                Filter = "M3U8 Playlists|*.m3u8|All files|*.*"
             };
             var result = dialog.ShowDialog();
             if (result == false) return;
-            ConsoleEntity.Show(string.Join(", ", dialog.FileNames));
             foreach (var path in dialog.FileNames)
                 ImportPlaylist(path);
+        }
+
+        public void AskLoadGrid()
+        {
+            OpenFileDialog dialog = new OpenFileDialog
+            {
+                DefaultExt = ".mgd",
+                Multiselect = false,
+                Title = "Load music grid",
+                Filter = "Music grids|*.mgd|JSON files|*.json|All files|*.*"
+            };
+            var result = dialog.ShowDialog();
+            if (result == false) return;
+            LoadGrid(dialog.FileName);
         }
 
         public void ImportPlaylist(string path)
@@ -48,6 +61,7 @@ namespace MusicGrid
 
         public void AddDistrict(District district, bool giveRandomProperties = false)
         {
+            if (districts.Contains(district)) throw new ArgumentException($"District {district.Name} already exists");
             districts.Add(district);
             if (giveRandomProperties)
             {
@@ -58,10 +72,18 @@ namespace MusicGrid
             World.Add(new DistrictEntity(district));
         }
 
+        public void RemoveDistrict(District district)
+        {
+            var entities = World.GetEntitiesByType<DistrictEntity>();
+            foreach (var entity in entities.Where(e => e.District == district))
+                World.Destroy(entity);
+        }
+
         public void SaveGrid(string targetPath)
         {
+            targetPath = Path.GetFullPath(Path.Combine(Environment.CurrentDirectory, targetPath));
             var name = Path.GetFileName(targetPath);
-            var saveUri = new Uri(targetPath);
+            var fullPath = targetPath.Substring(0, targetPath.Length - name.Length);
 
             var relativisedDistricts = new List<District>();
 
@@ -70,39 +92,59 @@ namespace MusicGrid
                 var copy = new District(district.Name, district.Position, district.Size, district.Color);
                 copy.Entries = district.Entries.Select((e) =>
                 {
-                    Uri uri = new Uri(e.Path);
-                    uri.MakeRelativeUri(saveUri);
-                    return new DistrictEntry(e.Name, uri.OriginalString);
+                    return new DistrictEntry(e.Name, Utilities.GetRelativePath(e.Path, fullPath));
                 }).ToList();
                 relativisedDistricts.Add(copy);
             }
 
             var grid = new Grid(name);
-            grid.Districts = districts;
+            grid.Districts = relativisedDistricts;
 
-            var json = JsonConvert.SerializeObject(grid);
-            File.WriteAllText(targetPath, json);
+            try
+            {
+                var json = JsonConvert.SerializeObject(grid);
+                File.WriteAllText(targetPath, json);
+            }
+            catch (Exception e)
+            {
+                ConsoleEntity.Show(e);
+                return;
+            }
         }
 
         public void LoadGrid(string path)
         {
-            var json = File.ReadAllText(path);
-            var grid = JsonConvert.DeserializeObject<Grid>(json);
+            Grid grid = null;
+            try
+            {
+                var json = File.ReadAllText(path);
+                grid = JsonConvert.DeserializeObject<Grid>(json);
+            }
+            catch (Exception e)
+            {
+                ConsoleEntity.Show(e);
+                return;
+            }
 
-            var loadUri = new Uri(path);
+            RemoveAllDistricts();
 
-            districts.Clear();
             foreach (var district in grid.Districts)
             {
                 var copy = new District(district.Name, district.Position, district.Size, district.Color);
                 copy.Entries = district.Entries.Select((e) =>
                 {
-                    Uri uri = new Uri(e.Path);
-                    uri.MakeRelativeUri(loadUri);
-                    return new DistrictEntry(e.Name, uri.OriginalString);
+                    return new DistrictEntry(e.Name, Path.GetFullPath(Path.Combine(path, e.Path)));
                 }).ToList();
-                districts.Add(copy);
+                AddDistrict(copy);
             }
+        }
+
+        public void RemoveAllDistricts()
+        {
+            var entities = World.GetEntitiesByType<DistrictEntity>();
+            foreach (var entity in entities)
+                World.Destroy(entity);
+            districts.Clear();
         }
     }
 }

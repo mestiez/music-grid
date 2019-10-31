@@ -140,5 +140,7 @@ namespace MusicGrid
 
             return null;
         }
+
+        public T[] GetEntitiesByType<T>() where T : Entity => entities.OfType<T>().Concat(createBuffer.OfType<T>()).ToArray();
     }
 }

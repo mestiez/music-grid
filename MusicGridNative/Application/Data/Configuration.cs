@@ -53,7 +53,7 @@ namespace MusicGrid
         }
 
         //State
-        public uint WindowWidth = 500;
+        public uint WindowWidth = 700;
         public uint WindowHeight = 500;
         public uint FramerateCap = 60;
         public float Zoom = 1;

@@ -23,6 +23,22 @@ namespace MusicGrid
             return true;
         }
 
+        //from https://weblog.west-wind.com/posts/2010/Dec/20/Finding-a-Relative-Path-in-NET
+        public static string GetRelativePath(string fullPath, string basePath)
+        {
+            // Require trailing backslash for path
+            if (!basePath.EndsWith("\\"))
+                basePath += "\\";
+
+            Uri baseUri = new Uri(basePath);
+            Uri fullUri = new Uri(fullPath);
+
+            Uri relativeUri = baseUri.MakeRelativeUri(fullUri);
+
+            // Uri's use forward slashes so convert back to backward slashes
+            return relativeUri.ToString().Replace("/", "\\");
+        }
+
         public static float Lerp(float a, float b, float t)
         {
             return a * (1 - t) + b * t;

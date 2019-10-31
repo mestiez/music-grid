@@ -50,7 +50,7 @@ namespace MusicGrid
             };
 
             buttons.Add(new Button("import m3u8", districtManager.AskImportPlaylist));
-            buttons.Add(new Button("load grid", () => { ConsoleEntity.Show("should load a grid from file"); }));
+            buttons.Add(new Button("load grid", districtManager.AskLoadGrid));
             buttons.Add(Button.Separator);
             buttons.Add(new Button("save grid", () => { ConsoleEntity.Show("save file dialog time"); }));
             buttons.Add(Button.Separator);
