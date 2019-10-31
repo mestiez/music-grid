@@ -29,7 +29,7 @@ namespace MusicGrid
 
         private Vertex[] entryVertices;
 
-        private Text entryText;
+        private Text[] entryTexts;
         private bool needToRecalculateLayout = true;
 
         private const uint CharacterSize = 72;
@@ -61,12 +61,7 @@ namespace MusicGrid
                 FillColor = new Color(125, 0, 15)
             };
 
-            entryText = new Text("Entry", MusicGridApplication.Assets.DefaultFont)
-            {
-                FillColor = new Color(255, 255, 255, 255),
-                Position = new Vector2f(0, 0),
-                CharacterSize = CharacterSize
-            };
+            entryTexts = new Text[0];
 
             title = new Text("District", MusicGridApplication.Assets.DefaultFont)
             {
@@ -116,9 +111,6 @@ namespace MusicGrid
 
         public override void Update()
         {
-            if (entryElements.Count != District.Entries.Count)
-                RegenerateEntryElements();
-
             HandleDragging();
             HandleResizing();
 
@@ -126,6 +118,9 @@ namespace MusicGrid
             SyncResizeHandle();
 
             CalculateLayout();
+
+            if (entryElements.Count != District.Entries.Count)
+                RegenerateEntryElements();
         }
 
         private void CalculateLayout()
@@ -182,6 +177,7 @@ namespace MusicGrid
 
         private void RegenerateEntryElements()
         {
+            entryTexts = new Text[District.Entries.Count];
             entryVertices = new Vertex[District.Entries.Count * 4];
             const float textPadding = 20;
 
@@ -207,20 +203,25 @@ namespace MusicGrid
                     e.PropagateEvent();
                 };
 
+                entryTexts[i] = new Text("Entry", MusicGridApplication.Assets.DefaultFont)
+                {
+                    FillColor = new Color(255, 255, 255, 255),
+                    Position = new Vector2f(0, 0),
+                    CharacterSize = CharacterSize
+                };
+
+                var myText = entryTexts[i];
+                myText.DisplayedString = entry.Name;
+                var textBounds = myText.GetLocalBounds();
+                myText.Origin = new Vector2f(textBounds.Width, textBounds.Height) / 2;
+
+
                 renderTasks.Add(entry, new ActionRenderTask((target) =>
                 {
-                    entryText.Position = element.Position;
-
-                    entryText.DisplayedString = entry.Name;
-
-                    var textBounds = entryText.GetLocalBounds();
-                    entryText.Origin = new Vector2f(textBounds.Width, textBounds.Height) / 2;
-
+                    myText.Position = element.Position + element.Size / 2;
                     float scale = Math.Min(element.Size.X / (textBounds.Width / textBounds.Height), element.Size.Y) / CharacterSize;
-                    entryText.Scale = new Vector2f(scale, scale) / (CharacterSize / (72f - textPadding));
-                    entryText.Position = element.Position + element.Size / 2;
-
-                    target.Draw(entryText);
+                    myText.Scale = new Vector2f(scale, scale) / (CharacterSize / (72f - textPadding));
+                    target.Draw(myText);
                 }, backgroundElement.Depth));
 
                 entryElements.Add(entry, element);
@@ -349,7 +350,7 @@ namespace MusicGrid
                 {
                     var task = renderTasks[entry];
                     task.Depth = backgroundElement.Depth;
-                    
+                    yield return task;
                 }
             }
 
