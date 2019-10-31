@@ -49,13 +49,26 @@ namespace MusicGrid
                 CharacterSize = CharacterSize
             };
 
-            buttons.Add(new Button("import m3u8", districtManager.AskImportPlaylist));
-            buttons.Add(new Button("load grid", districtManager.AskLoadGrid));
-            buttons.Add(Button.Separator);
-            buttons.Add(new Button("save grid", () => { ConsoleEntity.Show("save file dialog time"); }));
-            buttons.Add(Button.Separator);
-            buttons.Add(new Button("fit view to grid", () => { ConsoleEntity.Show("check everything and set the camera up correctly"); }));
-            buttons.Add(new Button("reset camera", () => { Configuration.CurrentConfiguration.Pan = default; Configuration.CurrentConfiguration.Zoom = 1; }));
+            buttons.Add(new Button("file", () =>
+            {
+                ContextMenuEntity.Main.MinimumWidth = buttonElements[0].Size.X;
+                ContextMenuEntity.Open(new[] {
+                    new Button("import m3u8", districtManager.AskImportPlaylist),
+                    new Button("load grid", districtManager.AskLoadGrid),
+                    new Button("save grid", districtManager.AskSaveGrid),
+                },
+                    buttonElements[0].Position + new Vector2f(0, Height));
+            }));
+
+            buttons.Add(new Button("view", () =>
+            {
+                ContextMenuEntity.Main.MinimumWidth = buttonElements[1].Size.X;
+                ContextMenuEntity.Open(new[] {
+                    new Button("fit view to grid", default, false),
+                    new Button("reset view", () => { Configuration.CurrentConfiguration.Pan = default; Configuration.CurrentConfiguration.Zoom = 1; }),
+                },
+                    buttonElements[1].Position + new Vector2f(0, Height));
+            }));
 
             RecalculateLayout();
 
@@ -98,7 +111,7 @@ namespace MusicGrid
                 var elem = new UiElement
                 {
                     Disabled = !button.Interactive,
-                    Depth = int.MinValue,
+                    Depth = 0,
                     IsScreenSpace = true,
                     Color = Color.Transparent,
                     ActiveColor = new Color(255, 255, 255, 10),
@@ -124,7 +137,7 @@ namespace MusicGrid
 
                     target.Draw(buttonBackground);
                     target.Draw(buttonText);
-                }, 0);
+                }, elem.Depth);
             }
         }
 

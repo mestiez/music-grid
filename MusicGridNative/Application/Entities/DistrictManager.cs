@@ -53,6 +53,19 @@ namespace MusicGrid
             LoadGrid(dialog.FileName);
         }
 
+        public void AskSaveGrid()
+        {
+            SaveFileDialog dialog = new SaveFileDialog
+            {
+                DefaultExt = ".mgd",
+                Title = "Save music grid",
+                Filter = "Music grids|*.mgd|JSON files|*.json|All files|*.*"
+            };
+            var result = dialog.ShowDialog();
+            if (result == false) return;
+            SaveGrid(dialog.FileName);
+        }
+
         public void ImportPlaylist(string path)
         {
             var district = FileModelConverter.LoadM3U(path);

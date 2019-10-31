@@ -11,28 +11,46 @@ namespace MusicGrid
         private List<UiElement> elements = new List<UiElement>();
         private bool requiresElementResort = false;
 
+        private List<UiElement> registerBuffer = new List<UiElement>();
+        private List<UiElement> deregisterBuffer = new List<UiElement>();
+
         public UiElement FocusedElement { get; set; }
 
         public void Register(UiElement element)
         {
-            elements.Add(element);
-            element.Controller = this;
-            element.OnDepthChanged += OnDepthChange;
+            registerBuffer.Add(element);
             requiresElementResort = true;
-            FocusedElement = null;
-            element.EvaluateInteraction(false);
         }
 
         public void Deregister(UiElement element)
         {
-            elements.Remove(element);
-
-            if (FocusedElement == element)
-                FocusedElement = null;
-
-            element.Controller = null;
-            element.OnDepthChanged -= OnDepthChange;
+            deregisterBuffer.Add(element);
             requiresElementResort = true;
+        }
+
+        private void HandleBuffers()
+        {
+            foreach (var elem in deregisterBuffer)
+            {
+                elements.Remove(elem);
+                registerBuffer.Remove(elem);
+                if (FocusedElement == elem)
+                    FocusedElement = null;
+                elem.Controller = null;
+                elem.OnDepthChanged -= OnDepthChange;
+            }
+
+            foreach (var elem in registerBuffer)
+            {
+                elements.Add(elem);
+                elem.Controller = this;
+                elem.OnDepthChanged += OnDepthChange;
+                FocusedElement = null;
+                elem.EvaluateInteraction(false);
+            }
+
+            deregisterBuffer.Clear();
+            registerBuffer.Clear();
         }
 
         private void OnDepthChange(object obj, EventArgs e)
@@ -43,6 +61,9 @@ namespace MusicGrid
         private void ReSortElements()
         {
             requiresElementResort = false;
+
+            HandleBuffers();
+
             var ordered = new List<UiElement>();
 
             foreach (var element in elements.Where(elem => elem.DepthContainer == null).OrderBy(elem => elem.Depth))

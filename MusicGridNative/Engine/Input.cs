@@ -3,6 +3,7 @@ using SFML.System;
 using SFML.Window;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace MusicGrid
 {
@@ -105,9 +106,18 @@ namespace MusicGrid
         public static bool IsKeyPressed(Keyboard.Key key) => PressedKeys.Contains(key);
         public static bool IsKeyReleased(Keyboard.Key key) => ReleasedKeys.Contains(key);
 
+        public static bool IsAnyKeyHeld => HeldKeys.Any();
+        public static bool IsAnyKeyPressedd => PressedKeys.Any();
+        public static bool IsAnyKeyReleased => ReleasedKeys.Any();
+
         public static bool IsButtonHeld(Mouse.Button button) => HeldButtons.Contains(button);
         public static bool IsButtonPressed(Mouse.Button button) => PressedButtons.Contains(button);
         public static bool IsButtonReleased(Mouse.Button button) => ReleasedButtons.Contains(button);
+
+        public static bool IsAnyButtonHeld => HeldButtons.Any();
+        public static bool IsAnyButtonPressed => PressedButtons.Any();
+        public static bool IsAnyButtonReleased => ReleasedButtons.Any();
+
 
         private static void OnTextEntered(object sender, TextEventArgs e)
         {

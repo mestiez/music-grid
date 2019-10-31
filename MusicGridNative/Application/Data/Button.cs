@@ -15,7 +15,8 @@ namespace MusicGrid
             Interactive = interactive;
         }
 
-        public static readonly Button Separator = new Button("|", default, false);
+        public static readonly Button VerticalSeparator = new Button("|", default, false);
+        public static readonly Button HorizontalSeparator = new Button("ー", default, false);
         public static readonly Button Spacer = new Button("", default, false);
     }
 }

@@ -33,7 +33,7 @@ namespace MusicGrid
         private bool needToRecalculateLayout = true;
 
         private const uint CharacterSize = 72;
-        private static int MinimumDepth = 100;
+        private static int MinimumDepth = 999999;
         private const float HandleSize = 16;
         private const float EntryMargin = 3;
 
