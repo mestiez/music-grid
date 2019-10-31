@@ -40,6 +40,7 @@ namespace MusicGrid
 
         public override void Created()
         {
+            Input.WindowResized += (obj, e) => { RecalculateLayout(); };
             uiController = World.GetEntityByType<UiControllerEntity>();
             districtManager = World.GetEntityByType<DistrictManager>();
             buttonText = new Text("invalid!", MusicGridApplication.Assets.DefaultFont)
@@ -71,12 +72,6 @@ namespace MusicGrid
             }));
 
             RecalculateLayout();
-
-            Input.WindowResized += (obj, e) =>
-            {
-                RecalculateLayout();
-            };
-
         }
 
         private void RecalculateLayout()

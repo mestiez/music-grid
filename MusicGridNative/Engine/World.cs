@@ -24,7 +24,9 @@ namespace MusicGrid
             RenderTarget = target;
 
             Lua.LinkFunction("get_entities", this, () => entities.AsReadOnly());
-            Lua.LinkFunction("delete_all_entities", this, () =>
+            Lua.LinkFunction("get_entity", this, new Func<string, Entity>((s) => { return GetEntityByName(s); }).Method);
+            Lua.LinkFunction("destroy", this, (Entity e) => Destroy(e));
+            Lua.LinkFunction("destroy_all_entities", this, () =>
             {
                 foreach (var entity in entities)
                     Destroy(entity);
@@ -93,10 +95,11 @@ namespace MusicGrid
         private void HandleDestructionBuffer()
         {
             foreach (var entity in destroyBuffer)
-                entity.Destroyed();
+                entity?.Destroyed();
 
             foreach (var entity in destroyBuffer)
             {
+                if (entity == null) continue;
                 createBuffer.Remove(entity);
                 entities.Remove(entity);
             }
@@ -143,6 +146,17 @@ namespace MusicGrid
 
             foreach (var entity in createBuffer)
                 if (entity.Key is T typed) return typed;
+
+            return null;
+        }
+
+        public Entity GetEntityByName(string name)
+        {
+            foreach (Entity entity in entities)
+                if (entity.Name == name) return entity;
+
+            foreach (Entity entity in createBuffer.Keys)
+                if (entity.Name == name) return entity;
 
             return null;
         }

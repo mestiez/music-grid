@@ -141,6 +141,7 @@ namespace MusicGrid
 
             RemoveAllDistricts();
 
+            path = path.Substring(0, path.Length - Path.GetFileName(path).Length);
             foreach (var district in grid.Districts)
             {
                 var copy = new District(district.Name, district.Position, district.Size, district.Color);
