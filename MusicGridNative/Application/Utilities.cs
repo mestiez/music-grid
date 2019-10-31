@@ -39,6 +39,11 @@ namespace MusicGrid
             return relativeUri.ToString().Replace("/", "\\");
         }
 
+        public static float SquaredMagnitude(Vector2f vector)
+        {
+            return vector.X * vector.X + vector.Y * vector.Y;
+        }
+
         public static float Lerp(float a, float b, float t)
         {
             return a * (1 - t) + b * t;

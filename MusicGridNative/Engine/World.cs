@@ -41,23 +41,28 @@ namespace MusicGrid
             }
 
             foreach (var entity in entities)
-                entity.PreUpdate();
+                if (entity.Active)
+                    entity.PreUpdate();
 
             foreach (var entity in entities)
-                entity.Update();
+                if (entity.Active)
+                    entity.Update();
 
             foreach (var entity in entities)
-                entity.PostUpdate();
+                if (entity.Active)
+                    entity.PostUpdate();
 
             if (Input.WindowHasFocus)
             {
                 foreach (var entity in entities)
-                    entity.PreRender();
+                    if (entity.Visible)
+                        entity.PreRender();
 
                 SortAndRender();
 
                 foreach (var entity in entities)
-                    entity.PostRender();
+                    if (entity.Visible)
+                        entity.PostRender();
             }
         }
 
@@ -67,6 +72,7 @@ namespace MusicGrid
             var screenSpaceTasks = new List<IRenderTask>();
             foreach (Entity entity in entities)
             {
+                if (!entity.Visible) continue;
                 tasks.AddRange(entity.Render());
                 screenSpaceTasks.AddRange(entity.RenderScreen());
             }

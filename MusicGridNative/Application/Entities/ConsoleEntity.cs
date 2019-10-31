@@ -117,6 +117,7 @@ namespace MusicGrid
 
         public override void PreRender()
         {
+            if (!ConsoleIsOpen && !ShowFramerate) return;
             string fps = "[" + framesLastSecond + " fps]";
             string separator = "";
             for (int i = 0; i < Math.Floor(World.RenderTarget.Size.X / (float)display.CharacterSize); i++)

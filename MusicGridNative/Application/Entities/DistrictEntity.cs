@@ -37,6 +37,9 @@ namespace MusicGrid
         private const float HandleSize = 16;
         private const float EntryMargin = 3;
 
+        private Vector2f temporarySize;
+        private Vector2f temporaryPosition;
+
         private static readonly Vector2f[] handleShape = new Vector2f[3]
             {
                 new Vector2f(0, 0),
@@ -93,6 +96,9 @@ namespace MusicGrid
             titleTask = new ShapeRenderTask(title, backgroundElement.Depth);
             entryTask = new PrimitiveRenderTask(entryVertices, PrimitiveType.Quads, backgroundElement.Depth);
             handleTask = new PrimitiveRenderTask(resizeHandleVertices, PrimitiveType.Triangles, backgroundElement.Depth);
+
+            temporarySize = District.Size;
+            temporaryPosition = District.Position;
 
             BringToFront();
         }
@@ -197,6 +203,7 @@ namespace MusicGrid
 
                 element.OnMouseDown += (o, e) =>
                 {
+                    ConsoleEntity.Show(entry.Path);
                     e.PropagateEvent();
                 };
 
@@ -229,26 +236,43 @@ namespace MusicGrid
         {
             if (!backgroundElement.IsBeingHeld) return;
 
-            District.Position += Input.MouseDelta;
+            temporaryPosition += Input.MouseDelta;
 
-            if (Math.Abs(Input.MouseDelta.X) + Math.Abs(Input.MouseDelta.Y) > 0)
+            float snapSize = Configuration.CurrentConfiguration.SnappingSize;
+            var snappedPosition = Input.IsKeyHeld(SFML.Window.Keyboard.Key.LShift) ?
+                new Vector2f((float)Math.Round(temporaryPosition.X / snapSize) * snapSize, (float)Math.Round(temporaryPosition.Y / snapSize) * snapSize) :
+                temporaryPosition
+                ;
+            if (Utilities.SquaredMagnitude(snappedPosition - District.Position) > .01f)
+            {
+                District.Position = snappedPosition;
                 needToRecalculateLayout = true;
+            }
         }
 
         private void HandleResizing()
         {
             if (!resizeHandle.IsBeingHeld) return;
 
-            District.Size += Input.MouseDelta;
+            temporarySize += Input.MouseDelta;
 
-            if (District.Size.X < 64)
-                District.Size.X = 64;
+            float snapSize = Configuration.CurrentConfiguration.SnappingSize;
+            var snappedSize = Input.IsKeyHeld(SFML.Window.Keyboard.Key.LShift) ?
+                new Vector2f((float)Math.Round(temporarySize.X / snapSize) * snapSize, (float)Math.Round(temporarySize.Y / snapSize) * snapSize) :
+                temporarySize
+                ;
 
-            if (District.Size.Y < 64)
-                District.Size.Y = 64;
+            if (snappedSize.X < 64)
+                snappedSize.X = 64;
 
-            if (Math.Abs(Input.MouseDelta.X) + Math.Abs(Input.MouseDelta.Y) > 0)
+            if (snappedSize.Y < 64)
+                snappedSize.Y = 64;
+
+            if (Utilities.SquaredMagnitude(snappedSize - District.Size) > .01f)
+            {
+                District.Size = snappedSize;
                 needToRecalculateLayout = true;
+            }
         }
 
         private void SyncElement()
@@ -266,7 +290,7 @@ namespace MusicGrid
             var titleBounds = title.GetLocalBounds();
             title.Origin = new Vector2f(titleBounds.Width, titleBounds.Height) / 2;
 
-            float scale = (float)Math.Min(District.Size.X / (titleBounds.Width / titleBounds.Height), District.Size.Y) / 150f;
+            float scale = Math.Min(District.Size.X / (titleBounds.Width / titleBounds.Height), District.Size.Y) / 150f;
             title.Scale = new Vector2f(scale, scale) / (CharacterSize / 72f);
             title.Position = background.Position + background.Size / 2;
             title.FillColor = GetFrontColor();
@@ -325,7 +349,7 @@ namespace MusicGrid
                 {
                     var task = renderTasks[entry];
                     task.Depth = backgroundElement.Depth;
-                    yield return task;
+                    
                 }
             }
 

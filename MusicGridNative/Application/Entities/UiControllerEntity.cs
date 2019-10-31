@@ -42,7 +42,7 @@ namespace MusicGrid
 
         private void ReSortElements()
         {
-            requiresElementResort = true;
+            requiresElementResort = false;
             var ordered = new List<UiElement>();
 
             foreach (var element in elements.Where(elem => elem.DepthContainer == null).OrderBy(elem => elem.Depth))
@@ -58,7 +58,7 @@ namespace MusicGrid
         public override void Update()
         {
             if (!Input.WindowHasFocus) return;
-
+            Active = false;
             if (requiresElementResort)
                 ReSortElements();
 
