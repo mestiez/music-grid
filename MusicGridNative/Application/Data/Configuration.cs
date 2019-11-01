@@ -60,6 +60,8 @@ namespace MusicGrid
         public float ZoomUpperBound = 10f;
         public float SnappingSize = 8;
         [RequiresRestart]
+        public float AntiAliasing = 4;
+        [RequiresRestart]
         public float TextClarity = 72;
 
         //State

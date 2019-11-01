@@ -26,7 +26,7 @@ namespace MusicGrid
         {
             Main = this;
 
-            renderWindow = new RenderWindow(new VideoMode((uint)width, (uint)height), title, Styles.Resize | Styles.Close, new ContextSettings(8, 8, 16));
+            renderWindow = new RenderWindow(new VideoMode((uint)width, (uint)height), title, Styles.Resize | Styles.Close, new ContextSettings(8, 8, (uint)Configuration.CurrentConfiguration.AntiAliasing));
             renderWindow.SetFramerateLimit((uint)framerate);
 
             using (var ms = new MemoryStream())
@@ -57,12 +57,18 @@ namespace MusicGrid
 
             World.Lua.LinkFunction("quit", this, () => renderWindow.Close());
             World.Lua.LinkFunction("set", this, new Action<string, dynamic>((s, d) => SetConfigKey(s, d)).Method);
+            World.Lua.LinkFunction("get", this, new Func<string, dynamic>((s) => GetConfigKey(s)).Method);
 
             MainLoop();
 
             Configuration.CurrentConfiguration.Districts = new List<District>(districtManager.Districts).ToArray();
             Configuration.CurrentConfiguration.WindowHeight = (int)renderWindow.Size.Y;
             Configuration.CurrentConfiguration.WindowWidth = (int)renderWindow.Size.X;
+        }
+
+        private void ApplyConfig()
+        {
+            renderWindow.SetFramerateLimit((uint)Configuration.CurrentConfiguration.FramerateCap);
         }
 
         private void SetConfigKey(string name, dynamic value)
@@ -81,11 +87,29 @@ namespace MusicGrid
                 ConsoleEntity.Show($"Set {name} to {value}");
                 if (takesEffectAfter)
                     ConsoleEntity.Show($"This setting change will take effect after restart!");
+                ApplyConfig();
             }
             catch (Exception e)
             {
                 ConsoleEntity.Show($"Error while setting {name} to {value}:\n{e.Message}");
             }
+        }
+
+        private dynamic GetConfigKey(string name)
+        {
+            var field = typeof(Configuration).GetField(name);
+
+            if (field == null)
+                ConsoleEntity.Show($"{name} is not a valid configuration key");
+            try
+            {
+                return field.GetValue(Configuration.CurrentConfiguration);
+            }
+            catch (Exception e)
+            {
+                ConsoleEntity.Show($"Error while retrieving {name}:\n{e.Message}");
+            }
+            return null;
         }
 
         public Vector2i WorldToScreen(Vector2f value) => renderWindow.MapCoordsToPixel(value);

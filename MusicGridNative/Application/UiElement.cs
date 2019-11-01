@@ -65,12 +65,6 @@ namespace MusicGrid
         {
             ComputedColor = Color;
 
-            if (Disabled)
-            {
-                ComputedColor = DisabledColor;
-                return false;
-            }
-
             var mousePos = IsScreenSpace ? (Vector2f)Input.ScreenMousePosition : Input.MousePosition;
 
             if (firstHasBeenServed)
@@ -81,9 +75,9 @@ namespace MusicGrid
             else
             {
                 IsUnderMouse = Utilities.IsInside(mousePos, Position, Size);
-                IsActive = IsUnderMouse && Input.IsButtonHeld(Mouse.Button.Left);
+                IsActive = !Disabled && IsUnderMouse && Input.IsButtonHeld(Mouse.Button.Left);
 
-                if (IsUnderMouse && Input.IsButtonPressed(Mouse.Button.Left))
+                if (IsUnderMouse && Input.IsButtonPressed(Mouse.Button.Left) && !Disabled)
                 {
                     var args = new MouseEventArgs(Mouse.Button.Left, mousePos);
                     OnMouseDown?.Invoke(this, args);
@@ -96,7 +90,7 @@ namespace MusicGrid
                 }
             }
 
-            if (IsBeingHeld && Input.IsButtonReleased(Mouse.Button.Left))
+            if (!Disabled && IsBeingHeld && Input.IsButtonReleased(Mouse.Button.Left))
             {
                 if (Controller.FocusedElement == this)
                     Controller.FocusedElement = null;
@@ -104,7 +98,9 @@ namespace MusicGrid
                 OnMouseUp?.Invoke(this, new MouseEventArgs(Mouse.Button.Left, mousePos));
             }
 
-            if (IsActive || IsBeingHeld)
+            if (Disabled)
+                ComputedColor = DisabledColor;
+            else if (IsActive || IsBeingHeld)
                 ComputedColor = ActiveColor;
             else if (IsUnderMouse)
                 ComputedColor = HoverColor;

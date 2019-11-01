@@ -32,7 +32,7 @@ namespace MusicGrid
         private Text[] entryTexts;
         private bool needToRecalculateLayout = true;
 
-        private const uint CharacterSize = 72;
+        private readonly uint CharacterSize = 72;
         private static int MinimumDepth = 999999;
         private const float HandleSize = 16;
         private const float EntryMargin = 3;
@@ -50,6 +50,7 @@ namespace MusicGrid
         public DistrictEntity(District district)
         {
             District = district;
+            CharacterSize = (uint)Configuration.CurrentConfiguration.TextClarity;
         }
 
         public override void Created()
@@ -215,12 +216,11 @@ namespace MusicGrid
                 var textBounds = myText.GetLocalBounds();
                 myText.Origin = new Vector2f(textBounds.Width, textBounds.Height) / 2;
 
-
                 renderTasks.Add(entry, new ActionRenderTask((target) =>
                 {
                     myText.Position = element.Position + element.Size / 2;
-                    float scale = Math.Min(element.Size.X / (textBounds.Width / textBounds.Height), element.Size.Y) / CharacterSize;
-                    myText.Scale = new Vector2f(scale, scale) / (CharacterSize / (72f - textPadding));
+                    float scale = Math.Min(element.Size.X / (textBounds.Width / textBounds.Height), element.Size.Y) / (CharacterSize + textPadding);
+                    myText.Scale = new Vector2f(scale, scale);
                     target.Draw(myText);
                 }, backgroundElement.Depth));
 

@@ -49,7 +49,12 @@ namespace MusicGrid
                 Position = default,
                 CharacterSize = CharacterSize
             };
+            CreateButtons();
+            RecalculateLayout();
+        }
 
+        private void CreateButtons()
+        {
             buttons.Add(new Button("file", () =>
             {
                 ContextMenuEntity.Main.MinimumWidth = buttonElements[0].Size.X;
@@ -57,6 +62,8 @@ namespace MusicGrid
                     new Button("import m3u8", districtManager.AskImportPlaylist),
                     new Button("load grid", districtManager.AskLoadGrid),
                     new Button("save grid", districtManager.AskSaveGrid),
+                    Button.HorizontalSeparator,
+                    new Button("exit", () => { World.Lua.Execute("quit()"); }),
                 },
                     buttonElements[0].Position + new Vector2f(0, Height));
             }));
@@ -71,7 +78,15 @@ namespace MusicGrid
                     buttonElements[1].Position + new Vector2f(0, Height));
             }));
 
-            RecalculateLayout();
+            buttons.Add(new Button("help", () =>
+            {
+                ContextMenuEntity.Main.MinimumWidth = buttonElements[2].Size.X;
+                ContextMenuEntity.Open(new[] {
+                    new Button("about", default, false),
+                    new Button("open console", () => { ConsoleEntity.Main.ConsoleIsOpen = true; }),
+                },
+                    buttonElements[2].Position + new Vector2f(0, Height));
+            }));
         }
 
         private void RecalculateLayout()

@@ -132,7 +132,7 @@
     <Compile Include="Application\Entities\ConsoleEntity.cs" />
     <Compile Include="Application\Entities\DistrictEntity.cs" />
     <Compile Include="Engine\ILuaConsole.cs" />
-    <Compile Include="Engine\LuaConsole.cs" />
+    <Compile Include="Application\LuaConsole.cs" />
     <Compile Include="Application\Entities\TaskMenu.cs" />
     <Compile Include="Application\Entities\UiControllerEntity.cs" />
     <Compile Include="Application\FileModelConverter.cs" />
