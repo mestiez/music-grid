@@ -52,22 +52,26 @@ namespace MusicGrid
             }
         }
 
-        //State
-        public uint WindowWidth = 700;
-        public uint WindowHeight = 500;
-        public uint FramerateCap = 60;
-        public float Zoom = 1;
-        public Vector2f Pan = default;
-
         //Settings
+        public int FramerateCap = 60;
         public bool OpenLastOpenedAtLaunch = true;
         public float ZoomSensitivity = 1;
         public float ZoomLowerBound = .01f;
         public float ZoomUpperBound = 10f;
         public float SnappingSize = 8;
+        [RequiresRestart]
         public float TextClarity = 72;
 
-        //Last session
+        //State
+        [RequiresRestart]
+        public int WindowWidth = 700;
+        [RequiresRestart]
+        public int WindowHeight = 500;
+        public float Zoom = 1;
+        public Vector2f Pan = default;
+        [RequiresRestart]
         public District[] Districts = { };
+
+        public class RequiresRestartAttribute : Attribute { }
     }
 }

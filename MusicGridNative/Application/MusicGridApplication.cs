@@ -4,6 +4,7 @@ using SFML.Window;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading;
 
 namespace MusicGrid
@@ -21,12 +22,12 @@ namespace MusicGrid
 
         private float time;
 
-        public MusicGridApplication(uint width, uint height, uint framerate, string title)
+        public MusicGridApplication(int width, int height, int framerate, string title)
         {
             Main = this;
 
-            renderWindow = new RenderWindow(new VideoMode(width, height), title, Styles.Resize | Styles.Close);
-            renderWindow.SetFramerateLimit(framerate);
+            renderWindow = new RenderWindow(new VideoMode((uint)width, (uint)height), title, Styles.Resize | Styles.Close, new ContextSettings(8, 8, 16));
+            renderWindow.SetFramerateLimit((uint)framerate);
 
             using (var ms = new MemoryStream())
             {
@@ -55,18 +56,36 @@ namespace MusicGrid
                 districtManager.AddDistrict(district);
 
             World.Lua.LinkFunction("quit", this, () => renderWindow.Close());
-            World.Lua.LinkFunction("set_framerate_cap", this, (int c) =>
-            {
-                renderWindow.SetFramerateLimit((uint)c);
-                Configuration.CurrentConfiguration.FramerateCap = (uint)c;
-                ConsoleEntity.Show("Set framerate cap to " + c);
-            });
+            World.Lua.LinkFunction("set", this, new Action<string, dynamic>((s, d) => SetConfigKey(s, d)).Method);
 
             MainLoop();
 
             Configuration.CurrentConfiguration.Districts = new List<District>(districtManager.Districts).ToArray();
-            Configuration.CurrentConfiguration.WindowHeight = renderWindow.Size.Y;
-            Configuration.CurrentConfiguration.WindowWidth = renderWindow.Size.X;
+            Configuration.CurrentConfiguration.WindowHeight = (int)renderWindow.Size.Y;
+            Configuration.CurrentConfiguration.WindowWidth = (int)renderWindow.Size.X;
+        }
+
+        private void SetConfigKey(string name, dynamic value)
+        {
+            var field = typeof(Configuration).GetField(name);
+            var takesEffectAfter = field.GetCustomAttributes(typeof(Configuration.RequiresRestartAttribute), true).Any();
+
+            if (field == null)
+            {
+                ConsoleEntity.Show($"{name} is not a valid configuration key");
+                return;
+            }
+            try
+            {
+                field.SetValue(Configuration.CurrentConfiguration, Convert.ChangeType(value, field.FieldType));
+                ConsoleEntity.Show($"Set {name} to {value}");
+                if (takesEffectAfter)
+                    ConsoleEntity.Show($"This setting change will take effect after restart!");
+            }
+            catch (Exception e)
+            {
+                ConsoleEntity.Show($"Error while setting {name} to {value}:\n{e.Message}");
+            }
         }
 
         public Vector2i WorldToScreen(Vector2f value) => renderWindow.MapCoordsToPixel(value);
