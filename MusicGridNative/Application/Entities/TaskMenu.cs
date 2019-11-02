@@ -72,7 +72,7 @@ namespace MusicGrid
             {
                 ContextMenuEntity.Main.MinimumWidth = buttonElements[1].Size.X;
                 ContextMenuEntity.Open(new[] {
-                    new Button("fit view to grid", () => { World.GetEntityByType<CameraControllerEnity>().FitToView(); }),
+                    new Button("fit view to grid", () => { World.GetEntityByType<CameraControllerEnity>().FitToView(districtManager.Districts); }),
                     new Button("reset view", () => { Configuration.CurrentConfiguration.Pan = default; Configuration.CurrentConfiguration.Zoom = 1; }),
                 },
                     buttonElements[1].Position + new Vector2f(0, Height));

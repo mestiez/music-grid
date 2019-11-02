@@ -139,6 +139,9 @@ namespace MusicGrid
                         manager.RemoveDistrict(district);
                     uiController.ClearSelection();
                 }),
+                new Button($"fit view to {(selectedDistricts.Count() == 1 ? "district" : "selected districts")}", () => {
+                    World.GetEntityByType<CameraControllerEnity>().FitToView(selectedDistricts);
+                }),
             });
 
             if (count == 1)

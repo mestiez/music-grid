@@ -2,6 +2,7 @@
 using SFML.System;
 using SFML.Window;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace MusicGrid
@@ -68,21 +69,20 @@ namespace MusicGrid
             if (config.Zoom < config.ZoomLowerBound) config.Zoom = config.ZoomLowerBound;
         }
 
-        public void FitToView(float padding = 20)
+        public void FitToView(IEnumerable<District> districts, float padding = 20)
         {
-            var manager = World.GetEntityByType<DistrictManager>();
             var taskMenu = World.GetEntityByType<TaskMenu>();
 
-            float minX = manager.Districts.Min(d => d.Position.X) - padding;
-            float minY = manager.Districts.Min(d => d.Position.Y) - padding - taskMenu.Height * 2;
-            float maxX = manager.Districts.Max(d => d.Position.X + d.Size.X) + padding;
-            float maxY = manager.Districts.Max(d => d.Position.Y + d.Size.Y) + padding;
+            float minX = districts.Min(d => d.Position.X) - padding;
+            float minY = districts.Min(d => d.Position.Y) - padding - taskMenu.Height;
+            float maxX = districts.Max(d => d.Position.X + d.Size.X) + padding;
+            float maxY = districts.Max(d => d.Position.Y + d.Size.Y) + padding;
             var center = new Vector2f((minX + maxX) / 2, (minY + maxY) / 2);
             float width = maxX - minX;
             float height = maxY - minY;
 
             Configuration.CurrentConfiguration.Pan = center;
-            Configuration.CurrentConfiguration.Zoom = 1f/Math.Min(World.RenderTarget.Size.X / width, (World.RenderTarget.Size.Y - taskMenu.Height) / height);
+            Configuration.CurrentConfiguration.Zoom = 1f / Math.Min(World.RenderTarget.Size.X / width, (World.RenderTarget.Size.Y - taskMenu.Height) / height);
             ClampZoom();
         }
     }
