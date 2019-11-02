@@ -15,6 +15,9 @@ namespace MusicGrid
         private Text display;
         private RectangleShape background;
         private static readonly Queue<string> history = new Queue<string>();
+
+        private readonly List<string> inputHistory = new List<string>();
+        private int inputHistoryIndex = 0;
         private int framesCounted = 0;
         private int framesLastSecond = 0;
         private float t = 0;
@@ -70,6 +73,7 @@ namespace MusicGrid
 
         private void HandleUserInput()
         {
+            HandleInputHistoryTraversing();
             if (Input.IsKeyReleased(Keyboard.Key.Enter))
                 ConsumeInput();
             else
@@ -85,8 +89,35 @@ namespace MusicGrid
                     }
         }
 
+        private void HandleInputHistoryTraversing()
+        {
+            if (inputHistory.Any())
+            {
+                if (Input.IsKeyReleased(Keyboard.Key.Up))
+                {
+                    inputHistoryIndex--;
+                    if (inputHistoryIndex >= 0)
+                        input = inputHistory[inputHistoryIndex];
+                    else inputHistoryIndex = -1;
+                }
+                else if (Input.IsKeyReleased(Keyboard.Key.Down))
+                {
+                    inputHistoryIndex++;
+                    if (inputHistoryIndex >= inputHistory.Count)
+                    {
+                        inputHistoryIndex = inputHistory.Count;
+                        input = "";
+                    }
+                    else
+                        input = inputHistory[inputHistoryIndex];
+                }
+            }
+        }
+
         private void ConsumeInput()
         {
+            inputHistory.Add(input);
+            inputHistoryIndex = inputHistory.Count;
             var results = World.Lua.Execute(input);
             if (results != null)
                 foreach (var result in results.Where(e => e != null))

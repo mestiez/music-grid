@@ -306,12 +306,17 @@ namespace MusicGrid
             }
         }
 
+        private float SmoothedSquareWave(float x, float a, float f, float d) => (2 * a / (float)Math.PI) * (float)Math.Atan((float)Math.Sin(2 * (float)Math.PI * x * f) / d);
+
         private void SyncElement()
         {
             backgroundElement.Color = District.Color;
             backgroundElement.ActiveColor = District.Color;
             backgroundElement.HoverColor = District.Color;
-            backgroundElement.SelectedColor = Utilities.Lerp(District.Color, Color.White, 0.1f);
+            float t = SmoothedSquareWave(MusicGridApplication.Globals.Time + (District.Position.X + District.Position.Y) * Configuration.CurrentConfiguration.SelectionWaveWave, .5f, 
+                Configuration.CurrentConfiguration.SelectionWaveFrequency, 
+                Configuration.CurrentConfiguration.SelectionWaveSmoothness) + .5f;
+            backgroundElement.SelectedColor = Utilities.Lerp(District.Color, Utilities.IsTooBright(District.Color) ? Color.Black : Color.White, t * 0.5f);
             backgroundElement.DisabledColor = District.Color;
             backgroundElement.Position = District.Position;
             backgroundElement.Size = District.Size;
@@ -319,7 +324,6 @@ namespace MusicGrid
             background.Position = backgroundElement.Position;
             background.Size = backgroundElement.Size;
             background.FillColor = backgroundElement.ComputedColor;
-            background.OutlineColor = new Color(255, 255, 255, 200);
 
             var titleBounds = title.GetLocalBounds();
             title.Origin = new Vector2f(titleBounds.Width, titleBounds.Height) / 2;
@@ -357,7 +361,6 @@ namespace MusicGrid
             backgroundTask.Depth = backgroundElement.Depth;
             titleTask.Depth = backgroundElement.Depth;
             handleTask.Depth = backgroundElement.Depth;
-            background.OutlineThickness = backgroundElement.IsSelected ? 3 : 0;
 
             for (int i = 0; i < District.Entries.Count; i++)
             {

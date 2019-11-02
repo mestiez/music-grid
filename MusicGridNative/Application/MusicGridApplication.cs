@@ -74,7 +74,6 @@ namespace MusicGrid
         private void SetConfigKey(string name, dynamic value)
         {
             var field = typeof(Configuration).GetField(name);
-            var takesEffectAfter = field.GetCustomAttributes(typeof(Configuration.RequiresRestartAttribute), true).Any();
 
             if (field == null)
             {
@@ -83,6 +82,7 @@ namespace MusicGrid
             }
             try
             {
+                var takesEffectAfter = field.GetCustomAttributes(typeof(Configuration.RequiresRestartAttribute), true).Any();
                 field.SetValue(Configuration.CurrentConfiguration, Convert.ChangeType(value, field.FieldType));
                 ConsoleEntity.Log($"Set {name} to {value}");
                 if (takesEffectAfter)

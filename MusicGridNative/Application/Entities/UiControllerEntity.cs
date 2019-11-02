@@ -121,6 +121,14 @@ namespace MusicGrid
         public override void Update()
         {
             if (!Input.WindowHasFocus) return;
+
+            if (Input.IsKeyPressed(SFML.Window.Keyboard.Key.A))
+            {
+                ClearSelection();
+                foreach (var item in elements)
+                    Select(item, true);
+            }
+
             Multiselecting = Input.IsKeyHeld(SFML.Window.Keyboard.Key.LShift) || Input.IsKeyHeld(SFML.Window.Keyboard.Key.LControl);
             if (requiresElementResort)
                 ReSortElements();

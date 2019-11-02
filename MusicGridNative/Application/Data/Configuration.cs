@@ -61,6 +61,9 @@ namespace MusicGrid
         public float ZoomLowerBound = .01f;
         public float ZoomUpperBound = 10f;
         public float SnappingSize = 8;
+        public float SelectionWaveSmoothness = 0.1f;
+        public float SelectionWaveFrequency = 1f;
+        public float SelectionWaveWave = .0001f;
         [RequiresRestart]
         public float AntiAliasing = 4;
         [RequiresRestart]
