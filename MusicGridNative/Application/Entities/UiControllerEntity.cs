@@ -14,6 +14,9 @@ namespace MusicGrid
         private List<UiElement> registerBuffer = new List<UiElement>();
         private List<UiElement> deregisterBuffer = new List<UiElement>();
 
+        private HashSet<UiElement> selected = new HashSet<UiElement>();
+        public bool Multiselecting { get; private set; } = false;
+
         public UiElement FocusedElement { get; set; }
 
         public void Register(UiElement element)
@@ -61,24 +64,63 @@ namespace MusicGrid
         private void ReSortElements()
         {
             requiresElementResort = false;
-
             HandleBuffers();
-
             var ordered = new List<UiElement>();
-
             foreach (var element in elements.Where(elem => elem.DepthContainer == null).OrderBy(elem => elem.Depth))
             {
                 foreach (var child in elements.Where(elem => elem.DepthContainer == element).OrderBy(elem => elem.Depth))
                     ordered.Add(child);
                 ordered.Add(element);
             }
-
             elements = ordered;
+        }
+
+        public void HandleSelection(UiElement elem)
+        {
+            if (Multiselecting)
+            {
+                if (elem.IsSelected)
+                    Deselect(elem);
+                else
+                    Select(elem, true);
+            }
+            else
+                Select(elem, false);
+        }
+
+        public void Select(UiElement element, bool multiselect = false)
+        {
+            if (!element.Selectable) return;
+            if (!multiselect)
+                ClearSelection();
+            element.IsSelected = true;
+            selected.Add(element);
+            element.ComputeColors();
+        }
+
+        public void Deselect(UiElement element)
+        {
+            if (!element.Selectable) return;
+            if (!selected.Contains(element)) return;
+            element.IsSelected = false;
+            selected.Remove(element);
+            element.ComputeColors();
+        }
+
+        public void ClearSelection()
+        {
+            foreach (var elem in selected)
+            {
+                elem.IsSelected = false;
+                elem.ComputeColors();
+            }
+            selected.Clear();
         }
 
         public override void Update()
         {
             if (!Input.WindowHasFocus) return;
+            Multiselecting = Input.IsKeyHeld(SFML.Window.Keyboard.Key.LShift) || Input.IsKeyHeld(SFML.Window.Keyboard.Key.LControl);
             if (requiresElementResort)
                 ReSortElements();
 

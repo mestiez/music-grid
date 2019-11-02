@@ -24,15 +24,15 @@ namespace MusicGrid
                 switch (e)
                 {
                     case FileNotFoundException fe:
-                        ConsoleEntity.Show("Configuration not found at " + path);
-                        ConsoleEntity.Show(fe);
+                        ConsoleEntity.Log("Configuration not found at " + path);
+                        ConsoleEntity.Log(fe);
                         break;
                     case JsonException je:
-                        ConsoleEntity.Show("Invalid configuration at " + path);
-                        ConsoleEntity.Show(je);
+                        ConsoleEntity.Log("Invalid configuration at " + path);
+                        ConsoleEntity.Log(je);
                         break;
                     default:
-                        ConsoleEntity.Show(e.ToString());
+                        ConsoleEntity.Log(e.ToString());
                         break;
                 }
 
@@ -48,7 +48,7 @@ namespace MusicGrid
             }
             catch (Exception e)
             {
-                ConsoleEntity.Show(e.ToString());
+                ConsoleEntity.Log(e.ToString());
             }
         }
 

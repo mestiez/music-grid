@@ -85,6 +85,8 @@ namespace MusicGrid
             resizeHandle.OnMouseDown += (o, e) => BringToFront();
             backgroundElement.OnMouseDown += (o, e) => BringToFront();
 
+            backgroundElement.Selectable = true;
+
             uiController.Register(resizeHandle);
             uiController.Register(backgroundElement);
 
@@ -155,10 +157,6 @@ namespace MusicGrid
                 {
                     UiElement element = entryElements.Values.ElementAt(totalIndex);
 
-                    element.Color = GetFrontColor(50);
-                    element.HoverColor = GetFrontColor(80);
-                    element.ActiveColor = GetFrontColor(50);
-
                     element.Size = new Vector2f(flexSpace + preferredSize, entryHeight);
                     element.Position = new Vector2f(0, 0) + District.Position + new Vector2f(previousEndPosition + scaledMargin, scaledMargin + (entryHeight + scaledMargin) * rowIndex);
 
@@ -195,13 +193,16 @@ namespace MusicGrid
                 {
                     DepthContainer = backgroundElement,
                     Position = new Vector2f(i * 5, i * 5),
-                    Size = new Vector2f(80, 32)
+                    Size = new Vector2f(80, 32),
+                    Color = GetFrontColor(50),
+                    HoverColor = GetFrontColor(80),
+                    ActiveColor = GetFrontColor(50),
                 };
 
                 element.OnMouseDown += (o, e) =>
                 {
-                    ConsoleEntity.Show(entry.Path);
                     e.PropagateEvent();
+                    ConsoleEntity.Log(entry.Path);
                 };
 
                 entryTexts[i] = new Text("Entry", MusicGridApplication.Assets.DefaultFont)
@@ -240,7 +241,7 @@ namespace MusicGrid
             temporaryPosition += Input.MouseDelta;
 
             float snapSize = Configuration.CurrentConfiguration.SnappingSize;
-            var snappedPosition = Input.IsKeyHeld(SFML.Window.Keyboard.Key.LShift) ?
+            var snappedPosition = !Input.IsKeyHeld(SFML.Window.Keyboard.Key.LShift) ?
                 new Vector2f((float)Math.Round(temporaryPosition.X / snapSize) * snapSize, (float)Math.Round(temporaryPosition.Y / snapSize) * snapSize) :
                 temporaryPosition
                 ;
@@ -258,7 +259,7 @@ namespace MusicGrid
             temporarySize += Input.MouseDelta;
 
             float snapSize = Configuration.CurrentConfiguration.SnappingSize;
-            var snappedSize = Input.IsKeyHeld(SFML.Window.Keyboard.Key.LShift) ?
+            var snappedSize = !Input.IsKeyHeld(SFML.Window.Keyboard.Key.LShift) ?
                 new Vector2f((float)Math.Round(temporarySize.X / snapSize) * snapSize, (float)Math.Round(temporarySize.Y / snapSize) * snapSize) :
                 temporarySize
                 ;
@@ -281,12 +282,15 @@ namespace MusicGrid
             backgroundElement.Color = District.Color;
             backgroundElement.ActiveColor = District.Color;
             backgroundElement.HoverColor = District.Color;
+            backgroundElement.SelectedColor = Utilities.Lerp(District.Color, Color.White, 0.1f);
+            backgroundElement.DisabledColor = District.Color;
             backgroundElement.Position = District.Position;
             backgroundElement.Size = District.Size;
 
             background.Position = backgroundElement.Position;
             background.Size = backgroundElement.Size;
             background.FillColor = backgroundElement.ComputedColor;
+            background.OutlineColor = new Color(255, 255, 255, 200);
 
             var titleBounds = title.GetLocalBounds();
             title.Origin = new Vector2f(titleBounds.Width, titleBounds.Height) / 2;
@@ -324,6 +328,7 @@ namespace MusicGrid
             backgroundTask.Depth = backgroundElement.Depth;
             titleTask.Depth = backgroundElement.Depth;
             handleTask.Depth = backgroundElement.Depth;
+            background.OutlineThickness = backgroundElement.IsSelected ? 3 : 0;
 
             for (int i = 0; i < District.Entries.Count; i++)
             {

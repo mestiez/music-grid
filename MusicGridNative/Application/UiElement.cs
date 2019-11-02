@@ -21,6 +21,7 @@ namespace MusicGrid
         public Color HoverColor { get; set; }
         public Color ActiveColor { get; set; }
         public Color DisabledColor { get; set; }
+        public Color SelectedColor { get; set; }
 
         public bool IsScreenSpace { get; set; }
 
@@ -51,7 +52,9 @@ namespace MusicGrid
         public bool IsActive { get; private set; }
         public bool IsBeingHeld { get; private set; }
         public Color ComputedColor { get; private set; }
+        public bool IsSelected { get; set; }
 
+        public bool Selectable { get; set; }
         public bool Disabled { get; set; }
 
         public event EventHandler<MouseEventArgs> OnMouseDown;
@@ -83,6 +86,8 @@ namespace MusicGrid
                     OnMouseDown?.Invoke(this, args);
                     if (!args.IsPermeable)
                     {
+                        if (Selectable)
+                            Controller.HandleSelection(this);
                         Controller.FocusedElement = this;
                         IsBeingHeld = true;
                     }
@@ -97,17 +102,22 @@ namespace MusicGrid
                 IsBeingHeld = false;
                 OnMouseUp?.Invoke(this, new MouseEventArgs(Mouse.Button.Left, mousePos));
             }
+            ComputeColors();
+            return IsUnderMouse || IsBeingHeld;
+        }
 
+        public void ComputeColors()
+        {
             if (Disabled)
                 ComputedColor = DisabledColor;
+            else if (IsSelected)
+                ComputedColor = SelectedColor;
             else if (IsActive || IsBeingHeld)
                 ComputedColor = ActiveColor;
             else if (IsUnderMouse)
                 ComputedColor = HoverColor;
             else
                 ComputedColor = Color;
-
-            return IsUnderMouse || IsBeingHeld;
         }
     }
 }

@@ -78,20 +78,20 @@ namespace MusicGrid
 
             if (field == null)
             {
-                ConsoleEntity.Show($"{name} is not a valid configuration key");
+                ConsoleEntity.Log($"{name} is not a valid configuration key");
                 return;
             }
             try
             {
                 field.SetValue(Configuration.CurrentConfiguration, Convert.ChangeType(value, field.FieldType));
-                ConsoleEntity.Show($"Set {name} to {value}");
+                ConsoleEntity.Log($"Set {name} to {value}");
                 if (takesEffectAfter)
-                    ConsoleEntity.Show($"This setting change will take effect after restart!");
+                    ConsoleEntity.Log($"This setting change will take effect after restart!");
                 ApplyConfig();
             }
             catch (Exception e)
             {
-                ConsoleEntity.Show($"Error while setting {name} to {value}:\n{e.Message}");
+                ConsoleEntity.Log($"Error while setting {name} to {value}:\n{e.Message}");
             }
         }
 
@@ -100,14 +100,14 @@ namespace MusicGrid
             var field = typeof(Configuration).GetField(name);
 
             if (field == null)
-                ConsoleEntity.Show($"{name} is not a valid configuration key");
+                ConsoleEntity.Log($"{name} is not a valid configuration key");
             try
             {
                 return field.GetValue(Configuration.CurrentConfiguration);
             }
             catch (Exception e)
             {
-                ConsoleEntity.Show($"Error while retrieving {name}:\n{e.Message}");
+                ConsoleEntity.Log($"Error while retrieving {name}:\n{e.Message}");
             }
             return null;
         }

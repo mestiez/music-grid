@@ -90,19 +90,19 @@ namespace MusicGrid
             var results = World.Lua.Execute(input);
             if (results != null)
                 foreach (var result in results.Where(e => e != null))
-                    Show(result);
+                    Log(result);
 
             input = "";
         }
 
-        public static void Show(object message)
+        public static void Log(object message)
         {
             if (message == null) message = "null";
 
             if (message is ICollection messageList)
             {
                 foreach (var item in messageList)
-                    Show(item);
+                    Log(item);
                 return;
             }
 
@@ -112,7 +112,7 @@ namespace MusicGrid
 
         private void AddToHistory(object message)
         {
-            Show(message);
+            Log(message);
         }
 
         public override void PreRender()

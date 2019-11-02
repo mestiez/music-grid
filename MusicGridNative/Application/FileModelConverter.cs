@@ -32,7 +32,7 @@ namespace MusicGrid
                 }
                 catch (Exception e)
                 {
-                    ConsoleEntity.Show(e);
+                    ConsoleEntity.Log(e);
                 }
             }
 
