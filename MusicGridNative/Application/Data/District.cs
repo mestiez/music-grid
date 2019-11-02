@@ -31,5 +31,7 @@ namespace MusicGrid
         public District()
         {
         }
+
+        public override string ToString() => Name;
     }
 }

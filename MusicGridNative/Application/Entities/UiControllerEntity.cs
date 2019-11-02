@@ -15,6 +15,7 @@ namespace MusicGrid
         private List<UiElement> deregisterBuffer = new List<UiElement>();
 
         private HashSet<UiElement> selected = new HashSet<UiElement>();
+        public IReadOnlyList<UiElement> Selected => selected.ToList().AsReadOnly();
         public bool Multiselecting { get; private set; } = false;
 
         public UiElement FocusedElement { get; set; }
@@ -49,7 +50,7 @@ namespace MusicGrid
                 elem.Controller = this;
                 elem.OnDepthChanged += OnDepthChange;
                 FocusedElement = null;
-                elem.EvaluateInteraction(false);
+                elem.EvaluateInteraction(default);
             }
 
             deregisterBuffer.Clear();
@@ -124,15 +125,22 @@ namespace MusicGrid
             if (requiresElementResort)
                 ReSortElements();
 
-            bool firstServed = false;
+            var info = new InteractionInfo
+            {
+                Pressed = Input.PressedButton,
+                Held = Input.HeldButton,
+                Released = Input.ReleasedButton
+            };
+
             if (FocusedElement != null)
-                FocusedElement.EvaluateInteraction(false);
+                info.FirstServed = FocusedElement.EvaluateInteraction(info);
             else
                 foreach (UiElement element in elements)
-                {
-                    if (element.EvaluateInteraction(firstServed))
-                        firstServed = true;
-                }
+                    if (element.EvaluateInteraction(info))
+                        info.FirstServed = true;
+
+            if (!info.FirstServed && info.HasInteracted)
+                ClearSelection();
         }
     }
 }

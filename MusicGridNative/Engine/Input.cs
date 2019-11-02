@@ -118,6 +118,9 @@ namespace MusicGrid
         public static bool IsAnyButtonPressed => PressedButtons.Any();
         public static bool IsAnyButtonReleased => ReleasedButtons.Any();
 
+        public static Mouse.Button? PressedButton => IsAnyButtonPressed ? new Mouse.Button?(PressedButtons.First()) : null;
+        public static Mouse.Button? HeldButton => IsAnyButtonHeld ? new Mouse.Button?(HeldButtons.First()) : null;
+        public static Mouse.Button? ReleasedButton => IsAnyButtonReleased ? new Mouse.Button?(ReleasedButtons.First()) : null;
 
         private static void OnTextEntered(object sender, TextEventArgs e)
         {

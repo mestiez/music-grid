@@ -90,10 +90,12 @@ namespace MusicGrid
             var entities = World.GetEntitiesByType<DistrictEntity>();
             foreach (var entity in entities.Where(e => e.District == district))
                 World.Destroy(entity);
+            districts.Remove(district);
         }
 
         public void SaveGrid(string targetPath)
         {
+            ConsoleEntity.Log($"Saving grid to {targetPath}");
             targetPath = Path.GetFullPath(Path.Combine(Environment.CurrentDirectory, targetPath));
             var name = Path.GetFileName(targetPath);
             var fullPath = targetPath.Substring(0, targetPath.Length - name.Length);
@@ -123,6 +125,7 @@ namespace MusicGrid
                 ConsoleEntity.Log(e);
                 return;
             }
+            ConsoleEntity.Log($"Grid succesfully saved");
         }
 
         public void LoadGrid(string path)
@@ -130,6 +133,7 @@ namespace MusicGrid
             Grid grid = null;
             try
             {
+                ConsoleEntity.Log($"Loading grid at {path}");
                 var json = File.ReadAllText(path);
                 grid = JsonConvert.DeserializeObject<Grid>(json);
             }
@@ -151,6 +155,7 @@ namespace MusicGrid
                 }).ToList();
                 AddDistrict(copy);
             }
+            ConsoleEntity.Log($"Grid succesfully loaded");
         }
 
         public void RemoveAllDistricts()

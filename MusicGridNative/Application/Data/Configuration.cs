@@ -18,6 +18,7 @@ namespace MusicGrid
                 string raw = File.ReadAllText(path);
                 Configuration parsed = JsonConvert.DeserializeObject<Configuration>(raw);
                 CurrentConfiguration = parsed;
+                ConsoleEntity.Log("Configuration succesfully loaded");
             }
             catch (Exception e)
             {
@@ -35,7 +36,6 @@ namespace MusicGrid
                         ConsoleEntity.Log(e.ToString());
                         break;
                 }
-
             }
         }
 
@@ -45,10 +45,12 @@ namespace MusicGrid
             {
                 string raw = JsonConvert.SerializeObject(CurrentConfiguration, Formatting.Indented);
                 File.WriteAllText(path, raw);
+                ConsoleEntity.Log("Configuration succesfully saved");
             }
             catch (Exception e)
             {
                 ConsoleEntity.Log(e.ToString());
+                return;
             }
         }
 

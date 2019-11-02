@@ -39,6 +39,7 @@ namespace MusicGrid
             District district = new District(info.Name.Substring(0, info.Name.LastIndexOf('.')));
             district.Entries.AddRange(entries);
 
+            ConsoleEntity.Log($"Successfully loaded playlist at {path}");
             return district;
         }
     }

@@ -16,6 +16,7 @@ namespace MusicGrid
         private Text title;
 
         private UiControllerEntity uiController;
+        private DistrictManager manager;
 
         private readonly UiElement backgroundElement = new UiElement();
         private readonly UiElement resizeHandle = new UiElement();
@@ -79,11 +80,23 @@ namespace MusicGrid
             };
 
             uiController = World.GetEntityByType<UiControllerEntity>();
+            manager = World.GetEntityByType<DistrictManager>();
 
             resizeHandle.DepthContainer = backgroundElement;
 
             resizeHandle.OnMouseDown += (o, e) => BringToFront();
-            backgroundElement.OnMouseDown += (o, e) => BringToFront();
+            backgroundElement.OnMouseDown += (o, e) =>
+            {
+                if (e.Button == SFML.Window.Mouse.Button.Middle)
+                    e.PropagateEvent();
+                else BringToFront();
+            };
+
+            backgroundElement.OnSelect += (o, e) =>
+            {
+                if (e.Button == SFML.Window.Mouse.Button.Right)
+                    OpenContextMenu();
+            };
 
             backgroundElement.Selectable = true;
 
@@ -99,6 +112,22 @@ namespace MusicGrid
             temporaryPosition = District.Position;
 
             BringToFront();
+        }
+
+        private void OpenContextMenu()
+        {
+            const int maxDisplayValues = 3;
+            var selectedDistricts = World.GetEntitiesByType<DistrictEntity>().Where(d => d.backgroundElement.IsSelected).Select(d => d.District);
+            string displayNames = string.Join(",", selectedDistricts.Take(maxDisplayValues)) + (selectedDistricts.Count() > maxDisplayValues ? "..." : "");
+
+            ContextMenuEntity.Open(new[] {
+                new Button(displayNames, default, false),
+                new Button($"delete {(selectedDistricts.Count() == 1 ? "district" : "districts")}", () => {
+                    foreach (var district in selectedDistricts)
+                        manager.RemoveDistrict(district);
+                    uiController.ClearSelection();
+                }),
+            }, (Vector2f)Input.ScreenMousePosition);
         }
 
         private void BringToFront()
@@ -236,12 +265,12 @@ namespace MusicGrid
 
         private void HandleDragging()
         {
-            if (!backgroundElement.IsBeingHeld) return;
+            if (!backgroundElement.IsBeingHeld || Input.HeldButton != SFML.Window.Mouse.Button.Left) return;
 
             temporaryPosition += Input.MouseDelta;
 
             float snapSize = Configuration.CurrentConfiguration.SnappingSize;
-            var snappedPosition = !Input.IsKeyHeld(SFML.Window.Keyboard.Key.LShift) ?
+            var snappedPosition = !Input.IsKeyHeld(SFML.Window.Keyboard.Key.LAlt) ?
                 new Vector2f((float)Math.Round(temporaryPosition.X / snapSize) * snapSize, (float)Math.Round(temporaryPosition.Y / snapSize) * snapSize) :
                 temporaryPosition
                 ;
@@ -259,7 +288,7 @@ namespace MusicGrid
             temporarySize += Input.MouseDelta;
 
             float snapSize = Configuration.CurrentConfiguration.SnappingSize;
-            var snappedSize = !Input.IsKeyHeld(SFML.Window.Keyboard.Key.LShift) ?
+            var snappedSize = !Input.IsKeyHeld(SFML.Window.Keyboard.Key.LAlt) ?
                 new Vector2f((float)Math.Round(temporarySize.X / snapSize) * snapSize, (float)Math.Round(temporarySize.Y / snapSize) * snapSize) :
                 temporarySize
                 ;
@@ -373,5 +402,7 @@ namespace MusicGrid
             title.Dispose();
             background.Dispose();
         }
+
+        public override string ToString() => District + " entity";
     }
 }

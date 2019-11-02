@@ -59,18 +59,19 @@ namespace MusicGrid
 
         public event EventHandler<MouseEventArgs> OnMouseDown;
         public event EventHandler<MouseEventArgs> OnMouseUp;
-
+        public event EventHandler<SelectionEventArgs> OnSelect;
+        public event EventHandler<SelectionEventArgs> OnDeselect;
         public event EventHandler OnDepthChanged;
 
         public FloatRect GetLocalBounds() => new FloatRect(Position, Size);
 
-        public bool EvaluateInteraction(bool firstHasBeenServed)
+        public bool EvaluateInteraction(InteractionInfo info)
         {
             ComputedColor = Color;
 
             var mousePos = IsScreenSpace ? (Vector2f)Input.ScreenMousePosition : Input.MousePosition;
 
-            if (firstHasBeenServed)
+            if (info.FirstServed)
             {
                 IsUnderMouse = false;
                 IsActive = false;
@@ -78,16 +79,29 @@ namespace MusicGrid
             else
             {
                 IsUnderMouse = Utilities.IsInside(mousePos, Position, Size);
-                IsActive = !Disabled && IsUnderMouse && Input.IsButtonHeld(Mouse.Button.Left);
+                IsActive = !Disabled && IsUnderMouse && info.Held.HasValue;
 
-                if (IsUnderMouse && Input.IsButtonPressed(Mouse.Button.Left) && !Disabled)
+                if (IsUnderMouse && info.Pressed.HasValue && !Disabled)
                 {
-                    var args = new MouseEventArgs(Mouse.Button.Left, mousePos);
+                    var args = new MouseEventArgs(info.Pressed.Value, mousePos);
+
                     OnMouseDown?.Invoke(this, args);
+
                     if (!args.IsPermeable)
                     {
                         if (Selectable)
-                            Controller.HandleSelection(this);
+                        {
+                            if (info.Pressed.Value == Mouse.Button.Right)
+                                Controller.Select(this, Controller.Multiselecting);
+                            else
+                                Controller.HandleSelection(this);
+
+                            if (IsSelected)
+                                OnSelect?.Invoke(this, new SelectionEventArgs(info.Pressed.Value, mousePos));
+                            else
+                                OnDeselect?.Invoke(this, new SelectionEventArgs(info.Pressed.Value, mousePos));
+                        }
+                        else Controller.ClearSelection();
                         Controller.FocusedElement = this;
                         IsBeingHeld = true;
                     }
@@ -95,12 +109,12 @@ namespace MusicGrid
                 }
             }
 
-            if (!Disabled && IsBeingHeld && Input.IsButtonReleased(Mouse.Button.Left))
+            if (!Disabled && IsBeingHeld && info.Released.HasValue)
             {
                 if (Controller.FocusedElement == this)
                     Controller.FocusedElement = null;
                 IsBeingHeld = false;
-                OnMouseUp?.Invoke(this, new MouseEventArgs(Mouse.Button.Left, mousePos));
+                OnMouseUp?.Invoke(this, new MouseEventArgs(info.Released.Value, mousePos));
             }
             ComputeColors();
             return IsUnderMouse || IsBeingHeld;

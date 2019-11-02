@@ -12,6 +12,9 @@
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Deterministic>true</Deterministic>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
     <PublishUrl>publish\</PublishUrl>
     <Install>true</Install>
     <InstallFrom>Disk</InstallFrom>
@@ -24,11 +27,8 @@
     <MapFileExtensions>true</MapFileExtensions>
     <ApplicationRevision>0</ApplicationRevision>
     <ApplicationVersion>1.0.0.0</ApplicationVersion>
-    <IsWebBootstrapper>false</IsWebBootstrapper>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
-    <NuGetPackageImportStamp>
-    </NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -126,17 +126,19 @@
     <Compile Include="ApplicationVersion.cs" />
     <Compile Include="Application\Data\MouseEventArgs.cs" />
     <Compile Include="Application\Data\Button.cs" />
+    <Compile Include="Application\Data\SelectionEventArgs.cs" />
     <Compile Include="Application\Entities\ContextMenuEntity.cs" />
     <Compile Include="Application\Entities\DistrictManager.cs" />
     <Compile Include="Application\Entities\CameraControllerEnity.cs" />
     <Compile Include="Application\Entities\ConsoleEntity.cs" />
     <Compile Include="Application\Entities\DistrictEntity.cs" />
+    <Compile Include="Application\UI\InteractionInfo.cs" />
     <Compile Include="Engine\ILuaConsole.cs" />
     <Compile Include="Application\LuaConsole.cs" />
     <Compile Include="Application\Entities\TaskMenu.cs" />
     <Compile Include="Application\Entities\UiControllerEntity.cs" />
     <Compile Include="Application\FileModelConverter.cs" />
-    <Compile Include="Application\UiElement.cs" />
+    <Compile Include="Application\UI\UiElement.cs" />
     <Compile Include="Application\Utilities.cs" />
     <Compile Include="Engine\ActionRenderTask.cs" />
     <Compile Include="Engine\Entity.cs" />
