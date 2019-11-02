@@ -63,7 +63,7 @@ namespace MusicGrid
                     new Button("load grid", districtManager.AskLoadGrid),
                     new Button("save grid", districtManager.AskSaveGrid),
                     Button.HorizontalSeparator,
-                    new Button("exit", () => { World.Lua.Execute("quit()"); }),
+                    new Button("quit", () => { World.Lua.Execute("quit()"); }),
                 },
                     buttonElements[0].Position + new Vector2f(0, Height));
             }));
@@ -72,7 +72,7 @@ namespace MusicGrid
             {
                 ContextMenuEntity.Main.MinimumWidth = buttonElements[1].Size.X;
                 ContextMenuEntity.Open(new[] {
-                    new Button("fit view to grid", default, false),
+                    new Button("fit view to grid", () => { World.GetEntityByType<CameraControllerEnity>().FitToView(); }),
                     new Button("reset view", () => { Configuration.CurrentConfiguration.Pan = default; Configuration.CurrentConfiguration.Zoom = 1; }),
                 },
                     buttonElements[1].Position + new Vector2f(0, Height));

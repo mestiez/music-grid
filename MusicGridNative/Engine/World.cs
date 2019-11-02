@@ -2,6 +2,7 @@
 using SFML.System;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 
 namespace MusicGrid
@@ -14,10 +15,13 @@ namespace MusicGrid
 
         private readonly Dictionary<Entity, int> createBuffer = new Dictionary<Entity, int>();
         private readonly List<Entity> destroyBuffer = new List<Entity>();
+        private bool startingEntitiesInitialised = false;
 
         public ILuaConsole Lua = new LuaConsole();
         public RenderTarget RenderTarget { get; set; }
         public Color ClearColor { get; set; }
+
+        public const string AutoLuaFilePath = "auto.lua";
 
         public World(RenderTarget target)
         {
@@ -31,6 +35,17 @@ namespace MusicGrid
                 foreach (var entity in entities)
                     Destroy(entity);
             });
+        }
+
+        private void ExecuteAutoLuaFile()
+        {
+            if (!File.Exists(AutoLuaFilePath))
+            {
+                ConsoleEntity.Log($"Didn't run startup lua file: {AutoLuaFilePath} not found", "WORLD");
+                return;
+            }
+            string lua = File.ReadAllText(AutoLuaFilePath);
+            Lua.Execute(lua);
         }
 
         public void Step()
@@ -119,6 +134,12 @@ namespace MusicGrid
                 entityOrderPair.Key.Initialised();
 
             createBuffer.Clear();
+
+            if (!startingEntitiesInitialised)
+            {
+                ExecuteAutoLuaFile();
+                startingEntitiesInitialised = true;
+            }
         }
 
         public void Destroy(Entity entity)

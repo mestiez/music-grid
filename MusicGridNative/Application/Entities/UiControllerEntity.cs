@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SFML.Window;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -121,12 +122,18 @@ namespace MusicGrid
         public override void Update()
         {
             if (!Input.WindowHasFocus) return;
+            if (ConsoleEntity.Main.ConsoleIsOpen) return;
 
             if (Input.IsKeyPressed(SFML.Window.Keyboard.Key.A))
             {
-                ClearSelection();
-                foreach (var item in elements)
-                    Select(item, true);
+                if (selected.Count == 0)
+                {
+                    ClearSelection();
+                    foreach (var item in elements)
+                        Select(item, true);
+                }
+                else
+                    ClearSelection();
             }
 
             Multiselecting = Input.IsKeyHeld(SFML.Window.Keyboard.Key.LShift) || Input.IsKeyHeld(SFML.Window.Keyboard.Key.LControl);
@@ -147,7 +154,11 @@ namespace MusicGrid
                     if (element.EvaluateInteraction(info))
                         info.FirstServed = true;
 
-            if (!info.FirstServed && info.HasInteracted)
+            if (!info.FirstServed && (
+                info.Held.HasValue && info.Held.Value != Mouse.Button.Middle ||
+                info.Pressed.HasValue && info.Pressed.Value != Mouse.Button.Middle ||
+                info.Released.HasValue && info.Released.Value != Mouse.Button.Middle
+                ))
                 ClearSelection();
         }
     }

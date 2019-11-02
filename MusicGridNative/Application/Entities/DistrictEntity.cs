@@ -13,6 +13,7 @@ namespace MusicGrid
 
         private Vertex[] resizeHandleVertices;
         private RectangleShape background;
+        private Sprite lockedIcon;
         private Text title;
 
         private UiControllerEntity uiController;
@@ -27,6 +28,7 @@ namespace MusicGrid
         private ShapeRenderTask titleTask;
         private PrimitiveRenderTask entryTask;
         private PrimitiveRenderTask handleTask;
+        private ShapeRenderTask lockedIconTask;
 
         private Vertex[] entryVertices;
 
@@ -36,6 +38,7 @@ namespace MusicGrid
         private readonly uint CharacterSize = 72;
         private static int MinimumDepth = 999999;
         private const float HandleSize = 16;
+        private const float LockedIconSize = 14;
         private const float EntryMargin = 3;
 
         private Vector2f temporarySize;
@@ -79,6 +82,13 @@ namespace MusicGrid
                 new Vertex(handleShape[2], title.FillColor)
             };
 
+            lockedIcon = new Sprite(MusicGridApplication.Assets.LockedIcon)
+            {
+                Origin = (Vector2f)MusicGridApplication.Assets.LockedIcon.Size,
+                Scale = new Vector2f(LockedIconSize, LockedIconSize) / MusicGridApplication.Assets.LockedIcon.Size.X,
+                Color = new Color(255, 255, 255, 150),
+            };
+
             uiController = World.GetEntityByType<UiControllerEntity>();
             manager = World.GetEntityByType<DistrictManager>();
 
@@ -107,6 +117,7 @@ namespace MusicGrid
             titleTask = new ShapeRenderTask(title, backgroundElement.Depth);
             entryTask = new PrimitiveRenderTask(entryVertices, PrimitiveType.Quads, backgroundElement.Depth);
             handleTask = new PrimitiveRenderTask(resizeHandleVertices, PrimitiveType.Triangles, backgroundElement.Depth);
+            lockedIconTask = new ShapeRenderTask(lockedIcon, backgroundElement.Depth);
 
             temporarySize = District.Size;
             temporaryPosition = District.Position;
@@ -116,18 +127,37 @@ namespace MusicGrid
 
         private void OpenContextMenu()
         {
-            const int maxDisplayValues = 3;
+            const int maxDisplayValues = 2;
             var selectedDistricts = World.GetEntitiesByType<DistrictEntity>().Where(d => d.backgroundElement.IsSelected).Select(d => d.District);
-            string displayNames = string.Join(",", selectedDistricts.Take(maxDisplayValues)) + (selectedDistricts.Count() > maxDisplayValues ? "..." : "");
+            int count = selectedDistricts.Count();
+            string displayNames = string.Join(",", selectedDistricts.Take(maxDisplayValues)) + (count > maxDisplayValues ? $" + {count - maxDisplayValues} more" : "");
 
-            ContextMenuEntity.Open(new[] {
+            var buttons = new List<Button>(new[] {
                 new Button(displayNames, default, false),
-                new Button($"delete {(selectedDistricts.Count() == 1 ? "district" : "districts")}", () => {
+                new Button($"delete {(selectedDistricts.Count() == 1 ? "district" : "selected districts")}", () => {
                     foreach (var district in selectedDistricts)
                         manager.RemoveDistrict(district);
                     uiController.ClearSelection();
                 }),
-            }, (Vector2f)Input.ScreenMousePosition);
+            });
+
+            if (count == 1)
+                buttons.Add(new Button($"{(District.Locked ? "unlock" : "lock")} district", () => { District.Locked = !District.Locked; }));
+            else
+            {
+                buttons.Add(new Button("lock selected districts", () =>
+                {
+                    foreach (var district in selectedDistricts)
+                        district.Locked = true;
+                }));
+                buttons.Add(new Button("unlock selected districts", () =>
+                {
+                    foreach (var district in selectedDistricts)
+                        district.Locked = false;
+                }));
+            }
+
+            ContextMenuEntity.Open(buttons, (Vector2f)Input.ScreenMousePosition);
         }
 
         private void BringToFront()
@@ -231,7 +261,7 @@ namespace MusicGrid
                 element.OnMouseDown += (o, e) =>
                 {
                     e.PropagateEvent();
-                    ConsoleEntity.Log(entry.Path);
+                    ConsoleEntity.Log(entry.Path, "DISTRICT");
                 };
 
                 entryTexts[i] = new Text("Entry", MusicGridApplication.Assets.DefaultFont)
@@ -265,6 +295,7 @@ namespace MusicGrid
 
         private void HandleDragging()
         {
+            if (District.Locked) return;
             if (!backgroundElement.IsBeingHeld || Input.HeldButton != SFML.Window.Mouse.Button.Left) return;
 
             temporaryPosition += Input.MouseDelta;
@@ -283,6 +314,7 @@ namespace MusicGrid
 
         private void HandleResizing()
         {
+            if (District.Locked) return;
             if (!resizeHandle.IsBeingHeld) return;
 
             temporarySize += Input.MouseDelta;
@@ -310,14 +342,19 @@ namespace MusicGrid
 
         private void SyncElement()
         {
-            backgroundElement.Color = District.Color;
-            backgroundElement.ActiveColor = District.Color;
-            backgroundElement.HoverColor = District.Color;
-            float t = SmoothedSquareWave(MusicGridApplication.Globals.Time + (District.Position.X + District.Position.Y) * Configuration.CurrentConfiguration.SelectionWaveWave, .5f, 
-                Configuration.CurrentConfiguration.SelectionWaveFrequency, 
-                Configuration.CurrentConfiguration.SelectionWaveSmoothness) + .5f;
-            backgroundElement.SelectedColor = Utilities.Lerp(District.Color, Utilities.IsTooBright(District.Color) ? Color.Black : Color.White, t * 0.5f);
-            backgroundElement.DisabledColor = District.Color;
+            UpdateDistrictLinkedValues();
+
+            if (backgroundElement.IsSelected)
+            {
+                float intensity = SmoothedSquareWave(-MusicGridApplication.Globals.Time + (District.Position.X + District.Position.Y) * Configuration.CurrentConfiguration.SelectionWaveWave, .5f,
+                    Configuration.CurrentConfiguration.SelectionWaveFrequency,
+                    Configuration.CurrentConfiguration.SelectionWaveSmoothness) + .5f;
+                backgroundElement.SelectedColor = Utilities.Lerp(
+                    Utilities.Lerp(District.Color, Color.Black, .3f),
+                    Utilities.Lerp(District.Color, Color.White, .3f),
+                    intensity);
+            }
+
             backgroundElement.Position = District.Position;
             backgroundElement.Size = District.Size;
 
@@ -333,12 +370,25 @@ namespace MusicGrid
             title.Position = background.Position + background.Size / 2;
             title.FillColor = GetFrontColor();
 
-            if (title.DisplayedString != District.Name)
-                title.DisplayedString = District.Name;
+            if (District.Locked)
+                lockedIcon.Position = District.Position - new Vector2f(EntryMargin, EntryMargin) + District.Size;
+        }
+
+        private void UpdateDistrictLinkedValues()
+        {
+            if (!District.Dirty) return;
+            District.Dirty = false;
+
+            backgroundElement.Color = District.Color;
+            backgroundElement.ActiveColor = District.Color;
+            backgroundElement.HoverColor = District.Color;
+            backgroundElement.DisabledColor = District.Color;
+            title.DisplayedString = District.Name;
         }
 
         private void SyncResizeHandle()
         {
+            if (District.Locked) return;
             Vector2f offset = District.Position + District.Size;
 
             resizeHandleVertices[0].Position = offset + handleShape[0];
@@ -391,7 +441,10 @@ namespace MusicGrid
                 }
             }
 
-            yield return handleTask;
+            if (District.Locked)
+                yield return lockedIconTask;
+            else
+                yield return handleTask;
         }
 
         public override void Destroyed()

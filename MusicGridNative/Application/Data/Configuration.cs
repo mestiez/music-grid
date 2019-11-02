@@ -18,22 +18,22 @@ namespace MusicGrid
                 string raw = File.ReadAllText(path);
                 Configuration parsed = JsonConvert.DeserializeObject<Configuration>(raw);
                 CurrentConfiguration = parsed;
-                ConsoleEntity.Log("Configuration succesfully loaded");
+                ConsoleEntity.Log("Configuration succesfully loaded", "CONFIG");
             }
             catch (Exception e)
             {
                 switch (e)
                 {
                     case FileNotFoundException fe:
-                        ConsoleEntity.Log("Configuration not found at " + path);
-                        ConsoleEntity.Log(fe);
+                        ConsoleEntity.Log("Configuration not found at " + path, "CONFIG");
+                        ConsoleEntity.Log(fe.Message, "CONFIG");
                         break;
                     case JsonException je:
-                        ConsoleEntity.Log("Invalid configuration at " + path);
-                        ConsoleEntity.Log(je);
+                        ConsoleEntity.Log("Invalid configuration at " + path, "CONFIG");
+                        ConsoleEntity.Log(je.Message, "CONFIG");
                         break;
                     default:
-                        ConsoleEntity.Log(e.ToString());
+                        ConsoleEntity.Log(e.Message.ToString());
                         break;
                 }
             }
@@ -45,11 +45,11 @@ namespace MusicGrid
             {
                 string raw = JsonConvert.SerializeObject(CurrentConfiguration, Formatting.Indented);
                 File.WriteAllText(path, raw);
-                ConsoleEntity.Log("Configuration succesfully saved");
+                ConsoleEntity.Log("Configuration succesfully saved", "CONFIG");
             }
             catch (Exception e)
             {
-                ConsoleEntity.Log(e.ToString());
+                ConsoleEntity.Log(e.Message, "CONFIG");
                 return;
             }
         }
@@ -61,7 +61,7 @@ namespace MusicGrid
         public float ZoomLowerBound = .01f;
         public float ZoomUpperBound = 10f;
         public float SnappingSize = 8;
-        public float SelectionWaveSmoothness = 0.1f;
+        public float SelectionWaveSmoothness = 0.3f;
         public float SelectionWaveFrequency = 1f;
         public float SelectionWaveWave = .0001f;
         [RequiresRestart]

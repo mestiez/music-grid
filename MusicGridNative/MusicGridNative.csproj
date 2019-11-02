@@ -132,6 +132,7 @@
     <Compile Include="Application\Entities\CameraControllerEnity.cs" />
     <Compile Include="Application\Entities\ConsoleEntity.cs" />
     <Compile Include="Application\Entities\DistrictEntity.cs" />
+    <Compile Include="Application\ImageConverte.cs" />
     <Compile Include="Application\UI\InteractionInfo.cs" />
     <Compile Include="Engine\ILuaConsole.cs" />
     <Compile Include="Application\LuaConsole.cs" />
@@ -172,6 +173,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="favicon.ico" />
+    <None Include="Resources\locked.png" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.7.2">

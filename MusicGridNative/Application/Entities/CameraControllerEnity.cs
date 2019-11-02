@@ -2,6 +2,7 @@
 using SFML.System;
 using SFML.Window;
 using System;
+using System.Linq;
 
 namespace MusicGrid
 {
@@ -43,7 +44,6 @@ namespace MusicGrid
             else
             {
                 float zoomDelta = config.ZoomSensitivity * 1.2f;
-
                 float zoomScalar = config.Zoom;
 
                 if (Input.MouseWheelDelta > .1f)
@@ -51,17 +51,39 @@ namespace MusicGrid
                 else if (Input.MouseWheelDelta < -.1f)
                     config.Zoom *= zoomDelta;
 
-                if (config.Zoom > config.ZoomUpperBound) config.Zoom = config.ZoomUpperBound;
-                if (config.Zoom < config.ZoomLowerBound) config.Zoom = config.ZoomLowerBound;
-
+                ClampZoom();
                 zoomScalar -= config.Zoom;
-
                 config.Pan += ((Vector2f)Input.ScreenMousePosition - (Vector2f)World.RenderTarget.Size / 2) * zoomScalar;
             }
 
             view.Size = (Vector2f)World.RenderTarget.Size * config.Zoom;
             view.Center = config.Pan;
             World.RenderTarget.SetView(view);
+        }
+
+        private static void ClampZoom()
+        {
+            var config = Configuration.CurrentConfiguration;
+            if (config.Zoom > config.ZoomUpperBound) config.Zoom = config.ZoomUpperBound;
+            if (config.Zoom < config.ZoomLowerBound) config.Zoom = config.ZoomLowerBound;
+        }
+
+        public void FitToView(float padding = 20)
+        {
+            var manager = World.GetEntityByType<DistrictManager>();
+            var taskMenu = World.GetEntityByType<TaskMenu>();
+
+            float minX = manager.Districts.Min(d => d.Position.X) - padding;
+            float minY = manager.Districts.Min(d => d.Position.Y) - padding - taskMenu.Height * 2;
+            float maxX = manager.Districts.Max(d => d.Position.X + d.Size.X) + padding;
+            float maxY = manager.Districts.Max(d => d.Position.Y + d.Size.Y) + padding;
+            var center = new Vector2f((minX + maxX) / 2, (minY + maxY) / 2);
+            float width = maxX - minX;
+            float height = maxY - minY;
+
+            Configuration.CurrentConfiguration.Pan = center;
+            Configuration.CurrentConfiguration.Zoom = 1f/Math.Min(World.RenderTarget.Size.X / width, (World.RenderTarget.Size.Y - taskMenu.Height) / height);
+            ClampZoom();
         }
     }
 }

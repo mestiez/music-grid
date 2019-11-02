@@ -1,10 +1,20 @@
 ﻿using SFML.Graphics;
-using System.Collections.Generic;
 
 namespace MusicGrid
 {
     public class Assets
     {
-        public Font DefaultFont = new Font(Properties.Resources.kosugiMaru);
+        public Font DefaultFont;
+        public Texture LockedIcon;
+
+        public Assets()
+        {
+            DefaultFont =  new Font(Properties.Resources.kosugiMaru);
+
+            var converter = new System.Drawing.ImageConverter();
+            LockedIcon = new Texture(converter.ConvertTo(Properties.Resources.locked, typeof(byte[])) as byte[]);
+            LockedIcon.Smooth = true;
+
+        }
     }
 }

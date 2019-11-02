@@ -49,7 +49,7 @@ namespace MusicGrid
 
             backgroundTask = new ShapeRenderTask(background, int.MinValue);
             displayTask = new ShapeRenderTask(display, int.MinValue);
-            World.Lua.LinkFunction<object>("print", this, AddToHistory);
+            World.Lua.LinkFunction<object>("print", this, (o) => AddToHistory(o, "LUA"));
             World.Lua.LinkFunction("exit", this, () => { ConsoleIsOpen = false; });
         }
 
@@ -66,6 +66,8 @@ namespace MusicGrid
 
             if (Input.IsKeyReleased(Keyboard.Key.F12))
                 ConsoleIsOpen = !ConsoleIsOpen;
+            else if (Input.IsKeyReleased(Keyboard.Key.Escape))
+                ConsoleIsOpen = false;
 
             if (ConsoleIsOpen)
                 HandleUserInput();
@@ -76,12 +78,15 @@ namespace MusicGrid
             HandleInputHistoryTraversing();
             if (Input.IsKeyReleased(Keyboard.Key.Enter))
                 ConsumeInput();
-            else
+            else if (!Input.IsKeyPressed(Keyboard.Key.Escape))
                 foreach (var c in Input.TextEntered)
                     switch (c)
                     {
-                        case '\b':
+                        case '\b': //backspace
                             input = input.Substring(0, Math.Max(0, input.Length - 1));
+                            break;
+                        case (char)127: //ctrl backspace
+                            input = input.Substring(0, Math.Max(0, input.LastIndexOf(' ')));
                             break;
                         default:
                             input += c.ToString();
@@ -121,29 +126,29 @@ namespace MusicGrid
             var results = World.Lua.Execute(input);
             if (results != null)
                 foreach (var result in results.Where(e => e != null))
-                    Log(result);
+                    Log(result, "LUA");
 
             input = "";
         }
 
-        public static void Log(object message)
+        public static void Log(object message, object sender = null)
         {
             if (message == null) message = "null";
 
             if (message is ICollection messageList)
             {
                 foreach (var item in messageList)
-                    Log(item);
+                    Log(item, sender);
                 return;
             }
 
             if (history.Count >= (Main?.MaximumMessages ?? 32)) history.Dequeue();
-            history.Enqueue($"[{DateTime.Now.ToLongTimeString()}] " + message.ToString());
+            history.Enqueue($"[{sender ?? "?"}] " + message.ToString());
         }
 
-        private void AddToHistory(object message)
+        private void AddToHistory(object message, object sender)
         {
-            Log(message);
+            Log(message, sender);
         }
 
         public override void PreRender()

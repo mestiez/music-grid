@@ -22,6 +22,10 @@ namespace MusicGrid
             World.Lua.LinkFunction<string>("save_grid", this, SaveGrid);
             World.Lua.LinkFunction<string>("load_grid", this, LoadGrid);
             World.Lua.LinkFunction<string>("import_district", this, ImportPlaylist);
+
+            World.Lua.LinkFunction("ask_save_grid", this, AskSaveGrid);
+            World.Lua.LinkFunction("ask_load_grid", this, AskLoadGrid);
+            World.Lua.LinkFunction("ask_import_district", this, AskImportPlaylist);
         }
 
         public void AskImportPlaylist()
@@ -95,7 +99,7 @@ namespace MusicGrid
 
         public void SaveGrid(string targetPath)
         {
-            ConsoleEntity.Log($"Saving grid to {targetPath}");
+            ConsoleEntity.Log($"Saving grid to {targetPath}", "DISTRICT MANAGER");
             targetPath = Path.GetFullPath(Path.Combine(Environment.CurrentDirectory, targetPath));
             var name = Path.GetFileName(targetPath);
             var fullPath = targetPath.Substring(0, targetPath.Length - name.Length);
@@ -104,7 +108,7 @@ namespace MusicGrid
 
             foreach (var district in districts)
             {
-                var copy = new District(district.Name, district.Position, district.Size, district.Color);
+                var copy = new District(district.Name, district.Position, district.Size, district.Color, district.Locked);
                 copy.Entries = district.Entries.Select((e) =>
                 {
                     return new DistrictEntry(e.Name, Utilities.GetRelativePath(e.Path, fullPath));
@@ -122,10 +126,10 @@ namespace MusicGrid
             }
             catch (Exception e)
             {
-                ConsoleEntity.Log(e);
+                ConsoleEntity.Log(e.Message, "DISTRICT MANAGER");
                 return;
             }
-            ConsoleEntity.Log($"Grid succesfully saved");
+            ConsoleEntity.Log($"Grid succesfully saved", "DISTRICT MANAGER");
         }
 
         public void LoadGrid(string path)
@@ -133,13 +137,13 @@ namespace MusicGrid
             Grid grid = null;
             try
             {
-                ConsoleEntity.Log($"Loading grid at {path}");
+                ConsoleEntity.Log($"Loading grid at {path}", "DISTRICT MANAGER");
                 var json = File.ReadAllText(path);
                 grid = JsonConvert.DeserializeObject<Grid>(json);
             }
             catch (Exception e)
             {
-                ConsoleEntity.Log(e);
+                ConsoleEntity.Log(e.Message, "DISTRICT MANAGER");
                 return;
             }
 
@@ -148,14 +152,14 @@ namespace MusicGrid
             path = path.Substring(0, path.Length - Path.GetFileName(path).Length);
             foreach (var district in grid.Districts)
             {
-                var copy = new District(district.Name, district.Position, district.Size, district.Color);
+                var copy = new District(district.Name, district.Position, district.Size, district.Color, district.Locked);
                 copy.Entries = district.Entries.Select((e) =>
                 {
                     return new DistrictEntry(e.Name, Path.GetFullPath(Path.Combine(path, e.Path)));
                 }).ToList();
                 AddDistrict(copy);
             }
-            ConsoleEntity.Log($"Grid succesfully loaded");
+            ConsoleEntity.Log($"Grid succesfully loaded", "DISTRICT MANAGER");
         }
 
         public void RemoveAllDistricts()
