@@ -12,6 +12,7 @@ namespace MusicGrid
     public class UiElement
     {
         private int depth;
+        private float lastClickedTime = -1;
         private UiElement depthContainer;
 
         public Vector2f Position { get; set; }
@@ -56,9 +57,11 @@ namespace MusicGrid
 
         public bool Selectable { get; set; }
         public bool Disabled { get; set; }
+        public float DoubleClickMaxDuration { get; set; } = 0.5f;
 
         public event EventHandler<MouseEventArgs> OnMouseDown;
         public event EventHandler<MouseEventArgs> OnMouseUp;
+        public event EventHandler<MouseEventArgs> OnDoubleClick;
         public event EventHandler<SelectionEventArgs> OnSelect;
         public event EventHandler<SelectionEventArgs> OnDeselect;
         public event EventHandler OnDepthChanged;
@@ -84,8 +87,14 @@ namespace MusicGrid
                 if (IsUnderMouse && info.Pressed.HasValue && !Disabled)
                 {
                     var args = new MouseEventArgs(info.Pressed.Value, mousePos);
-
                     OnMouseDown?.Invoke(this, args);
+                    if (lastClickedTime > 0 && MusicGridApplication.Globals.Time - lastClickedTime < DoubleClickMaxDuration)
+                    {
+                        OnDoubleClick?.Invoke(this, args);
+                        lastClickedTime = -1;
+                    }
+                    else
+                        lastClickedTime = MusicGridApplication.Globals.Time;
 
                     if (!args.IsPermeable)
                     {

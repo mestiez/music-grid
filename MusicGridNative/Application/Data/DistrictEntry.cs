@@ -14,5 +14,7 @@ namespace MusicGrid
             Name = name;
             Path = path;
         }
+
+        public override string ToString() => Name;
     }
 }

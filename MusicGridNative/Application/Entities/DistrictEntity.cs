@@ -40,6 +40,7 @@ namespace MusicGrid
         private const float HandleSize = 16;
         private const float LockedIconSize = 14;
         private const float EntryMargin = 3;
+        public const string ConsoleSourceIdentifier = "DISTRICT";
 
         private Vector2f temporarySize;
         private Vector2f temporaryPosition;
@@ -271,8 +272,14 @@ namespace MusicGrid
 
                 element.OnMouseDown += (o, e) =>
                 {
-                    e.PropagateEvent();
-                    ConsoleEntity.Log(entry.Path, "DISTRICT");
+                    if (e.Button != SFML.Window.Mouse.Button.Right)
+                        e.PropagateEvent();
+                    ConsoleEntity.Log(entry.Path, ConsoleSourceIdentifier);
+                };
+
+                element.OnDoubleClick += (o, e) =>
+                {
+                    World.Add(new DialogboxEntity($"{entry} should be directly queued now", new Vector2f(400, 150)));
                 };
 
                 entryTexts[i] = new Text("Entry", MusicGridApplication.Assets.DefaultFont)
