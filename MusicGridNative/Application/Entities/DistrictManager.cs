@@ -14,7 +14,7 @@ namespace MusicGrid
     public class DistrictManager : Entity
     {
         private readonly List<District> districts = new List<District>();
-
+        public const string ConsoleSourceIdentifier = "DISTRICT MANAGER";
         public IReadOnlyList<District> Districts => districts.AsReadOnly();
 
         public override void Created()
@@ -94,12 +94,13 @@ namespace MusicGrid
             var entities = World.GetEntitiesByType<DistrictEntity>();
             foreach (var entity in entities.Where(e => e.District == district))
                 World.Destroy(entity);
-            districts.Remove(district);
+            if (!districts.Remove(district))
+                ConsoleEntity.Log($"Attempt to remove non-existant district {district}", ConsoleSourceIdentifier);
         }
 
         public void SaveGrid(string targetPath)
         {
-            ConsoleEntity.Log($"Saving grid to {targetPath}", "DISTRICT MANAGER");
+            ConsoleEntity.Log($"Saving grid to {targetPath}", ConsoleSourceIdentifier);
             targetPath = Path.GetFullPath(Path.Combine(Environment.CurrentDirectory, targetPath));
             var name = Path.GetFileName(targetPath);
             var fullPath = targetPath.Substring(0, targetPath.Length - name.Length);
@@ -126,10 +127,10 @@ namespace MusicGrid
             }
             catch (Exception e)
             {
-                ConsoleEntity.Log(e.Message, "DISTRICT MANAGER");
+                ConsoleEntity.Log(e.Message, ConsoleSourceIdentifier);
                 return;
             }
-            ConsoleEntity.Log($"Grid succesfully saved", "DISTRICT MANAGER");
+            ConsoleEntity.Log($"Grid succesfully saved", ConsoleSourceIdentifier);
         }
 
         public void LoadGrid(string path)
@@ -137,13 +138,13 @@ namespace MusicGrid
             Grid grid = null;
             try
             {
-                ConsoleEntity.Log($"Loading grid at {path}", "DISTRICT MANAGER");
+                ConsoleEntity.Log($"Loading grid at {path}", ConsoleSourceIdentifier);
                 var json = File.ReadAllText(path);
                 grid = JsonConvert.DeserializeObject<Grid>(json);
             }
             catch (Exception e)
             {
-                ConsoleEntity.Log(e.Message, "DISTRICT MANAGER");
+                ConsoleEntity.Log(e.Message, ConsoleSourceIdentifier);
                 return;
             }
 
@@ -159,7 +160,7 @@ namespace MusicGrid
                 }).ToList();
                 AddDistrict(copy);
             }
-            ConsoleEntity.Log($"Grid succesfully loaded", "DISTRICT MANAGER");
+            ConsoleEntity.Log($"Grid succesfully loaded", ConsoleSourceIdentifier);
         }
 
         public void RemoveAllDistricts()

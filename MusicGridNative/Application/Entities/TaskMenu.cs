@@ -1,11 +1,6 @@
-﻿using Microsoft.Win32;
-using SFML.Graphics;
+﻿using SFML.Graphics;
 using SFML.System;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MusicGrid
 {
@@ -63,7 +58,7 @@ namespace MusicGrid
                     new Button("load grid", districtManager.AskLoadGrid),
                     new Button("save grid", districtManager.AskSaveGrid),
                     Button.HorizontalSeparator,
-                    new Button("quit", () => { World.Lua.Execute("quit()"); }),
+                    new Button("quit", () => { World.Add(DialogboxEntity.CreateConfirmationDialog("Are you sure you want to quit?", () => { World.Lua.Execute("quit()"); })); }),
                 },
                     buttonElements[0].Position + new Vector2f(0, Height));
             }));

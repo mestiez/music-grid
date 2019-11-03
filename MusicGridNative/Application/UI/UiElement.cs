@@ -92,7 +92,12 @@ namespace MusicGrid
                         if (Selectable)
                         {
                             if (info.Pressed.Value == Mouse.Button.Right)
-                                Controller.Select(this, Controller.Multiselecting);
+                            {
+                                if (Controller.Selected.Contains(this))
+                                    Controller.Select(this, true);
+                                else
+                                    Controller.Select(this, Controller.Multiselecting);
+                            }
                             else
                                 Controller.HandleSelection(this);
 

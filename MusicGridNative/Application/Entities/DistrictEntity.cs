@@ -45,11 +45,11 @@ namespace MusicGrid
         private Vector2f temporaryPosition;
 
         private static readonly Vector2f[] handleShape = new Vector2f[3]
-            {
-                new Vector2f(0, 0),
-                new Vector2f(-HandleSize, 0),
-                new Vector2f(0, -HandleSize)
-            };
+        {
+            new Vector2f(0, 0),
+            new Vector2f(-HandleSize, 0),
+            new Vector2f(0, -HandleSize)
+        };
 
         public DistrictEntity(District district)
         {
@@ -128,16 +128,14 @@ namespace MusicGrid
         private void OpenContextMenu()
         {
             const int maxDisplayValues = 2;
-            var selectedDistricts = World.GetEntitiesByType<DistrictEntity>().Where(d => d.backgroundElement.IsSelected).Select(d => d.District);
+            var selectedDistricts = World.GetEntitiesByType<DistrictEntity>().Where(d => d.backgroundElement.IsSelected).Select(d => d.District).ToList();
             int count = selectedDistricts.Count();
             string displayNames = string.Join(",", selectedDistricts.Take(maxDisplayValues)) + (count > maxDisplayValues ? $" + {count - maxDisplayValues} more" : "");
 
             var buttons = new List<Button>(new[] {
                 new Button(displayNames, default, false),
                 new Button($"delete {(selectedDistricts.Count() == 1 ? "district" : "selected districts")}", () => {
-                    foreach (var district in selectedDistricts)
-                        manager.RemoveDistrict(district);
-                    uiController.ClearSelection();
+                    OpenDeletionConfirmationDialog(selectedDistricts, displayNames);
                 }),
                 new Button($"fit view to {(selectedDistricts.Count() == 1 ? "district" : "selected districts")}", () => {
                     World.GetEntityByType<CameraControllerEnity>().FitToView(selectedDistricts);
@@ -161,6 +159,16 @@ namespace MusicGrid
             }
 
             ContextMenuEntity.Open(buttons, (Vector2f)Input.ScreenMousePosition);
+        }
+
+        private void OpenDeletionConfirmationDialog(IEnumerable<District> selectedDistricts, string displayNames)
+        {
+            World.Add(DialogboxEntity.CreateConfirmationDialog($"Are you sure you want to\ndelete {displayNames}", () =>
+            {
+                foreach (var district in selectedDistricts)
+                    manager.RemoveDistrict(district);
+                uiController.ClearSelection();
+            }));
         }
 
         private void BringToFront()

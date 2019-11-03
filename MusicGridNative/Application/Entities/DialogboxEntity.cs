@@ -10,6 +10,8 @@ namespace MusicGrid
     public class DialogboxEntity : Entity
     {
         public readonly string Content;
+        private readonly Vector2f size;
+        private readonly Vector2f position;
         public readonly bool CloseOnButtonPress;
         private readonly List<Button> buttons;
 
@@ -38,10 +40,12 @@ namespace MusicGrid
 
         public IReadOnlyList<Button> Buttons => buttons.AsReadOnly();
 
-        public DialogboxEntity(string content, bool closeOnButtonPress = true, IEnumerable<Button> buttons = null)
+        public DialogboxEntity(string content, Vector2f size = default, Vector2f position = default, bool closeOnButtonPress = true, IEnumerable<Button> buttons = null)
         {
             CloseOnButtonPress = closeOnButtonPress;
             Content = content;
+            this.size = size;
+            this.position = position;
             Name = content + " dialog";
 
             if (buttons == null)
@@ -63,7 +67,7 @@ namespace MusicGrid
             contentText = new Text(Content, MusicGridApplication.Assets.DefaultFont)
             {
                 FillColor = Style.Foreground,
-                CharacterSize = CharacterSize
+                CharacterSize = CharacterSize,
             };
             buttonBackground = new RectangleShape();
             buttonText = new Text("invalid!", MusicGridApplication.Assets.DefaultFont)
@@ -81,8 +85,8 @@ namespace MusicGrid
                 DisabledColor = Style.Background,
                 IsScreenSpace = true,
                 Depth = 0,
-                Position = new Vector2f(100, 100),
-                Size = new Vector2f(300, 150),
+                Position = position,
+                Size = size,
             };
 
             backgroundTask = new ShapeRenderTask(background, backgroundElement.Depth);
@@ -123,7 +127,6 @@ namespace MusicGrid
                 buttonTasks[i] = new ActionRenderTask((target) =>
                 {
                     SetupButton(button, elem);
-
                     target.Draw(buttonBackground);
                     target.Draw(buttonText);
 
@@ -215,6 +218,17 @@ namespace MusicGrid
             foreach (var buttonElement in buttonElements)
                 uiController.Deregister(buttonElement);
             uiController.Deregister(backgroundElement);
+        }
+
+        public static DialogboxEntity CreateConfirmationDialog(string title, Action action)
+        {
+            return new DialogboxEntity(title,
+                size: new Vector2f(320, 150),
+                position: (Vector2f)Input.WindowSize / 2 - new Vector2f(320, 150) / 2,
+                buttons: new[] {
+                new Button("Yes",action),
+                new Button("No", () => {}),
+                });
         }
     }
 }
