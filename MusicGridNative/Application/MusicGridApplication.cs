@@ -49,6 +49,7 @@ namespace MusicGrid
             World.Add(new UiControllerEntity());
             World.Add(new CameraControllerEnity());
             World.Add(new ContextMenuEntity());
+
             World.Add(districtManager);
             Input.SetWindow(renderWindow);
 

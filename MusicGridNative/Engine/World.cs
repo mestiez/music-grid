@@ -94,15 +94,31 @@ namespace MusicGrid
                 screenSpaceTasks.AddRange(entity.RenderScreen());
             }
 
-            foreach (var task in tasks.OrderByDescending(t => t.Depth))
-                task.Render(RenderTarget);
+            foreach (var task in tasks.OrderByDescending(t =>
+            {
+                if (t == null)
+                {
+                    ConsoleEntity.Log("Attempt to draw null task", "WORLD");
+                    return 0;
+                }
+                return t.Depth;
+            }))
+                task?.Render(RenderTarget);
 
             var oldView = new View(RenderTarget.GetView());
             var floatSize = (Vector2f)RenderTarget.Size;
             RenderTarget.SetView(new View(floatSize / 2, floatSize));
 
-            foreach (var task in screenSpaceTasks.OrderByDescending(t => t.Depth))
-                task.Render(RenderTarget);
+            foreach (var task in screenSpaceTasks.OrderByDescending(t =>
+            {
+                if (t == null)
+                {
+                    ConsoleEntity.Log("Attempt to draw null screen task", "WORLD");
+                    return 0;
+                }
+                return t.Depth;
+            }))
+                task?.Render(RenderTarget);
 
             RenderTarget.SetView(oldView);
         }

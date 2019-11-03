@@ -41,11 +41,14 @@ namespace MusicGrid
         {
             Main = this;
 
-            display = new Text("", MusicGridApplication.Assets.DefaultFont, 16);
-            display.Position = new Vector2f(5, 5);
+            display = new Text("", MusicGridApplication.Assets.DefaultFont, 16)
+            {
+                Position = new Vector2f(5, 5),
+                FillColor = Style.Foreground
+            };
 
-            background = new RectangleShape(new Vector2f(4000, 4000));
-            background.FillColor = new Color(0, 0, 0, 200);
+            background = new RectangleShape(new Vector2f(40000, 40000));
+            background.FillColor = Style.Background;
 
             backgroundTask = new ShapeRenderTask(background, int.MinValue);
             displayTask = new ShapeRenderTask(display, int.MinValue);

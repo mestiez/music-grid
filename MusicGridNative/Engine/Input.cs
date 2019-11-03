@@ -122,6 +122,11 @@ namespace MusicGrid
         public static Mouse.Button? HeldButton => IsAnyButtonHeld ? new Mouse.Button?(HeldButtons.First()) : null;
         public static Mouse.Button? ReleasedButton => IsAnyButtonReleased ? new Mouse.Button?(ReleasedButtons.First()) : null;
 
+        public static void SetCursor(Cursor.CursorType type)
+        {
+            window.SetMouseCursor(new Cursor(type));
+        }
+
         private static void OnTextEntered(object sender, TextEventArgs e)
         {
             TextEntered += e.Unicode;

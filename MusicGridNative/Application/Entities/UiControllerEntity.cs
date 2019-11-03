@@ -37,6 +37,11 @@ namespace MusicGrid
         {
             foreach (var elem in deregisterBuffer)
             {
+                if (elem == null)
+                {
+                    ConsoleEntity.Log($"Attempt to deregister null UI element", "UI CONTROLLER");
+                    return;
+                }
                 elements.Remove(elem);
                 registerBuffer.Remove(elem);
                 if (FocusedElement == elem)

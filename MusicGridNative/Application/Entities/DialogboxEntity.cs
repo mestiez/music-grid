@@ -1,0 +1,220 @@
+﻿using SFML.Graphics;
+using SFML.System;
+using SFML.Window;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace MusicGrid
+{
+    public class DialogboxEntity : Entity
+    {
+        public readonly string Content;
+        public readonly bool CloseOnButtonPress;
+        private readonly List<Button> buttons;
+
+        private RectangleShape background;
+        private Text contentText;
+        private RectangleShape buttonBackground;
+        private Text buttonText;
+
+        private ShapeRenderTask backgroundTask;
+        private ShapeRenderTask contentTask;
+        private ActionRenderTask[] buttonTasks;
+
+        private UiElement backgroundElement;
+        private UiElement[] buttonElements;
+
+        private UiControllerEntity uiController;
+        private float buttonPosition = 0;
+        private float buttonSpacing = 0;
+
+        private const uint CharacterSize = 16;
+        private const float ButtonMargin = 16;
+        private const float HorizontalButtonPadding = 20;
+        private const float ButtonHeight = CharacterSize * 2;
+
+        private bool requiresRecalculation = true;
+
+        public IReadOnlyList<Button> Buttons => buttons.AsReadOnly();
+
+        public DialogboxEntity(string content, bool closeOnButtonPress = true, IEnumerable<Button> buttons = null)
+        {
+            CloseOnButtonPress = closeOnButtonPress;
+            Content = content;
+            Name = content + " dialog";
+
+            if (buttons == null)
+                buttons = new[] {
+                    new Button("OK", ()=>{ World.Destroy(this); })
+                };
+            this.buttons = new List<Button>(buttons);
+        }
+
+        public override void Created()
+        {
+            uiController = World.GetEntityByType<UiControllerEntity>();
+
+            background = new RectangleShape()
+            {
+                OutlineColor = Style.BackgroundHover,
+                OutlineThickness = 1
+            };
+            contentText = new Text(Content, MusicGridApplication.Assets.DefaultFont)
+            {
+                FillColor = Style.Foreground,
+                CharacterSize = CharacterSize
+            };
+            buttonBackground = new RectangleShape();
+            buttonText = new Text("invalid!", MusicGridApplication.Assets.DefaultFont)
+            {
+                FillColor = Style.Foreground,
+                Position = default,
+                CharacterSize = CharacterSize
+            };
+            backgroundElement = new UiElement()
+            {
+                Selectable = false,
+                Color = Style.Background,
+                ActiveColor = Style.Background,
+                HoverColor = Style.Background,
+                DisabledColor = Style.Background,
+                IsScreenSpace = true,
+                Depth = 0,
+                Position = new Vector2f(100, 100),
+                Size = new Vector2f(300, 150),
+            };
+
+            backgroundTask = new ShapeRenderTask(background, backgroundElement.Depth);
+            contentTask = new ShapeRenderTask(contentText, backgroundElement.Depth);
+
+            uiController.Register(backgroundElement);
+            GenerateButtons();
+        }
+
+        private void GenerateButtons()
+        {
+            buttonTasks = new ActionRenderTask[buttons.Count];
+            buttonElements = new UiElement[buttons.Count];
+
+            for (int i = 0; i < buttons.Count; i++)
+            {
+                var button = buttons[i];
+                var elem = new UiElement()
+                {
+                    Selectable = false,
+                    Color = Style.Background,
+                    ActiveColor = Style.BackgroundActive,
+                    HoverColor = Style.BackgroundHover,
+                    DisabledColor = Style.BackgroundDisabled,
+                    Disabled = !button.Interactive,
+                    IsScreenSpace = true,
+                    DepthContainer = backgroundElement
+                };
+
+                elem.OnMouseDown += (o, e) =>
+                {
+                    if (e.Button != Mouse.Button.Left) return;
+                    button.Action();
+                    if (CloseOnButtonPress)
+                        World.Destroy(this);
+                };
+
+                buttonTasks[i] = new ActionRenderTask((target) =>
+                {
+                    SetupButton(button, elem);
+
+                    target.Draw(buttonBackground);
+                    target.Draw(buttonText);
+
+                }, backgroundElement.Depth);
+
+                SetupButton(button, elem);
+
+                buttonElements[i] = elem;
+                uiController.Register(elem);
+            }
+        }
+
+        private void SetupButton(Button button, UiElement elem)
+        {
+            buttonText.DisplayedString = button.Label;
+            buttonText.FillColor = elem.Disabled ? Style.BackgroundDisabled : Style.Foreground;
+
+            var localSize = buttonText.GetLocalBounds();
+            if (buttons.Count < 2)
+            {
+                elem.Size = new Vector2f(backgroundElement.Size.X - HorizontalButtonPadding * 2, ButtonHeight);
+                elem.Position = backgroundElement.Position + new Vector2f(ButtonMargin, backgroundElement.Size.Y - ButtonMargin - ButtonHeight);
+            }
+            else
+            {
+                elem.Size = new Vector2f(localSize.Width + HorizontalButtonPadding, ButtonHeight);
+                elem.Position = backgroundElement.Position + new Vector2f(buttonPosition, backgroundElement.Size.Y - ButtonMargin - ButtonHeight);
+                buttonPosition += elem.Size.X + buttonSpacing;
+            }
+
+            buttonText.Position = elem.Position + (elem.Size / 2) - new Vector2f(localSize.Width / 2, localSize.Height / 1.5f);
+            buttonText.Position = new Vector2f((int)buttonText.Position.X, (int)buttonText.Position.Y);
+            buttonBackground.Position = elem.Position;
+            buttonBackground.Size = elem.Size;
+            buttonBackground.FillColor = elem.ComputedColor;
+        }
+
+        public override void Update()
+        {
+            HandleDragging();
+        }
+
+        private void HandleDragging()
+        {
+            if (!backgroundElement.IsBeingHeld || Input.HeldButton != Mouse.Button.Left) return;
+            backgroundElement.Position += (Vector2f)Input.ScreenMouseDelta;
+            requiresRecalculation = true;
+        }
+
+        private void RecalculateLayout()
+        {
+            if (!requiresRecalculation) return;
+            requiresRecalculation = false;
+
+            backgroundTask.Depth = backgroundElement.Depth;
+            backgroundTask.Drawable = background;
+
+            contentTask.Depth = backgroundElement.Depth;
+            contentText.Position = backgroundElement.Position;
+
+            background.Position = backgroundElement.Position;
+            background.Size = backgroundElement.Size;
+            background.FillColor = backgroundElement.ComputedColor;
+
+            var contentTextBounds = contentText.GetLocalBounds();
+
+            contentText.Position = backgroundElement.Position + backgroundElement.Size / 2f - new Vector2f(contentTextBounds.Width / 2, contentTextBounds.Height / 2 + (ButtonMargin / 2 + ButtonHeight / 2));
+            contentText.Position = new Vector2f((int)contentText.Position.X, (int)contentText.Position.Y);
+            if (buttons.Count > 1)
+                buttonSpacing = (backgroundElement.Size.X - buttonElements.Sum(b => b.Size.X) - ButtonMargin * 2) / (buttonElements.Length - 1);
+        }
+
+        public override void PreRender()
+        {
+            RecalculateLayout();
+        }
+
+        public override IEnumerable<IRenderTask> RenderScreen()
+        {
+            buttonPosition = ButtonMargin;
+            yield return backgroundTask;
+            yield return contentTask;
+            foreach (var buttonTask in buttonTasks)
+                yield return buttonTask;
+        }
+
+        public override void Destroyed()
+        {
+            foreach (var buttonElement in buttonElements)
+                uiController.Deregister(buttonElement);
+            uiController.Deregister(backgroundElement);
+        }
+    }
+}

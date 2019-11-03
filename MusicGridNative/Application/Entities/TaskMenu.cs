@@ -18,8 +18,8 @@ namespace MusicGrid
         private Text buttonText;
 
         private ShapeRenderTask backgroundTask;
-
         private ActionRenderTask[] textTasks;
+
         private UiElement[] buttonElements;
 
         private float buttonPos;
@@ -99,14 +99,11 @@ namespace MusicGrid
             {
                 Size = new Vector2f(Input.WindowSize.X, height),
                 Position = default,
-                FillColor = new Color(0, 0, 0, 200)
+                FillColor = Style.Background
             };
             backgroundTask = new ShapeRenderTask(background, 0);
 
-            buttonBackground = new RectangleShape()
-            {
-                FillColor = new Color(255, 0, 0, 125)
-            };
+            buttonBackground = new RectangleShape();
 
             buttonElements = new UiElement[buttons.Count];
             textTasks = new ActionRenderTask[buttons.Count];
@@ -157,6 +154,12 @@ namespace MusicGrid
             yield return backgroundTask;
             foreach (var task in textTasks)
                 yield return task;
+        }
+
+        public override void Destroyed()
+        {
+            foreach (var item in buttonElements)
+                uiController.Deregister(item);
         }
     }
 }

@@ -14,7 +14,6 @@ namespace MusicGrid
             var converter = new System.Drawing.ImageConverter();
             LockedIcon = new Texture(converter.ConvertTo(Properties.Resources.locked, typeof(byte[])) as byte[]);
             LockedIcon.Smooth = true;
-
         }
     }
 }

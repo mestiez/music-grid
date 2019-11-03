@@ -269,7 +269,7 @@ namespace MusicGrid
 
                 entryTexts[i] = new Text("Entry", MusicGridApplication.Assets.DefaultFont)
                 {
-                    FillColor = new Color(255, 255, 255, 255),
+                    FillColor = Style.Foreground,
                     Position = new Vector2f(0, 0),
                     CharacterSize = CharacterSize
                 };

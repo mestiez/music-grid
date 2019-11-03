@@ -47,9 +47,9 @@ namespace MusicGrid
                 float zoomDelta = config.ZoomSensitivity * 1.2f;
                 float zoomScalar = config.Zoom;
 
-                if (Input.MouseWheelDelta > .1f)
+                if (Input.MouseWheelDelta > .5f)
                     config.Zoom /= zoomDelta;
-                else if (Input.MouseWheelDelta < -.1f)
+                else if (Input.MouseWheelDelta < -.5f)
                     config.Zoom *= zoomDelta;
 
                 ClampZoom();

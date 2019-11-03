@@ -98,10 +98,10 @@ namespace MusicGrid
 
                 var elem = new UiElement()
                 {
-                    Color = new Color(0, 0, 0, 200),
-                    ActiveColor = new Color(30, 30, 30, 200),
-                    HoverColor = new Color(60, 60, 60, 200),
-                    DisabledColor = new Color(0, 0, 0, 200),
+                    Color = Style.Background,
+                    ActiveColor = Style.BackgroundActive,
+                    HoverColor = Style.BackgroundHover,
+                    DisabledColor = Style.BackgroundDisabled,
                     Disabled = !button.Interactive,
                     Depth = -1,
                     IsScreenSpace = true,
@@ -116,7 +116,7 @@ namespace MusicGrid
 
                     text.DisplayedString = button.Label;
                     text.Position = elem.Position + new Vector2f(ButtonPadding, 0);
-                    text.FillColor = button.Interactive ? Color.White : new Color(125, 125, 125);
+                    text.FillColor = button.Interactive ? Style.Foreground : Style.ForegroundDisabled;
 
                     background.Position = elem.Position;
                     background.Size = elem.Size;
@@ -130,6 +130,12 @@ namespace MusicGrid
                 uiController.Register(elem);
                 elements[i] = elem;
             }
+        }
+
+        public override void Destroyed()
+        {
+            foreach (var item in elements)
+                uiController.Deregister(item);
         }
     }
 }
