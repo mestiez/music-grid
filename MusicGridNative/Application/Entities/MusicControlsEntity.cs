@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using SFML.System;
 
 namespace MusicGrid
@@ -9,6 +10,12 @@ namespace MusicGrid
 
         private UiControllerEntity uiController;
         private DrawableElement background;
+
+        private DrawableElement shuffleButton;
+        private DrawableElement repeatButton;
+        private DrawableElement previousButton;
+        private DrawableElement playButton;
+        private DrawableElement nextButton;
 
         public MusicControlsEntity()
         {

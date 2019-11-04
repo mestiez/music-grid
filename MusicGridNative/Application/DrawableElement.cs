@@ -3,7 +3,7 @@ using SFML.System;
 
 namespace MusicGrid
 {
-    public struct DrawableElement
+    public class DrawableElement
     {
         public UiElement Element { get; }
 
@@ -20,25 +20,20 @@ namespace MusicGrid
         private Vector2f size;
         private Vector2f position;
         private Color textColor;
+        private bool encapsulateText;
+        private bool centerText;
+        private Vector2f encapsulationMargin = new Vector2f(20,15);
 
         private bool registered;
         private const string ConsoleSourceIdentifier = "DRAWABLE ELEMENT";
 
-        public DrawableElement(UiControllerEntity controller, Vector2f size, Vector2f position, int depth = 0, uint characterSize = 12)
+        public DrawableElement(UiControllerEntity controller, Vector2f size, Vector2f position, int depth = 0, uint characterSize = 16)
         {
             this.controller = controller;
-            this.depth = depth;
-            this.characterSize = characterSize;
-            this.displayString = null;
-            this.size = size;
-            this.position = position;
-            this.textColor = Style.Foreground;
-
-            this.registered = false;
 
             Element = new UiElement();
             background = new RectangleShape();
-            text = new Text();
+            text = new Text("", MusicGridApplication.Assets.DefaultFont);
 
             finalTask = new ActionRenderTask(null, depth);
             finalTask.Action = Render;
@@ -49,10 +44,11 @@ namespace MusicGrid
             Element.DisabledColor = Style.BackgroundDisabled;
             Element.SelectedColor = Style.BackgroundHover;
 
-            Position = position;
-            Size = size;
             Depth = depth;
             CharacterSize = characterSize;
+            Size = size;
+            Position = position;
+            TextColor = Style.Foreground;
 
             Register();
         }
@@ -88,7 +84,57 @@ namespace MusicGrid
                 target.Draw(text);
         }
 
+        public void ForceRecalculateLayout()
+        {
+            if (!EncapsulateText && !CenterText)
+            {
+                ConsoleEntity.Log("Recalculation of layout is unwarranted!", ConsoleSourceIdentifier);
+                return;
+            }
+
+            var localBounds = text.GetLocalBounds();
+            if (EncapsulateText)
+            {
+                var newSize = new Vector2f(EncapsulationMargin.X * 2 + localBounds.Width, EncapsulationMargin.Y * 2 + localBounds.Height);
+                size = newSize;
+                Element.Size = size;
+                background.Size = size;
+            }
+            var pos = Element.Position + new Vector2f(Element.Size.X / 2 - localBounds.Width / 2, Element.Size.Y / 2 - localBounds.Height / 2);
+            text.Position = Utilities.Round(pos);
+        }
+
         #region Properties
+        public bool EncapsulateText
+        {
+            get => encapsulateText;
+            set
+            {
+                encapsulateText = value;
+                ForceRecalculateLayout();
+            }
+        }
+
+        public Vector2f EncapsulationMargin
+        {
+            get => encapsulationMargin;
+            set
+            {
+                encapsulationMargin = value;
+                ForceRecalculateLayout();
+            }
+        }
+
+        public bool CenterText
+        {
+            get => centerText;
+            set
+            {
+                centerText = value;
+                ForceRecalculateLayout();
+            }
+        }
+
         public int Depth
         {
             get => depth;
@@ -107,6 +153,8 @@ namespace MusicGrid
             {
                 characterSize = value;
                 text.CharacterSize = characterSize;
+                if (CenterText || EncapsulateText)
+                    ForceRecalculateLayout();
             }
         }
 
@@ -115,8 +163,10 @@ namespace MusicGrid
             get => displayString;
             set
             {
-                displayString = value;
+                displayString = value ?? "";
                 text.DisplayedString = displayString;
+                if (CenterText || EncapsulateText)
+                    ForceRecalculateLayout();
             }
         }
 
@@ -136,6 +186,7 @@ namespace MusicGrid
                 position = value;
                 Element.Position = position;
                 background.Position = position;
+                if (CenterText || EncapsulateText) return;
                 text.Position = position;
             }
         }
@@ -145,9 +196,16 @@ namespace MusicGrid
             get => size;
             set
             {
+                if (EncapsulateText)
+                {
+                    ConsoleEntity.Log("Can't set size when it's controlled by the element", ConsoleSourceIdentifier);
+                    return;
+                }
                 size = value;
                 Element.Size = size;
                 background.Size = size;
+                if (CenterText)
+                    ForceRecalculateLayout();
             }
         }
 

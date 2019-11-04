@@ -37,6 +37,11 @@ namespace MusicGrid
             return vector.X * vector.X + vector.Y * vector.Y;
         }
 
+        public static Vector2f Round(Vector2f i)
+        {
+            return new Vector2f((int)i.X, (int)i.Y);
+        }
+
         public static float CalculateEvenSpaceGap(float freeSpace, float occupiedSpace, int elementCount, float margin = 10)
         {
             return (freeSpace - occupiedSpace - (margin * 2)) / (elementCount - 1);
