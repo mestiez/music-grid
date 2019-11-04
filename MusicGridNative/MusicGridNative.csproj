@@ -128,6 +128,7 @@
     <Compile Include="Application\Data\Button.cs" />
     <Compile Include="Application\Data\SelectionEventArgs.cs" />
     <Compile Include="Application\Data\Style.cs" />
+    <Compile Include="Application\DrawableElement.cs" />
     <Compile Include="Application\Entities\DialogboxEntity.cs" />
     <Compile Include="Application\Entities\ContextMenuEntity.cs" />
     <Compile Include="Application\Entities\DistrictManager.cs" />

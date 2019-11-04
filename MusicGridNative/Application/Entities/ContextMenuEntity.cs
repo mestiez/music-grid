@@ -76,7 +76,8 @@ namespace MusicGrid
 
         public override IEnumerable<IRenderTask> RenderScreen()
         {
-            return renderTasks;
+            foreach (var task in renderTasks)
+                yield return task;
         }
 
         private void GenerateButtons()

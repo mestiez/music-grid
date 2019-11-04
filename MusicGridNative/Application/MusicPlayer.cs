@@ -9,6 +9,7 @@ namespace MusicGrid
         public const string ConsoleSourceIdentifier = "MUSIC PLAYER";
         private MediaFoundationReader mediaFoundationReader;
         private AudioFileReader audioFileReader;
+        private bool isReadyToPlay;
 
         private WaveStream currentStream;
         private WaveOutEvent currentWaveOut;
@@ -20,11 +21,11 @@ namespace MusicGrid
 
         }
 
-        private bool AssertNoNullSource(string action = "interact")
+        private bool AssertReadyTo(string action = "interact")
         {
-            if (currentWaveOut == null)
+            if (currentWaveOut == null || !isReadyToPlay)
             {
-                ConsoleEntity.Log($"Attempt to {action} without having a track set", ConsoleSourceIdentifier);
+                ConsoleEntity.Log($"Attempt to {action} before WaveOut is ready", ConsoleSourceIdentifier);
                 return true;
             }
             return false;
@@ -32,6 +33,7 @@ namespace MusicGrid
 
         public void SetTrack(string path)
         {
+            isReadyToPlay = false;
             currentWaveOut?.Dispose();
             currentStream?.Dispose();
 
@@ -39,7 +41,7 @@ namespace MusicGrid
 
             currentWaveOut = new WaveOutEvent
             {
-                DesiredLatency = 500
+                DesiredLatency = 1000
             };
 
             try
@@ -65,23 +67,35 @@ namespace MusicGrid
             }
 
             currentWaveOut.Init(currentStream);
+            isReadyToPlay = true;
+            ConsoleEntity.Log($"Set track to {path}", ConsoleSourceIdentifier);
         }
+
+        //Ja dit gaat niet werken :(
+        //public byte[] GetData(int length)
+        //{
+        //    if (AssertReadyTo("get data")) return 0;
+        //    length = 
+        //    byte[] data = new byte[length];
+        //    currentStream.Read(data, currentStream.Position, length);
+        //    return ;
+        //}
 
         public void Play()
         {
-            if (AssertNoNullSource("play music")) return;
+            if (AssertReadyTo("play music")) return;
             currentWaveOut.Play();
         }
 
         public void Stop()
         {
-            if (AssertNoNullSource("stop music")) return;
+            if (AssertReadyTo("stop music")) return;
             currentWaveOut.Stop();
         }
 
         public void Pause()
         {
-            if (AssertNoNullSource("pause music")) return;
+            if (AssertReadyTo("pause music")) return;
             currentWaveOut.Pause();
         }
     }

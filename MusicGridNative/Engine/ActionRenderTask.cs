@@ -3,7 +3,7 @@ using System;
 
 namespace MusicGrid
 {
-    public class ActionRenderTask : IRenderTask
+    public struct ActionRenderTask : IRenderTask
     {
         public ActionRenderTask(Action<RenderTarget> action, int depth)
         {

@@ -2,7 +2,7 @@
 
 namespace MusicGrid
 {
-    public class PrimitiveRenderTask : IRenderTask
+    public struct PrimitiveRenderTask : IRenderTask
     {
         public PrimitiveRenderTask(Vertex[] vertices, PrimitiveType primitiveType, int depth)
         {

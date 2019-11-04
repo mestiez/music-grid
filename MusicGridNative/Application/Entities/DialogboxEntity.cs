@@ -10,9 +10,10 @@ namespace MusicGrid
     public class DialogboxEntity : Entity
     {
         public readonly string Content;
+        public readonly bool CloseOnButtonPress;
+
         private readonly Vector2f size;
         private readonly Vector2f position;
-        public readonly bool CloseOnButtonPress;
         private readonly List<Button> buttons;
 
         private RectangleShape background;
@@ -31,10 +32,10 @@ namespace MusicGrid
         private float buttonPosition = 0;
         private float buttonSpacing = 0;
 
-        private const uint CharacterSize = 16;
-        private const float ButtonMargin = 16;
-        private const float HorizontalButtonPadding = 20;
-        private const float ButtonHeight = CharacterSize * 2;
+        public const uint CharacterSize = 16;
+        public const float ButtonMargin = 16;
+        public const float HorizontalButtonPadding = 20;
+        public const float ButtonHeight = CharacterSize * 2;
 
         private bool requiresRecalculation = true;
 
@@ -196,7 +197,7 @@ namespace MusicGrid
             contentText.Position = backgroundElement.Position + backgroundElement.Size / 2f - new Vector2f(contentTextBounds.Width / 2, contentTextBounds.Height / 2 + (ButtonMargin / 2 + ButtonHeight / 2));
             contentText.Position = new Vector2f((int)contentText.Position.X, (int)contentText.Position.Y);
             if (buttons.Count > 1)
-                buttonSpacing = (backgroundElement.Size.X - buttonElements.Sum(b => b.Size.X) - ButtonMargin * 2) / (buttonElements.Length - 1);
+                buttonSpacing = Utilities.CalculateEvenSpaceGap(backgroundElement.Size.X, buttonElements.Sum(b => b.Size.X), buttonElements.Length, ButtonMargin);
         }
 
         public override void PreRender()

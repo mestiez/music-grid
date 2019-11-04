@@ -34,7 +34,7 @@ namespace MusicGrid
 
         public static string TextEntered { get; private set; }
 
-        public static EventHandler<SizeEventArgs> WindowResized;
+        public static event EventHandler<SizeEventArgs> WindowResized;
 
         public static void SetWindow(RenderWindow window)
         {

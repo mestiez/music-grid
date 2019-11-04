@@ -272,9 +272,7 @@ namespace MusicGrid
 
                 element.OnMouseDown += (o, e) =>
                 {
-                    //if (e.Button != SFML.Window.Mouse.Button.Right)
                     e.PropagateEvent();
-                    ConsoleEntity.Log(entry.Path, ConsoleSourceIdentifier);
                 };
 
                 element.OnDoubleClick += (o, e) =>
@@ -282,7 +280,6 @@ namespace MusicGrid
                     var player = World.GetEntityByType<MusicControlsEntity>().MusicPlayer;
                     player.SetTrack(entry.Path);
                     player.Play();
-                    //World.Add(new DialogboxEntity($"{entry} should be directly queued now", new Vector2f(400, 150)));
                 };
 
                 entryTexts[i] = new Text("Entry", MusicGridApplication.Assets.DefaultFont)

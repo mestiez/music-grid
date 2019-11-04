@@ -15,6 +15,7 @@ namespace MusicGrid
         private ShapeRenderTask backgroundTask;
         private ActionRenderTask[] textTasks;
 
+        private UiElement backgroundElement;
         private UiElement[] buttonElements;
 
         private float buttonPos;
@@ -38,6 +39,8 @@ namespace MusicGrid
             Input.WindowResized += (obj, e) => { RecalculateLayout(); };
             uiController = World.GetEntityByType<UiControllerEntity>();
             districtManager = World.GetEntityByType<DistrictManager>();
+            backgroundElement = new UiElement();
+            uiController.Register(backgroundElement);
             buttonText = new Text("invalid!", MusicGridApplication.Assets.DefaultFont)
             {
                 FillColor = Color.White,
@@ -96,6 +99,12 @@ namespace MusicGrid
                 Position = default,
                 FillColor = Style.Background
             };
+
+            backgroundElement.Position = default;
+            backgroundElement.Depth = 0;
+            backgroundElement.IsScreenSpace = true;
+            backgroundElement.Size = background.Size;
+
             backgroundTask = new ShapeRenderTask(background, 0);
 
             buttonBackground = new RectangleShape();
@@ -119,6 +128,7 @@ namespace MusicGrid
                     ActiveColor = new Color(255, 255, 255, 10),
                     HoverColor = new Color(255, 255, 255, 25),
                     Position = background.Position + new Vector2f(buttonPos, 0),
+                    DepthContainer = backgroundElement,
                     Size = new Vector2f(width + margin * 2, height)
                 };
 
@@ -153,6 +163,7 @@ namespace MusicGrid
 
         public override void Destroyed()
         {
+            uiController.Deregister(backgroundElement);
             foreach (var item in buttonElements)
                 uiController.Deregister(item);
         }
