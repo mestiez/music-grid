@@ -29,7 +29,7 @@ namespace MusicGrid
             if (!basePath.EndsWith("\\"))
                 basePath += "\\";
             Uri relativeUri = new Uri(basePath).MakeRelativeUri(new Uri(fullPath));
-            return relativeUri.ToString().Replace("/", "\\");
+            return Uri.UnescapeDataString(relativeUri.ToString().Replace("/", "\\"));
         }
 
         public static float SquaredMagnitude(Vector2f vector)
