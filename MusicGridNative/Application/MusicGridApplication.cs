@@ -1,4 +1,6 @@
-﻿using SFML.Graphics;
+﻿using OpenTK;
+using OpenTK.Graphics;
+using SFML.Graphics;
 using SFML.System;
 using SFML.Window;
 using System;
@@ -61,8 +63,13 @@ namespace MusicGrid
             World.Lua.LinkFunction("set", this, new Action<string, dynamic>((s, d) => SetConfigKey(s, d)).Method);
             World.Lua.LinkFunction("get", this, new Func<string, dynamic>((s) => GetConfigKey(s)).Method);
 
+            Toolkit.Init();
+            GraphicsContext context = new GraphicsContext(ContextHandle.Zero, OpenTK.Platform.Utilities.CreateWindowsWindowInfo(renderWindow.SystemHandle));
+            context.LoadAll();
+
             MainLoop();
 
+            context.Dispose();
             Configuration.CurrentConfiguration.Districts = new List<District>(districtManager.Districts).ToArray();
             Configuration.CurrentConfiguration.WindowHeight = (int)renderWindow.Size.Y;
             Configuration.CurrentConfiguration.WindowWidth = (int)renderWindow.Size.X;

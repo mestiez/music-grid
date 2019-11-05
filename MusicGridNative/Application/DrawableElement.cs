@@ -1,4 +1,5 @@
-﻿using SFML.Graphics;
+﻿using OpenTK.Graphics.ES20;
+using SFML.Graphics;
 using SFML.System;
 
 namespace MusicGrid
@@ -22,7 +23,7 @@ namespace MusicGrid
         private Color textColor;
         private bool encapsulateText;
         private bool centerText;
-        private Vector2f encapsulationMargin = new Vector2f(20,15);
+        private Vector2f encapsulationMargin = new Vector2f(20, 15);
 
         private bool registered;
         private const string ConsoleSourceIdentifier = "DRAWABLE ELEMENT";
@@ -81,7 +82,16 @@ namespace MusicGrid
 
             target.Draw(background);
             if (!string.IsNullOrWhiteSpace(displayString))
+            {
+                if (HideOverflow)
+                {
+                    GL.Scissor((int)Position.X, ((int)target.Size.Y - (int)(Position.Y + Size.Y)), 100, 100);
+                    GL.Enable(EnableCap.ScissorTest);
+                }
                 target.Draw(text);
+                if (HideOverflow)
+                    GL.Disable(EnableCap.ScissorTest);
+            }
         }
 
         public void ForceRecalculateLayout()
@@ -105,6 +115,8 @@ namespace MusicGrid
         }
 
         #region Properties
+        public bool HideOverflow { get; set; }
+
         public Texture Texture
         {
             get => background.Texture;
@@ -126,6 +138,7 @@ namespace MusicGrid
             get => encapsulationMargin;
             set
             {
+                if (encapsulationMargin == value) return;
                 encapsulationMargin = value;
                 ForceRecalculateLayout();
             }
@@ -136,6 +149,7 @@ namespace MusicGrid
             get => centerText;
             set
             {
+                if (centerText == value) return;
                 centerText = value;
                 ForceRecalculateLayout();
             }
@@ -146,6 +160,7 @@ namespace MusicGrid
             get => depth;
             set
             {
+                if (depth == value) return;
                 depth = value;
                 finalTask.Depth = depth;
                 Element.Depth = depth;
@@ -157,6 +172,7 @@ namespace MusicGrid
             get => characterSize;
             set
             {
+                if (characterSize == value) return;
                 characterSize = value;
                 text.CharacterSize = characterSize;
                 if (CenterText || EncapsulateText)
@@ -164,11 +180,12 @@ namespace MusicGrid
             }
         }
 
-        public string DisplayString
+        public string Text
         {
             get => displayString;
             set
             {
+                if (displayString == value) return;
                 displayString = value ?? "";
                 text.DisplayedString = displayString;
                 if (CenterText || EncapsulateText)

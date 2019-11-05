@@ -15,12 +15,16 @@ namespace MusicGrid
         private readonly Vector2f buttonSize = new Vector2f(32, 32);
         private readonly float margin = 10;
         private float buttonGap;
+        private bool requiresRecalculation = true;
 
         private DrawableElement shuffleButton;
         private DrawableElement repeatButton;
         private DrawableElement previousButton;
         private DrawableElement playButton;
         private DrawableElement nextButton;
+        const int buttonCount = 5;
+
+        private DrawableElement trackName;
 
         public MusicControlsEntity()
         {
@@ -40,7 +44,11 @@ namespace MusicGrid
             background.Element.ActiveColor = background.Element.Color;
             background.Element.HoverColor = background.Element.Color;
 
-            buttonGap = Utilities.CalculateEvenSpaceGap(background.Size.X, buttonSize.X * 5, 5, margin);
+            trackName = new DrawableElement(uiController, default, default);
+            trackName.Element.IsScreenSpace = true;
+            trackName.CenterText = true;
+            trackName.HideOverflow = true;
+
             SetupButton(ref shuffleButton, 0);
             SetupButton(ref repeatButton, 1);
             SetupButton(ref previousButton, 2);
@@ -59,14 +67,12 @@ namespace MusicGrid
             World.Lua.LinkFunction("pause", this, () => { MusicPlayer.Pause(); });
             World.Lua.LinkFunction("play", this, () => { MusicPlayer.Play(); });
             World.Lua.LinkFunction("stop", this, () => { MusicPlayer.Stop(); });
-            World.Lua.LinkFunction("set_track", this, (string track) => { MusicPlayer.SetTrack(track); });
+            World.Lua.LinkFunction("set_track", this, (string track) => { MusicPlayer.Track = track; });
         }
 
         private void SetupButton(ref DrawableElement reference, int index)
         {
-            reference = new DrawableElement(uiController, buttonSize, background.Position + new Vector2f(
-                (buttonSize.X + buttonGap) * index + margin,
-                background.Size.Y - buttonSize.Y - margin));
+            reference = new DrawableElement(uiController, buttonSize, default);
 
             reference.Element.IsScreenSpace = true;
             reference.DepthContainer = background.Element;
@@ -76,14 +82,48 @@ namespace MusicGrid
             reference.Element.ActiveColor = new Color(200, 200, 200, 225);
         }
 
+        private void PositionButton(ref DrawableElement reference, int index)
+        {
+            reference.Position = background.Position + new Vector2f(
+                (buttonSize.X + buttonGap) * index + margin,
+                background.Size.Y - buttonSize.Y - margin);
+        }
+
         private void OnWindowResized(object sender, SFML.Window.SizeEventArgs e)
         {
-            background.Position = new Vector2f(0, e.Height - background.Size.Y);
+            requiresRecalculation = true;
+        }
+
+        private void RecalculateLayout()
+        {
+            if (!requiresRecalculation) return;
+            requiresRecalculation = false;
+
+            buttonGap = Utilities.CalculateEvenSpaceGap(background.Size.X, buttonSize.X * buttonCount, buttonCount, margin);
+            background.Position = new Vector2f(0, Input.WindowSize.Y - background.Size.Y);
+
+            trackName.Position = background.Position + new Vector2f(margin, margin);
+            trackName.Size = new Vector2f(background.Size.X - margin * 2, 26);
+
+            PositionButton(ref shuffleButton, 0);
+            PositionButton(ref repeatButton, 1);
+            PositionButton(ref previousButton, 2);
+            PositionButton(ref playButton, 3);
+            PositionButton(ref nextButton, 4);
+        }
+
+        public override void Update()
+        {
+            trackName.Text = MusicPlayer.Track;
         }
 
         public override IEnumerable<IRenderTask> RenderScreen()
         {
+            RecalculateLayout();
+
             yield return background.RenderTask;
+
+            yield return trackName.RenderTask;
 
             yield return shuffleButton.RenderTask;
             yield return repeatButton.RenderTask;

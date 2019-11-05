@@ -10,7 +10,7 @@ namespace MusicGrid
         private MediaFoundationReader mediaFoundationReader;
         private AudioFileReader audioFileReader;
         private bool isReadyToPlay;
-
+        private string track;
         private WaveStream currentStream;
         private WaveOutEvent currentWaveOut;
 
@@ -31,44 +31,50 @@ namespace MusicGrid
             return false;
         }
 
-        public void SetTrack(string path)
+        public string Track
         {
-            isReadyToPlay = false;
-            currentWaveOut?.Dispose();
-            currentStream?.Dispose();
-
-            string readablePath = path.Normalize();
-
-            currentWaveOut = new WaveOutEvent
+            get => track;
+            set
             {
-                DesiredLatency = 1000
-            };
+                if (track == value) return;
+                isReadyToPlay = false;
+                currentWaveOut?.Dispose();
+                currentStream?.Dispose();
 
-            try
-            {
-                mediaFoundationReader = new MediaFoundationReader(readablePath);
-                currentStream = mediaFoundationReader;
-            }
-            catch (Exception)
-            {
-                ConsoleEntity.Log($"Unsupported audio format: {path}. Falling back to AudioFileReader", ConsoleSourceIdentifier);
+                string readablePath = value.Normalize();
+
+                currentWaveOut = new WaveOutEvent
+                {
+                    DesiredLatency = 1000
+                };
+
                 try
                 {
-                    mediaFoundationReader?.Dispose();
-                    audioFileReader = new AudioFileReader(readablePath);
-                    currentStream = audioFileReader;
+                    mediaFoundationReader = new MediaFoundationReader(readablePath);
+                    currentStream = mediaFoundationReader;
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
-                    ConsoleEntity.Log($"Error playing {path}: {e}", ConsoleSourceIdentifier);
-                    OnFailure?.Invoke(this, e);
-                    return;
+                    ConsoleEntity.Log($"Unsupported audio format: {value}. Falling back to AudioFileReader", ConsoleSourceIdentifier);
+                    try
+                    {
+                        mediaFoundationReader?.Dispose();
+                        audioFileReader = new AudioFileReader(readablePath);
+                        currentStream = audioFileReader;
+                    }
+                    catch (Exception e)
+                    {
+                        ConsoleEntity.Log($"Error playing {value}: {e}", ConsoleSourceIdentifier);
+                        OnFailure?.Invoke(this, e);
+                        return;
+                    }
                 }
-            }
 
-            currentWaveOut.Init(currentStream);
-            isReadyToPlay = true;
-            ConsoleEntity.Log($"Set track to {path}", ConsoleSourceIdentifier);
+                currentWaveOut.Init(currentStream);
+                isReadyToPlay = true;
+                track = value;
+                ConsoleEntity.Log($"Set track to {value}", ConsoleSourceIdentifier);
+            }
         }
 
         //Ja dit gaat niet werken :(

@@ -278,7 +278,7 @@ namespace MusicGrid
                 element.OnDoubleClick += (o, e) =>
                 {
                     var player = World.GetEntityByType<MusicControlsEntity>().MusicPlayer;
-                    player.SetTrack(entry.Path);
+                    player.Track = entry.Path;
                     player.Play();
                 };
 
