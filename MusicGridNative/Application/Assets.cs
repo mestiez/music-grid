@@ -20,8 +20,6 @@ namespace MusicGrid
         {
             DefaultFont = new Font(Properties.Resources.kosugiMaru);
 
-            var converter = new System.Drawing.ImageConverter();
-
             LockedIcon = BitmapToTexture(Properties.Resources.locked);
             LockedIcon.Smooth = true;
 
