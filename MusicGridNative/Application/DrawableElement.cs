@@ -105,6 +105,12 @@ namespace MusicGrid
         }
 
         #region Properties
+        public Texture Texture
+        {
+            get => background.Texture;
+            set => background.Texture = value;
+        }
+
         public bool EncapsulateText
         {
             get => encapsulateText;

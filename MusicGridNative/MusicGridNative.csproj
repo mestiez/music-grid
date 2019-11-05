@@ -177,6 +177,12 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="favicon.ico" />
+    <None Include="Resources\shuffle.png" />
+    <None Include="Resources\repeat.png" />
+    <None Include="Resources\pause.png" />
+    <None Include="Resources\previous.png" />
+    <None Include="Resources\play.png" />
+    <None Include="Resources\next.png" />
     <None Include="Resources\locked.png" />
   </ItemGroup>
   <ItemGroup>
