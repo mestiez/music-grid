@@ -14,7 +14,7 @@ namespace MusicGrid
         private DrawableElement background;
 
         private readonly Vector2f buttonSize = new Vector2f(32, 32);
-        private readonly float margin = 10;
+        private readonly float margin = 5;
         private float buttonGap;
         private bool requiresRecalculation = true;
 
@@ -26,12 +26,13 @@ namespace MusicGrid
         const int buttonCount = 5;
 
         private DrawableElement trackName;
+        private DrawableElement trackInfo;
 
         public MusicControlsEntity()
         {
             MusicPlayer.OnFailure += (o, e) =>
             {
-                World.Add(new DialogboxEntity(e.Message, new SFML.System.Vector2f(e.Message.Length * DialogboxEntity.CharacterSize / 2 + 50, 150)));
+                World.Add(new DialogboxEntity(e.Message, new Vector2f(e.Message.Length * DialogboxEntity.CharacterSize / 2 + 50, 150)));
             };
         }
 
@@ -45,10 +46,14 @@ namespace MusicGrid
             background.Element.ActiveColor = background.Element.Color;
             background.Element.HoverColor = background.Element.Color;
 
-            trackName = new DrawableElement(uiController, default, default);
+            trackName = new DrawableElement(uiController);
             trackName.Element.IsScreenSpace = true;
             trackName.CenterText = true;
             trackName.HideOverflow = true;
+
+            trackInfo = new DrawableElement(uiController);
+            trackInfo.Element.IsScreenSpace = true;
+            trackInfo.CenterText = true;
 
             SetupButton(ref shuffleButton, 0);
             SetupButton(ref repeatButton, 1);

@@ -28,7 +28,7 @@ namespace MusicGrid
         private bool registered;
         private const string ConsoleSourceIdentifier = "DRAWABLE ELEMENT";
 
-        public DrawableElement(UiControllerEntity controller, Vector2f size, Vector2f position, int depth = 0, uint characterSize = 16)
+        public DrawableElement(UiControllerEntity controller, Vector2f size = default, Vector2f position = default, int depth = 0, uint characterSize = 16)
         {
             this.controller = controller;
 
@@ -80,7 +80,8 @@ namespace MusicGrid
         {
             background.FillColor = Element.ComputedColor;
 
-            target.Draw(background);
+            if (DrawBackground)
+                target.Draw(background);
             if (!string.IsNullOrWhiteSpace(displayString))
             {
                 if (HideOverflow)
@@ -116,6 +117,7 @@ namespace MusicGrid
 
         #region Properties
         public bool HideOverflow { get; set; }
+        public bool DrawBackground { get; set; } = true;
 
         public Texture Texture
         {

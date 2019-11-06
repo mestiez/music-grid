@@ -172,6 +172,9 @@
     <Compile Include="Engine\World.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="scripts\auto.lua">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="OpenTK.dll.config" />
     <None Include="packages.config" />
     <None Include="Resources\KosugiMaru-Regular.ttf" />

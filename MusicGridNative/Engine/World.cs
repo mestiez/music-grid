@@ -21,8 +21,6 @@ namespace MusicGrid
         public RenderTarget RenderTarget { get; set; }
         public Color ClearColor { get; set; }
 
-        public const string AutoLuaFilePath = "auto.lua";
-
         public World(RenderTarget target)
         {
             RenderTarget = target;
@@ -39,13 +37,25 @@ namespace MusicGrid
 
         private void ExecuteAutoLuaFile()
         {
-            if (!File.Exists(AutoLuaFilePath))
+            var dir = Properties.Resources.ScriptsFolder;
+            if (!Directory.Exists(dir))
             {
-                ConsoleEntity.Log($"Didn't run startup lua file: {AutoLuaFilePath} not found", "WORLD");
+                ConsoleEntity.Log($"Can't find scripts folder at {dir}", "WORLD");
                 return;
             }
-            string lua = File.ReadAllText(AutoLuaFilePath);
-            Lua.Execute(lua);
+            var files = Directory.GetFiles(dir);
+            ConsoleEntity.Log($"Found {files.Length} {(files.Length == 1 ? "script" : "scripts")}", "WORLD");
+            foreach (var path in files)
+            {
+                try
+                {
+                    Lua.Execute(File.ReadAllText(path));
+                }
+                catch (Exception e)
+                {
+                    ConsoleEntity.Log($"Error executing {path}: {e.Message}", "WORLD");
+                }
+            }
         }
 
         public void Step()

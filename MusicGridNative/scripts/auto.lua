@@ -1,0 +1,1 @@
+print("i will eliminate the middle class");

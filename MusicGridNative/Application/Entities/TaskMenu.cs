@@ -81,7 +81,7 @@ namespace MusicGrid
                 ContextMenuEntity.Main.MinimumWidth = buttonElements[2].Size.X;
                 ContextMenuEntity.Open(new[] {
                     new Button("about", () => { World.Add(new DialogboxEntity(
-                        Properties.Resources.about, 
+                        Properties.Resources.AboutText, 
                         new Vector2f(722,188), 
                         new Vector2f(Input.WindowSize.X/2, Input.WindowSize.Y/2) - new Vector2f(361,94)
                         ));

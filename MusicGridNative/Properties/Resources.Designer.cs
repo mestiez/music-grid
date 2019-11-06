@@ -67,9 +67,9 @@ namespace MusicGrid.Properties {
         ///
         ///More information at https://github.com/mestiez/music-grid-native.
         /// </summary>
-        internal static string about {
+        internal static string AboutText {
             get {
-                return ResourceManager.GetString("about", resourceCulture);
+                return ResourceManager.GetString("AboutText", resourceCulture);
             }
         }
         
@@ -150,6 +150,15 @@ namespace MusicGrid.Properties {
             get {
                 object obj = ResourceManager.GetObject("repeat", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to scripts.
+        /// </summary>
+        internal static string ScriptsFolder {
+            get {
+                return ResourceManager.GetString("ScriptsFolder", resourceCulture);
             }
         }
         
