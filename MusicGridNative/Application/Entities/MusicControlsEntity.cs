@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using SFML.Graphics;
 using SFML.System;
 
@@ -55,6 +56,8 @@ namespace MusicGrid
             SetupButton(ref playButton, 3);
             SetupButton(ref nextButton, 4);
 
+            playButton.Element.OnMouseDown += PlayPausePressed;
+
             var assets = MusicGridApplication.Assets;
             shuffleButton.Texture = assets.ShuffleButton;
             repeatButton.Texture = assets.RepeatButton;
@@ -63,11 +66,38 @@ namespace MusicGrid
             nextButton.Texture = assets.NextButton;
 
             Input.WindowResized += OnWindowResized;
+            MusicPlayer.OnTrackChange += OnTrackChange;
+            MusicPlayer.OnPlay += OnPlay;
+            MusicPlayer.OnStop += OnStop;
 
             World.Lua.LinkFunction("pause", this, () => { MusicPlayer.Pause(); });
             World.Lua.LinkFunction("play", this, () => { MusicPlayer.Play(); });
             World.Lua.LinkFunction("stop", this, () => { MusicPlayer.Stop(); });
+            World.Lua.LinkFunction("set_volume", this, (float a) => { MusicPlayer.Volume = Math.Max(Math.Min(1, a), 0); });
             World.Lua.LinkFunction("set_track", this, (string track) => { MusicPlayer.Track = track; });
+        }
+
+        private void OnStop(object sender, EventArgs e)
+        {
+            playButton.Texture = MusicGridApplication.Assets.PlayButton;
+        }
+
+        private void OnPlay(object sender, EventArgs e)
+        {
+            playButton.Texture = MusicGridApplication.Assets.PauseButton;
+        }
+
+        private void PlayPausePressed(object sender, MouseEventArgs e)
+        {
+            if (MusicPlayer.State == NAudio.Wave.PlaybackState.Paused)
+                MusicPlayer.Play();
+            else
+                MusicPlayer.Pause();
+        }
+
+        private void OnTrackChange(object sender, string e)
+        {
+            trackName.Text = Path.GetFileNameWithoutExtension(e);
         }
 
         private void SetupButton(ref DrawableElement reference, int index)
@@ -110,11 +140,6 @@ namespace MusicGrid
             PositionButton(ref previousButton, 2);
             PositionButton(ref playButton, 3);
             PositionButton(ref nextButton, 4);
-        }
-
-        public override void Update()
-        {
-            trackName.Text = MusicPlayer.Track;
         }
 
         public override IEnumerable<IRenderTask> RenderScreen()

@@ -61,6 +61,19 @@ namespace MusicGrid.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Music Grid is a Windows application that displays playlists in an infinite 2D world.
+        ///
+        ///
+        ///
+        ///More information at https://github.com/mestiez/music-grid-native.
+        /// </summary>
+        internal static string about {
+            get {
+                return ResourceManager.GetString("about", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
         internal static System.Drawing.Bitmap favicon_32x32 {

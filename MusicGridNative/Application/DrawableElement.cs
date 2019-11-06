@@ -85,7 +85,7 @@ namespace MusicGrid
             {
                 if (HideOverflow)
                 {
-                    GL.Scissor((int)Position.X, ((int)target.Size.Y - (int)(Position.Y + Size.Y)), 100, 100);
+                    GL.Scissor((int)Position.X, ((int)target.Size.Y - (int)(Position.Y + Size.Y)), (int)Size.X, (int)Size.Y);
                     GL.Enable(EnableCap.ScissorTest);
                 }
                 target.Draw(text);

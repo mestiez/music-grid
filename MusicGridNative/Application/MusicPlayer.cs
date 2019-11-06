@@ -1,4 +1,5 @@
-﻿using NAudio.Wave;
+﻿using NAudio.Vorbis;
+using NAudio.Wave;
 using System;
 using System.IO;
 
@@ -7,14 +8,21 @@ namespace MusicGrid
     public sealed class MusicPlayer
     {
         public const string ConsoleSourceIdentifier = "MUSIC PLAYER";
+
         private MediaFoundationReader mediaFoundationReader;
         private AudioFileReader audioFileReader;
+        private VorbisWaveReader vorbisWaveReader;
+
         private bool isReadyToPlay;
         private string track;
         private WaveStream currentStream;
         private WaveOutEvent currentWaveOut;
 
         public event EventHandler<Exception> OnFailure;
+        public event EventHandler<string> OnTrackChange;
+        public event EventHandler OnPlay;
+        public event EventHandler OnPause;
+        public event EventHandler OnStop;
 
         public MusicPlayer()
         {
@@ -64,45 +72,57 @@ namespace MusicGrid
                     }
                     catch (Exception e)
                     {
-                        ConsoleEntity.Log($"Error playing {value}: {e}", ConsoleSourceIdentifier);
-                        OnFailure?.Invoke(this, e);
-                        return;
+                        ConsoleEntity.Log($"Unsupported audio format: {value}. Falling back to VorbisWaveReader", ConsoleSourceIdentifier);
+                        try
+                        {
+                            vorbisWaveReader?.Dispose();
+                            vorbisWaveReader = new VorbisWaveReader(readablePath);
+                            currentStream = vorbisWaveReader;
+                        }
+                        catch (Exception)
+                        {
+                            ConsoleEntity.Log($"Error playing {value}: {e}", ConsoleSourceIdentifier);
+                            OnFailure?.Invoke(this, e);
+                            return;
+                        }
                     }
                 }
 
                 currentWaveOut.Init(currentStream);
                 isReadyToPlay = true;
                 track = value;
+                OnTrackChange?.Invoke(this, value);
                 ConsoleEntity.Log($"Set track to {value}", ConsoleSourceIdentifier);
             }
         }
 
-        //Ja dit gaat niet werken :(
-        //public byte[] GetData(int length)
-        //{
-        //    if (AssertReadyTo("get data")) return 0;
-        //    length = 
-        //    byte[] data = new byte[length];
-        //    currentStream.Read(data, currentStream.Position, length);
-        //    return ;
-        //}
+        public PlaybackState State => currentWaveOut.PlaybackState;
+
+        public float Volume
+        {
+            get => currentWaveOut.Volume;
+            set => currentWaveOut.Volume = value;
+        }
 
         public void Play()
         {
             if (AssertReadyTo("play music")) return;
             currentWaveOut.Play();
+            OnPlay?.Invoke(this, EventArgs.Empty);
         }
 
         public void Stop()
         {
             if (AssertReadyTo("stop music")) return;
             currentWaveOut.Stop();
+            OnPause?.Invoke(this, EventArgs.Empty);
         }
 
         public void Pause()
         {
             if (AssertReadyTo("pause music")) return;
             currentWaveOut.Pause();
+            OnStop?.Invoke(this, EventArgs.Empty);
         }
     }
 }
