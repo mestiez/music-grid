@@ -1,4 +1,5 @@
-﻿using SFML.Graphics;
+﻿using OpenTK;
+using SFML.Graphics;
 using SFML.System;
 using SFML.Window;
 using System;
@@ -10,6 +11,7 @@ namespace MusicGrid
     public static class Input
     {
         private static RenderWindow window;
+        private static NativeWindow nativeWindow;
 
         public static float MouseWheelDelta { get; private set; }
 
@@ -36,7 +38,7 @@ namespace MusicGrid
 
         public static event EventHandler<SizeEventArgs> WindowResized;
 
-        public static void SetWindow(RenderWindow window)
+        public static void SetWindow(RenderWindow window, NativeWindow nativeWindow)
         {
             if (window != null)
             {
@@ -54,11 +56,14 @@ namespace MusicGrid
 
                 window.LostFocus -= ResetEventHandler;
                 window.GainedFocus -= ResetEventHandler;
+
+                nativeWindow.FileDrop -= OnFileDrop;
             }
 
             Reset();
 
             Input.window = window;
+            Input.nativeWindow = nativeWindow;
 
             window.MouseWheelScrolled += MouseWheelScrolled;
             window.MouseMoved += MouseMoved;
@@ -74,7 +79,10 @@ namespace MusicGrid
 
             window.LostFocus += ResetEventHandler;
             window.GainedFocus += ResetEventHandler;
+
+            nativeWindow.FileDrop += OnFileDrop;
         }
+
 
         public static void Reset()
         {
@@ -98,6 +106,11 @@ namespace MusicGrid
         private static void ResetEventHandler(object sender, EventArgs e)
         {
             Reset();
+        }
+
+        private static void OnFileDrop(object sender, OpenTK.Input.FileDropEventArgs e)
+        {
+            ConsoleEntity.Log(e.FileName);
         }
 
         private static void OnWindowResized(object sender, SizeEventArgs e) => WindowResized?.Invoke(sender, e);

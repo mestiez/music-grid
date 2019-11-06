@@ -15,6 +15,8 @@ namespace MusicGrid
     {
         public static MusicGridApplication Main { get; private set; }
 
+        private readonly NativeWindow nativeWindow;
+
         public static Globals Globals { get; private set; }
         public static Assets Assets { get; private set; }
 
@@ -28,7 +30,10 @@ namespace MusicGrid
         {
             Main = this;
 
-            renderWindow = new RenderWindow(new VideoMode((uint)width, (uint)height), title, Styles.Resize | Styles.Close, new ContextSettings(8, 8, (uint)Configuration.CurrentConfiguration.AntiAliasing));
+            nativeWindow = new NativeWindow(width, height, title, GameWindowFlags.Default, GraphicsMode.Default, DisplayDevice.GetDisplay(DisplayIndex.Default));
+
+            renderWindow = new RenderWindow(nativeWindow.WindowInfo.Handle);
+            //renderWindow = new RenderWindow(new VideoMode((uint)width, (uint)height), title, Styles.Resize | Styles.Close, new ContextSettings(8, 8, (uint)Configuration.CurrentConfiguration.AntiAliasing));
             renderWindow.SetFramerateLimit((uint)framerate);
 
             using (var ms = new MemoryStream())
@@ -54,7 +59,7 @@ namespace MusicGrid
             World.Add(new MusicControlsEntity());
 
             World.Add(districtManager);
-            Input.SetWindow(renderWindow);
+            Input.SetWindow(renderWindow, nativeWindow);
 
             foreach (var district in Configuration.CurrentConfiguration.Districts)
                 districtManager.AddDistrict(district);
@@ -66,7 +71,7 @@ namespace MusicGrid
             Toolkit.Init();
             GraphicsContext context = new GraphicsContext(ContextHandle.Zero, OpenTK.Platform.Utilities.CreateWindowsWindowInfo(renderWindow.SystemHandle));
             context.LoadAll();
-
+            
             MainLoop();
 
             context.Dispose();
@@ -135,6 +140,7 @@ namespace MusicGrid
                 renderWindow.Clear(World.ClearColor);
 
                 Input.Reset();
+                nativeWindow.ProcessEvents();
                 renderWindow.DispatchEvents();
                 World.Step();
 
