@@ -71,6 +71,8 @@ namespace MusicGrid
 
         //State
         [RequiresRestart]
+        public bool Maximised = false;
+        [RequiresRestart]
         public int WindowWidth = 700;
         [RequiresRestart]
         public int WindowHeight = 500;

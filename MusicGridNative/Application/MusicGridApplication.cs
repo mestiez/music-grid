@@ -31,9 +31,9 @@ namespace MusicGrid
             Main = this;
 
             nativeWindow = new NativeWindow(width, height, title, GameWindowFlags.Default, GraphicsMode.Default, DisplayDevice.GetDisplay(DisplayIndex.Default));
-
+            if (Configuration.CurrentConfiguration.Maximised)
+                nativeWindow.WindowState = WindowState.Maximized;
             renderWindow = new RenderWindow(nativeWindow.WindowInfo.Handle);
-            //renderWindow = new RenderWindow(new VideoMode((uint)width, (uint)height), title, Styles.Resize | Styles.Close, new ContextSettings(8, 8, (uint)Configuration.CurrentConfiguration.AntiAliasing));
             renderWindow.SetFramerateLimit((uint)framerate);
 
             using (var ms = new MemoryStream())
@@ -71,13 +71,17 @@ namespace MusicGrid
             Toolkit.Init();
             GraphicsContext context = new GraphicsContext(ContextHandle.Zero, OpenTK.Platform.Utilities.CreateWindowsWindowInfo(renderWindow.SystemHandle));
             context.LoadAll();
-            
+
             MainLoop();
 
             context.Dispose();
+            Configuration.CurrentConfiguration.Maximised = nativeWindow.WindowState == WindowState.Maximized;
             Configuration.CurrentConfiguration.Districts = new List<District>(districtManager.Districts).ToArray();
-            Configuration.CurrentConfiguration.WindowHeight = (int)renderWindow.Size.Y;
-            Configuration.CurrentConfiguration.WindowWidth = (int)renderWindow.Size.X;
+            if (!Configuration.CurrentConfiguration.Maximised)
+            {
+                Configuration.CurrentConfiguration.WindowHeight = (int)renderWindow.Size.Y;
+                Configuration.CurrentConfiguration.WindowWidth = (int)renderWindow.Size.X;
+            }
         }
 
         private void ApplyConfig()
