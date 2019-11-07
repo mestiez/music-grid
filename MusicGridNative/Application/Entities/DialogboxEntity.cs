@@ -120,7 +120,7 @@ namespace MusicGrid
                 elem.OnMouseDown += (o, e) =>
                 {
                     if (e.Button != Mouse.Button.Left) return;
-                    button.Action();
+                    button.Action?.Invoke();
                     if (CloseOnButtonPress)
                         World.Destroy(this);
                 };

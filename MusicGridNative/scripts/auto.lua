@@ -1,1 +1,1 @@
-print("i will eliminate the middle class");
+set_volume(0.1);

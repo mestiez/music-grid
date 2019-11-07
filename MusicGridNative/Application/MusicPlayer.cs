@@ -5,7 +5,7 @@ using System.IO;
 
 namespace MusicGrid
 {
-    public sealed class MusicPlayer
+    public sealed class MusicPlayer : IDisposable
     {
         public const string ConsoleSourceIdentifier = "MUSIC PLAYER";
 
@@ -14,20 +14,16 @@ namespace MusicGrid
         private VorbisWaveReader vorbisWaveReader;
 
         private bool isReadyToPlay;
+        private float volume;
         private string track;
         private WaveStream currentStream;
-        private WaveOutEvent currentWaveOut;
+        private IWavePlayer currentWaveOut;
 
         public event EventHandler<Exception> OnFailure;
         public event EventHandler<string> OnTrackChange;
         public event EventHandler OnPlay;
         public event EventHandler OnPause;
         public event EventHandler OnStop;
-
-        public MusicPlayer()
-        {
-
-        }
 
         private bool AssertReadyTo(string action = "interact")
         {
@@ -51,10 +47,7 @@ namespace MusicGrid
 
                 string readablePath = value.Normalize();
 
-                currentWaveOut = new WaveOutEvent
-                {
-                    DesiredLatency = 1000
-                };
+                currentWaveOut = new WaveOut();
 
                 try
                 {
@@ -87,21 +80,36 @@ namespace MusicGrid
                         }
                     }
                 }
-
                 currentWaveOut.Init(currentStream);
-                isReadyToPlay = true;
+                currentWaveOut.Volume = Volume;
                 track = value;
-                OnTrackChange?.Invoke(this, value);
                 ConsoleEntity.Log($"Set track to {value}", ConsoleSourceIdentifier);
+                isReadyToPlay = true;
+                OnTrackChange?.Invoke(this, value);
             }
         }
 
-        public PlaybackState State => currentWaveOut.PlaybackState;
+        public PlaybackState State => currentWaveOut?.PlaybackState ?? default;
+
+        public TimeSpan Time {
+            get => currentStream?.CurrentTime ?? default;
+            set
+            {
+                if (AssertReadyTo("seek") || !currentStream.CanSeek) return;
+                currentStream.CurrentTime = value;
+            }
+        }
+        public TimeSpan Duration => currentStream?.TotalTime ?? default;
 
         public float Volume
         {
-            get => currentWaveOut.Volume;
-            set => currentWaveOut.Volume = value;
+            get => volume;
+            set
+            {
+                volume = value;
+                if (isReadyToPlay)
+                    currentWaveOut.Volume = volume;
+            }
         }
 
         public void Play()
@@ -123,6 +131,13 @@ namespace MusicGrid
             if (AssertReadyTo("pause music")) return;
             currentWaveOut.Pause();
             OnStop?.Invoke(this, EventArgs.Empty);
+        }
+
+        public void Dispose()
+        {
+            Stop();
+            currentStream?.Dispose();
+            currentWaveOut?.Dispose();
         }
     }
 }

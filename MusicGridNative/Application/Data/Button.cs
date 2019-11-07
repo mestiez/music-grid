@@ -8,7 +8,7 @@ namespace MusicGrid
         public Action Action { get; set; }
         public bool Interactive { get; set; }
 
-        public Button(string label, Action action, bool interactive = true)
+        public Button(string label, Action action = default, bool interactive = true)
         {
             Label = label;
             Action = action;

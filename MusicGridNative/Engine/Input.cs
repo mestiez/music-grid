@@ -37,6 +37,7 @@ namespace MusicGrid
         public static string TextEntered { get; private set; }
 
         public static event EventHandler<SizeEventArgs> WindowResized;
+        public static event EventHandler WindowClosed;
 
         public static void SetWindow(RenderWindow window, NativeWindow nativeWindow)
         {
@@ -56,6 +57,8 @@ namespace MusicGrid
 
                 window.LostFocus -= ResetEventHandler;
                 window.GainedFocus -= ResetEventHandler;
+
+                window.Closed -= OnWindowClose;
 
                 nativeWindow.FileDrop -= OnFileDrop;
             }
@@ -80,9 +83,15 @@ namespace MusicGrid
             window.LostFocus += ResetEventHandler;
             window.GainedFocus += ResetEventHandler;
 
+            window.Closed += OnWindowClose;
+
             nativeWindow.FileDrop += OnFileDrop;
         }
 
+        private static void OnWindowClose(object sender, EventArgs e)
+        {
+            WindowClosed?.Invoke(sender, EventArgs.Empty);
+        }
 
         public static void Reset()
         {

@@ -66,29 +66,36 @@ namespace MusicGrid
                     buttonElements[0].Position + new Vector2f(0, Height));
             }));
 
+            buttons.Add(new Button("preferences", interactive: false));
+
             buttons.Add(new Button("view", () =>
             {
-                ContextMenuEntity.Main.MinimumWidth = buttonElements[1].Size.X;
+                ContextMenuEntity.Main.MinimumWidth = buttonElements[2].Size.X;
                 ContextMenuEntity.Open(new[] {
                     new Button("fit view to grid", () => { World.GetEntityByType<CameraControllerEnity>().FitToView(districtManager.Districts); }),
                     new Button("reset view", () => { Configuration.CurrentConfiguration.Pan = default; Configuration.CurrentConfiguration.Zoom = 1; }),
                 },
-                    buttonElements[1].Position + new Vector2f(0, Height));
+                    buttonElements[2].Position + new Vector2f(0, Height));
             }));
 
             buttons.Add(new Button("help", () =>
             {
-                ContextMenuEntity.Main.MinimumWidth = buttonElements[2].Size.X;
+                ContextMenuEntity.Main.MinimumWidth = buttonElements[3].Size.X;
                 ContextMenuEntity.Open(new[] {
                     new Button("about", () => { World.Add(new DialogboxEntity(
-                        Properties.Resources.AboutText, 
-                        new Vector2f(722,188), 
-                        new Vector2f(Input.WindowSize.X/2, Input.WindowSize.Y/2) - new Vector2f(361,94)
+                        Properties.Resources.AboutText,
+                        new Vector2f(700,120),
+                        new Vector2f(Input.WindowSize.X/2, Input.WindowSize.Y/2) - new Vector2f(361,94),
+                        buttons: new[]
+                        {
+                            new Button("Okay"),
+                            new Button("GitHub", () => { System.Diagnostics.Process.Start(Properties.Resources.GitHubURL); })
+                        }
                         ));
                     }),
                     new Button("open console", () => { ConsoleEntity.Main.ConsoleIsOpen = true; }),
                 },
-                    buttonElements[2].Position + new Vector2f(0, Height));
+                    buttonElements[3].Position + new Vector2f(0, Height));
             }));
         }
 
@@ -137,7 +144,7 @@ namespace MusicGrid
                     Size = new Vector2f(width + margin * 2, height)
                 };
 
-                elem.OnMouseDown += (o, e) => { button.Action(); };
+                elem.OnMouseDown += (o, e) => { button.Action?.Invoke(); };
 
                 uiController.Register(elem);
                 buttonElements[i] = elem;
@@ -145,6 +152,7 @@ namespace MusicGrid
                 buttonPos += width + margin * 2;
                 textTasks[i] = new ActionRenderTask((target) =>
                 {
+                    buttonText.FillColor = button.Interactive ? Style.Foreground : Style.ForegroundDisabled;
                     buttonText.DisplayedString = button.Label;
                     buttonText.Position = elem.Position + new Vector2f(margin, -halfCharSize + height / 2);
 

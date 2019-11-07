@@ -43,7 +43,7 @@ namespace MusicGrid
                 ConsoleEntity.Log($"Can't find scripts folder at {dir}", "WORLD");
                 return;
             }
-            var files = Directory.GetFiles(dir);
+            var files = Directory.GetFiles(dir, "*.lua");
             ConsoleEntity.Log($"Found {files.Length} {(files.Length == 1 ? "script" : "scripts")}", "WORLD");
             foreach (var path in files)
             {

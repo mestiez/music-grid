@@ -37,6 +37,20 @@ namespace MusicGrid
             return vector.X * vector.X + vector.Y * vector.Y;
         }
 
+        public static string ToHumanReadableString(TimeSpan span)
+        {
+            const string s = ":";
+            string final = $"{doubleOh(span.Minutes)}{s}{doubleOh(span.Seconds)}";
+            if (span.Hours != 0)
+                final = doubleOh(span.Hours) + s + final;
+            return final;
+            string doubleOh(int i)
+            {
+                string iss = i.ToString();
+                return iss.Length == 1 ? "0" + iss : iss;
+            }
+        }
+
         public static Vector2f Round(Vector2f i)
         {
             return new Vector2f((int)i.X, (int)i.Y);
@@ -45,6 +59,11 @@ namespace MusicGrid
         public static float CalculateEvenSpaceGap(float totalSpace, float occupiedSpace, int elementCount, float margin = 10)
         {
             return (totalSpace - occupiedSpace - (margin * 2)) / (elementCount - 1);
+        }
+
+        public static float Clamp(float value, float lower, float upper)
+        {
+            return Math.Max(Math.Min(value, upper), lower);
         }
 
         public static float Lerp(float a, float b, float t)

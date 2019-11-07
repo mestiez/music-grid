@@ -78,10 +78,11 @@ namespace MusicGrid
 
         private void Render(RenderTarget target)
         {
-            background.FillColor = Element.ComputedColor;
-
             if (DrawBackground)
+            {
+                background.FillColor = Element.ComputedColor;
                 target.Draw(background);
+            }
             if (!string.IsNullOrWhiteSpace(displayString))
             {
                 if (HideOverflow)
@@ -97,6 +98,7 @@ namespace MusicGrid
 
         public void ForceRecalculateLayout()
         {
+            if (string.IsNullOrWhiteSpace(Text)) return;
             if (!EncapsulateText && !CenterText)
             {
                 ConsoleEntity.Log("Recalculation of layout is unwarranted!", ConsoleSourceIdentifier);

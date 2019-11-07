@@ -277,9 +277,10 @@ namespace MusicGrid
 
                 element.OnDoubleClick += (o, e) =>
                 {
-                    var player = World.GetEntityByType<MusicControlsEntity>().MusicPlayer;
-                    player.Track = entry.Path;
-                    player.Play();
+                    var player = World.GetEntityByType<MusicControlsEntity>();
+                    player.SetColor(District.Color);
+                    player.MusicPlayer.Track = entry.Path;
+                    player.MusicPlayer.Play();
                 };
 
                 entryTexts[i] = new Text("Entry", MusicGridApplication.Assets.DefaultFont)
@@ -429,6 +430,7 @@ namespace MusicGrid
             backgroundTask.Depth = backgroundElement.Depth;
             titleTask.Depth = backgroundElement.Depth;
             handleTask.Depth = backgroundElement.Depth;
+            lockedIconTask.Depth = backgroundElement.Depth;
 
             for (int i = 0; i < District.Entries.Count; i++)
             {
