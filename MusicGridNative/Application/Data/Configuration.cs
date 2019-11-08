@@ -76,6 +76,7 @@ namespace MusicGrid
         public int WindowWidth = 700;
         [RequiresRestart]
         public int WindowHeight = 500;
+        public Vector2f PlayerSize = new Vector2f();
         public float Zoom = 1;
         public Vector2f Pan = default;
         [RequiresRestart]

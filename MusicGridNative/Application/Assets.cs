@@ -13,6 +13,7 @@ namespace MusicGrid
         public readonly Texture PauseButton;
         public readonly Texture RepeatButton;
         public readonly Texture ShuffleButton;
+        public readonly Texture ResizeHandle;
 
         private System.Drawing.ImageConverter converter = new System.Drawing.ImageConverter();
 
@@ -29,6 +30,7 @@ namespace MusicGrid
             PauseButton = BitmapToTexture(Properties.Resources.pause);
             RepeatButton = BitmapToTexture(Properties.Resources.repeat);
             ShuffleButton = BitmapToTexture(Properties.Resources.shuffle);
+            ResizeHandle = BitmapToTexture(Properties.Resources.resize);
         }
 
         private Texture BitmapToTexture(System.Drawing.Bitmap bitmap) => new Texture(converter.ConvertTo(bitmap, typeof(byte[])) as byte[]);

@@ -128,6 +128,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Application\Assets.cs" />
+    <Compile Include="Application\Audio\WavePlayerCascade.cs" />
     <Compile Include="Application\Data\Configuration.cs" />
     <Compile Include="Application\Data\District.cs" />
     <Compile Include="Application\Data\DistrictEntry.cs" />
@@ -146,6 +147,7 @@
     <Compile Include="Application\Entities\DistrictEntity.cs" />
     <Compile Include="Application\Entities\MusicControlsEntity.cs" />
     <Compile Include="Application\Audio\MusicPlayer.cs" />
+    <Compile Include="Application\Entities\MusicControlsEntityUI.cs" />
     <Compile Include="Application\UI\InteractionInfo.cs" />
     <Compile Include="Engine\ILuaConsole.cs" />
     <Compile Include="Application\LuaConsole.cs" />
@@ -190,6 +192,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="favicon.ico" />
+    <None Include="Resources\resize.png" />
     <None Include="Resources\shuffle.png" />
     <None Include="Resources\repeat.png" />
     <None Include="Resources\pause.png" />
