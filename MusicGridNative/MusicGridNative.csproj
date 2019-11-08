@@ -145,7 +145,7 @@
     <Compile Include="Application\Entities\ConsoleEntity.cs" />
     <Compile Include="Application\Entities\DistrictEntity.cs" />
     <Compile Include="Application\Entities\MusicControlsEntity.cs" />
-    <Compile Include="Application\MusicPlayer.cs" />
+    <Compile Include="Application\Audio\MusicPlayer.cs" />
     <Compile Include="Application\UI\InteractionInfo.cs" />
     <Compile Include="Engine\ILuaConsole.cs" />
     <Compile Include="Application\LuaConsole.cs" />

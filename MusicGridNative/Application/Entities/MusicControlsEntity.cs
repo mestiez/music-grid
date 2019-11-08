@@ -37,9 +37,9 @@ namespace MusicGrid
 
         public MusicControlsEntity()
         {
-            MusicPlayer.OnFailure += (o, e) =>
+            MusicPlayer.OnFailure += (o, m) =>
             {
-                World.Add(new DialogboxEntity(e.Message, new Vector2f(e.Message.Length * DialogboxEntity.CharacterSize / 2 + 50, 150)));
+                World.Add(new DialogboxEntity(m, new Vector2f(m.Length * DialogboxEntity.CharacterSize / 2 + 50, 150)), int.MaxValue);
             };
         }
 
@@ -58,7 +58,7 @@ namespace MusicGrid
             trackName.CenterText = true;
             trackName.HideOverflow = true;
             trackName.DepthContainer = background.Element;
-            trackName.Element.Color = new Color(0,0,0,25);
+            trackName.Element.Color = new Color(0, 0, 0, 25);
             trackName.Element.ActiveColor = trackName.Element.Color;
             trackName.Element.HoverColor = trackName.Element.Color;
 
@@ -202,7 +202,7 @@ namespace MusicGrid
         public override void Update()
         {
             trackInfo.Text = $"{Utilities.ToHumanReadableString(MusicPlayer.Time)}/{Utilities.ToHumanReadableString(MusicPlayer.Duration)}";
-            float progress = 1;
+            float progress;
             if (trackInfo.Element.IsBeingHeld)
             {
                 progress = Utilities.Clamp((Input.ScreenMousePosition.X - background.Position.X - margin) / (background.Size.X - margin * 2), 0, 1);
