@@ -40,6 +40,15 @@ namespace MusicGrid
 
             var config = Configuration.CurrentConfiguration;
 
+            if (Input.IsKeyPressed(Keyboard.Key.Home))
+                FitToView(World.GetEntityByType<DistrictManager>().Districts);
+
+            if (Input.IsKeyPressed(Keyboard.Key.Period))
+            {
+                var selectedDistricts = World.GetEntitiesByType<DistrictEntity>().Where(d => d.IsSelected).Select(d => d.District).ToList();
+                FitToView(selectedDistricts);
+            }
+
             if (Input.IsButtonHeld(Mouse.Button.Middle))
                 config.Pan -= (Vector2f)Input.ScreenMouseDelta * config.Zoom;
             else
@@ -71,6 +80,7 @@ namespace MusicGrid
 
         public void FitToView(IEnumerable<District> districts, float padding = 20)
         {
+            if (districts.Count() < 1) return;
             var taskMenu = World.GetEntityByType<TaskMenu>();
 
             float minX = districts.Min(d => d.Position.X) - padding;

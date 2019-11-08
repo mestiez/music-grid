@@ -480,5 +480,7 @@ namespace MusicGrid
         }
 
         public override string ToString() => District + " entity";
+
+        public bool IsSelected => backgroundElement.IsSelected;
     }
 }
