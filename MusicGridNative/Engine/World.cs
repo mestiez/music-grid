@@ -154,7 +154,7 @@ namespace MusicGrid
                 entityOrderPair.Key.Created();
 
             foreach (var entityOrderPair in createBuffer)
-                entities.Insert(entityOrderPair.Value, entityOrderPair.Key);
+                entities.Insert(Utilities.Clamp(entityOrderPair.Value, 0, entities.Count-1), entityOrderPair.Key);
 
             foreach (var entityOrderPair in createBuffer)
                 entityOrderPair.Key.Initialised();
