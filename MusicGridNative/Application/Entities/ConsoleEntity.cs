@@ -67,9 +67,9 @@ namespace MusicGrid
                 t = 0;
             }
 
-            if (Input.IsKeyReleased(Keyboard.Key.F12))
+            if (Input.IsKeyReleased(OpenTK.Input.Key.F12))
                 ConsoleIsOpen = !ConsoleIsOpen;
-            else if (Input.IsKeyReleased(Keyboard.Key.Escape))
+            else if (Input.IsKeyReleased(OpenTK.Input.Key.Escape))
                 ConsoleIsOpen = false;
 
             if (ConsoleIsOpen)
@@ -79,9 +79,9 @@ namespace MusicGrid
         private void HandleUserInput()
         {
             HandleInputHistoryTraversing();
-            if (Input.IsKeyReleased(Keyboard.Key.Enter))
+            if (Input.IsKeyReleased(OpenTK.Input.Key.Enter))
                 ConsumeInput();
-            else if (!Input.IsKeyPressed(Keyboard.Key.Escape))
+            else if (!Input.IsKeyPressed(OpenTK.Input.Key.Escape))
                 foreach (var c in Input.TextEntered)
                     switch (c)
                     {
@@ -101,14 +101,14 @@ namespace MusicGrid
         {
             if (inputHistory.Any())
             {
-                if (Input.IsKeyReleased(Keyboard.Key.Up))
+                if (Input.IsKeyReleased(OpenTK.Input.Key.Up))
                 {
                     inputHistoryIndex--;
                     if (inputHistoryIndex >= 0)
                         input = inputHistory[inputHistoryIndex];
                     else inputHistoryIndex = -1;
                 }
-                else if (Input.IsKeyReleased(Keyboard.Key.Down))
+                else if (Input.IsKeyReleased(OpenTK.Input.Key.Down))
                 {
                     inputHistoryIndex++;
                     if (inputHistoryIndex >= inputHistory.Count)

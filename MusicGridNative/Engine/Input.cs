@@ -23,9 +23,9 @@ namespace MusicGrid
         public static Vector2i PreviousScreenMousePosition { get; private set; }
         public static Vector2i ScreenMouseDelta { get; private set; }
 
-        private static readonly HashSet<Keyboard.Key> PressedKeys = new HashSet<Keyboard.Key>();
-        private static readonly HashSet<Keyboard.Key> HeldKeys = new HashSet<Keyboard.Key>();
-        private static readonly HashSet<Keyboard.Key> ReleasedKeys = new HashSet<Keyboard.Key>();
+        private static readonly HashSet<OpenTK.Input.Key> PressedKeys = new HashSet<OpenTK.Input.Key>();
+        private static readonly HashSet<OpenTK.Input.Key> HeldKeys = new HashSet<OpenTK.Input.Key>();
+        private static readonly HashSet<OpenTK.Input.Key> ReleasedKeys = new HashSet<OpenTK.Input.Key>();
 
         private static readonly HashSet<Mouse.Button> PressedButtons = new HashSet<Mouse.Button>();
         private static readonly HashSet<Mouse.Button> HeldButtons = new HashSet<Mouse.Button>();
@@ -46,8 +46,8 @@ namespace MusicGrid
                 window.MouseWheelScrolled -= MouseWheelScrolled;
                 window.MouseMoved -= MouseMoved;
 
-                window.KeyPressed -= KeyPressed;
-                window.KeyReleased -= KeyReleased;
+                nativeWindow.KeyDown -= NativeWindow_KeyDown;
+                nativeWindow.KeyUp -= NativeWindow_KeyUp;
                 window.TextEntered -= OnTextEntered;
 
                 window.MouseButtonPressed -= MouseButtonPressed;
@@ -71,8 +71,8 @@ namespace MusicGrid
             window.MouseWheelScrolled += MouseWheelScrolled;
             window.MouseMoved += MouseMoved;
 
-            window.KeyPressed += KeyPressed;
-            window.KeyReleased += KeyReleased;
+            nativeWindow.KeyDown += NativeWindow_KeyDown;
+            nativeWindow.KeyUp += NativeWindow_KeyUp;
             window.TextEntered += OnTextEntered;
 
             window.MouseButtonPressed += MouseButtonPressed;
@@ -86,6 +86,18 @@ namespace MusicGrid
             window.Closed += OnWindowClose;
 
             nativeWindow.FileDrop += OnFileDrop;
+        }
+
+        private static void NativeWindow_KeyUp(object sender, OpenTK.Input.KeyboardKeyEventArgs e)
+        {
+            HeldKeys.Remove(e.Key);
+            ReleasedKeys.Add(e.Key);
+        }
+
+        private static void NativeWindow_KeyDown(object sender, OpenTK.Input.KeyboardKeyEventArgs e)
+        {
+            HeldKeys.Add(e.Key);
+            PressedKeys.Add(e.Key);
         }
 
         private static void OnWindowClose(object sender, EventArgs e)
@@ -124,9 +136,9 @@ namespace MusicGrid
 
         private static void OnWindowResized(object sender, SizeEventArgs e) => WindowResized?.Invoke(sender, e);
 
-        public static bool IsKeyHeld(Keyboard.Key key) => HeldKeys.Contains(key);
-        public static bool IsKeyPressed(Keyboard.Key key) => PressedKeys.Contains(key);
-        public static bool IsKeyReleased(Keyboard.Key key) => ReleasedKeys.Contains(key);
+        public static bool IsKeyHeld(OpenTK.Input.Key key) => HeldKeys.Contains(key);
+        public static bool IsKeyPressed(OpenTK.Input.Key key) => PressedKeys.Contains(key);
+        public static bool IsKeyReleased(OpenTK.Input.Key key) => ReleasedKeys.Contains(key);
 
         public static bool IsAnyKeyHeld => HeldKeys.Any();
         public static bool IsAnyKeyPressedd => PressedKeys.Any();
@@ -168,14 +180,14 @@ namespace MusicGrid
 
         private static void KeyReleased(object sender, KeyEventArgs e)
         {
-            HeldKeys.Remove(e.Code);
-            ReleasedKeys.Add(e.Code);
+            // HeldKeys.Remove(e.Code);
+            // ReleasedKeys.Add(e.Code);
         }
 
         private static void KeyPressed(object sender, KeyEventArgs e)
         {
-            HeldKeys.Add(e.Code);
-            PressedKeys.Add(e.Code);
+            //HeldKeys.Add(e.Code);
+            // PressedKeys.Add(e.Code);
         }
 
         private static void MouseMoved(object sender, MouseMoveEventArgs e)

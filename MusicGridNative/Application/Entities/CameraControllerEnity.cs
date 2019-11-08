@@ -11,39 +11,16 @@ namespace MusicGrid
     {
         private readonly View view = new View();
 
-        public override void Created()
-        {
-            World.Lua.LinkFunction("set_cam_pos", this, new Action<float, float>((x, y) =>
-            {
-                Configuration.CurrentConfiguration.Pan = new Vector2f(x, y);
-            }).Method);
-
-            World.Lua.LinkFunction("set_cam_zoom", this, (float z) =>
-            {
-                Configuration.CurrentConfiguration.Zoom = z;
-            });
-
-            World.Lua.LinkFunction("set_min_zoom", this, (float z) =>
-            {
-                Configuration.CurrentConfiguration.ZoomLowerBound = z;
-            });
-
-            World.Lua.LinkFunction("set_max_zoom", this, (float z) =>
-            {
-                Configuration.CurrentConfiguration.ZoomUpperBound = z;
-            });
-        }
-
         public override void Update()
         {
             if (!Input.WindowHasFocus) return;
 
             var config = Configuration.CurrentConfiguration;
 
-            if (Input.IsKeyPressed(Keyboard.Key.Home))
+            if (Input.IsKeyPressed(OpenTK.Input.Key.Home))
                 FitToView(World.GetEntityByType<DistrictManager>().Districts);
 
-            if (Input.IsKeyPressed(Keyboard.Key.Period))
+            if (Input.IsKeyPressed(OpenTK.Input.Key.Period) || Input.IsKeyPressed(OpenTK.Input.Key.KeypadPeriod))
             {
                 var selectedDistricts = World.GetEntitiesByType<DistrictEntity>().Where(d => d.IsSelected).Select(d => d.District).ToList();
                 FitToView(selectedDistricts);

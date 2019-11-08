@@ -1,1 +1,1 @@
-set_volume(0.1);
+set_volume(10/5+8*10 / 200);

@@ -129,7 +129,7 @@ namespace MusicGrid
             if (!Input.WindowHasFocus) return;
             if (ConsoleEntity.Main.ConsoleIsOpen) return;
 
-            if (Input.IsKeyPressed(SFML.Window.Keyboard.Key.A))
+            if (Input.IsKeyPressed(OpenTK.Input.Key.A))
             {
                 if (selected.Count == 0)
                 {
@@ -141,7 +141,7 @@ namespace MusicGrid
                     ClearSelection();
             }
 
-            Multiselecting = Input.IsKeyHeld(SFML.Window.Keyboard.Key.LShift) || Input.IsKeyHeld(SFML.Window.Keyboard.Key.LControl);
+            Multiselecting = Input.IsKeyHeld(OpenTK.Input.Key.LShift) || Input.IsKeyHeld(OpenTK.Input.Key.LControl);
             if (requiresElementResort)
                 ReSortElements();
 
