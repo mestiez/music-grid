@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using NAudio.Wave;
 using SFML.Graphics;
 using SFML.System;
@@ -24,21 +24,22 @@ namespace MusicGrid
         {
             SetupLayout();
 
+            Input.WindowClosed += (o, e) =>
+            {
+                MusicPlayer.Dispose();
+            };
+
             Input.WindowResized += OnWindowResized;
             MusicPlayer.OnTrackChange += OnTrackChange;
             MusicPlayer.OnPlay += OnPlay;
             MusicPlayer.OnStop += OnStop;
 
+            World.Lua.LinkFunction("pause_or_play", this, () => { TogglePausePlay(); });
             World.Lua.LinkFunction("pause", this, () => { MusicPlayer.Pause(); });
             World.Lua.LinkFunction("play", this, () => { MusicPlayer.Play(); });
             World.Lua.LinkFunction("stop", this, () => { MusicPlayer.Stop(); });
             World.Lua.LinkFunction("set_volume", this, (float a) => { MusicPlayer.Volume = Math.Max(Math.Min(1, a), 0); ConsoleEntity.Log($"Volume set to {Math.Round(MusicPlayer.Volume * 100)}%", "MPE"); });
             World.Lua.LinkFunction("set_track", this, (string track) => { MusicPlayer.Track = track; });
-
-            Input.WindowClosed += (o, e) =>
-            {
-                MusicPlayer.Dispose();
-            };
         }
 
         private void OnStop(object sender, EventArgs e)
@@ -52,6 +53,11 @@ namespace MusicGrid
         }
 
         private void PlayPausePressed(object sender, MouseEventArgs e)
+        {
+            TogglePausePlay();
+        }
+
+        public void TogglePausePlay()
         {
             if (MusicPlayer.State == NAudio.Wave.PlaybackState.Paused)
                 MusicPlayer.Play();

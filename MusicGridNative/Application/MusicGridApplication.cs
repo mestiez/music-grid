@@ -57,6 +57,7 @@ namespace MusicGrid
             World.Add(new CameraControllerEnity());
             World.Add(new ContextMenuEntity());
             World.Add(new MusicControlsEntity());
+            World.Add(new KeybindExecutor());
 
             World.Add(districtManager);
             Input.SetWindow(renderWindow, nativeWindow);
@@ -67,6 +68,14 @@ namespace MusicGrid
             World.Lua.LinkFunction("quit", this, () => renderWindow.Close());
             World.Lua.LinkFunction("set", this, new Action<string, dynamic>((s, d) => SetConfigKey(s, d)).Method);
             World.Lua.LinkFunction("get", this, new Func<string, dynamic>((s) => GetConfigKey(s)).Method);
+            World.Lua.LinkFunction("bind", this, new Action<string[], string>(
+                (string[] keys, string script) =>
+                {
+                    Configuration.CurrentConfiguration.Keybinds.Add(
+                        new Configuration.Keybind(keys.Select(k => (OpenTK.Input.Key)Enum.Parse(typeof(OpenTK.Input.Key), k)).ToArray(),
+                        script)
+                        );
+                }).Method);
 
             Toolkit.Init();
             GraphicsContext context = new GraphicsContext(ContextHandle.Zero, OpenTK.Platform.Utilities.CreateWindowsWindowInfo(renderWindow.SystemHandle));

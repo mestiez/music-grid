@@ -1,7 +1,10 @@
 ﻿using Newtonsoft.Json;
+using OpenTK.Input;
 using SFML.System;
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace MusicGrid
 {
@@ -68,6 +71,9 @@ namespace MusicGrid
         public float AntiAliasing = 4;
         [RequiresRestart]
         public float TextClarity = 72;
+        public HashSet<Keybind> Keybinds = new HashSet<Keybind>{
+            new Keybind(new Key[]{Key.Space}, "pause_or_play()")
+        };
 
         //State
         [RequiresRestart]
@@ -83,5 +89,31 @@ namespace MusicGrid
         public District[] Districts = { };
 
         public class RequiresRestartAttribute : Attribute { }
+
+        public struct Keybind
+        {
+            public Key[] Keys;
+            public string Script;
+
+            public Keybind(Key[] keys, string script)
+            {
+                Keys = keys;
+                Script = script;
+            }
+
+            public bool IsSatisfied()
+            {
+                for (int i = 0; i < Keys.Length; i++)
+                {
+                    if (i + 1 == Keys.Length)
+                    {
+                        if (!Input.IsKeyPressed(Keys[i])) return false;
+                    }
+                    else if (!Input.IsKeyHeld(Keys[i]))
+                        return false;
+                }
+                return true;
+            }
+        }
     }
 }

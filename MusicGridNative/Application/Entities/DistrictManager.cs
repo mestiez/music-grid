@@ -109,7 +109,7 @@ namespace MusicGrid
 
             foreach (var district in districts)
             {
-                var copy = new District(district.Name, district.Position, district.Size, district.Color, district.Locked);
+                var copy = new District(district.Name, district.Position, district.Size, district.Color, district.Locked, district.Muted);
                 copy.Entries = district.Entries.Select((e) =>
                 {
                     return new DistrictEntry(e.Name, Utilities.GetRelativePath(e.Path, fullPath));
@@ -153,7 +153,7 @@ namespace MusicGrid
             path = path.Substring(0, path.Length - Path.GetFileName(path).Length);
             foreach (var district in grid.Districts)
             {
-                var copy = new District(district.Name, district.Position, district.Size, district.Color, district.Locked);
+                var copy = new District(district.Name, district.Position, district.Size, district.Color, district.Locked, district.Muted);
                 copy.Entries = district.Entries.Select((e) =>
                 {
                     return new DistrictEntry(e.Name, Path.GetFullPath(Path.Combine(path, e.Path)));

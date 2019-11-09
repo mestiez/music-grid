@@ -144,7 +144,10 @@ namespace MusicGrid
             });
 
             if (count == 1)
+            {
+                buttons.Add(new Button($"{(District.Muted ? "unmute" : "mute")} district", () => { District.Muted = !District.Muted; }));
                 buttons.Add(new Button($"{(District.Locked ? "unlock" : "lock")} district", () => { District.Locked = !District.Locked; }));
+            }
             else
             {
                 buttons.Add(new Button("lock selected districts", () =>
@@ -156,6 +159,16 @@ namespace MusicGrid
                 {
                     foreach (var district in selectedDistricts)
                         district.Locked = false;
+                }));
+                buttons.Add(new Button("mute selected districts", () =>
+                {
+                    foreach (var district in selectedDistricts)
+                        district.Muted = true;
+                }));
+                buttons.Add(new Button("unmute selected districts", () =>
+                {
+                    foreach (var district in selectedDistricts)
+                        district.Muted = false;
                 }));
             }
 
@@ -277,6 +290,7 @@ namespace MusicGrid
 
                 element.OnDoubleClick += (o, e) =>
                 {
+                    if (District.Muted) return;
                     var player = World.GetEntityByType<MusicControlsEntity>();
                     player.SetColor(District.Color);
                     player.MusicPlayer.Track = entry.Path;
@@ -432,17 +446,18 @@ namespace MusicGrid
             handleTask.Depth = backgroundElement.Depth;
             lockedIconTask.Depth = backgroundElement.Depth;
 
-            for (int i = 0; i < District.Entries.Count; i++)
-            {
-                var entry = District.Entries[i];
-                var element = entryElements[entry];
-                int vertexIndex = i * 4;
-                var computed = element.ComputedColor;
-                entryVertices[vertexIndex] = new Vertex(element.Position, computed);
-                entryVertices[vertexIndex + 1] = new Vertex(new Vector2f(element.Position.X + element.Size.X, element.Position.Y), computed);
-                entryVertices[vertexIndex + 2] = new Vertex(element.Position + element.Size, computed);
-                entryVertices[vertexIndex + 3] = new Vertex(new Vector2f(element.Position.X, element.Position.Y + element.Size.Y), computed);
-            }
+            if (!District.Muted)
+                for (int i = 0; i < District.Entries.Count; i++)
+                {
+                    var entry = District.Entries[i];
+                    var element = entryElements[entry];
+                    int vertexIndex = i * 4;
+                    var computed = element.ComputedColor;
+                    entryVertices[vertexIndex] = new Vertex(element.Position, computed);
+                    entryVertices[vertexIndex + 1] = new Vertex(new Vector2f(element.Position.X + element.Size.X, element.Position.Y), computed);
+                    entryVertices[vertexIndex + 2] = new Vertex(element.Position + element.Size, computed);
+                    entryVertices[vertexIndex + 3] = new Vertex(new Vector2f(element.Position.X, element.Position.Y + element.Size.Y), computed);
+                }
 
             entryTask.Depth = backgroundElement.Depth;
             entryTask.Vertices = entryVertices;
@@ -450,16 +465,17 @@ namespace MusicGrid
             yield return backgroundTask;
             yield return titleTask;
 
-            if (District.Entries.Any())
-            {
-                yield return entryTask;
-                foreach (var entry in District.Entries)
+            if (!District.Muted)
+                if (District.Entries.Any())
                 {
-                    var task = renderTasks[entry];
-                    task.Depth = backgroundElement.Depth;
-                    yield return task;
+                    yield return entryTask;
+                    foreach (var entry in District.Entries)
+                    {
+                        var task = renderTasks[entry];
+                        task.Depth = backgroundElement.Depth;
+                        yield return task;
+                    }
                 }
-            }
 
             if (District.Locked)
                 yield return lockedIconTask;

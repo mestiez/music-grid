@@ -14,6 +14,7 @@ namespace MusicGrid
         public override void Update()
         {
             if (!Input.WindowHasFocus) return;
+            if (ConsoleEntity.Main.ConsoleIsOpen) return;
 
             var config = Configuration.CurrentConfiguration;
 
