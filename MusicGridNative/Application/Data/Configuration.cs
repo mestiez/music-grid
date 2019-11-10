@@ -4,7 +4,6 @@ using SFML.System;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 
 namespace MusicGrid
 {
@@ -71,8 +70,19 @@ namespace MusicGrid
         public float AntiAliasing = 4;
         [RequiresRestart]
         public float TextClarity = 72;
-        public HashSet<Keybind> Keybinds = new HashSet<Keybind>{
-            new Keybind(new Key[]{Key.Space}, "pause_or_play()")
+        public Keybind[] Keybinds = {
+            new Keybind(new Key[]{Key.Space}, $"{Functions.ToggleStream}()"),
+            new Keybind(new Key[]{Key.Period}, $"{Functions.FitViewToSelection}()"),
+            new Keybind(new Key[]{Key.KeypadPeriod}, $"{Functions.FitViewToSelection}()"),
+            new Keybind(new Key[]{Key.Home}, $"{Functions.FitView}()"),
+
+            new Keybind(new Key[]{Key.LAlt}, $"{Functions.EnableSnap}()", true),
+            new Keybind(new Key[]{Key.LAlt}, $"{Functions.DisableSnap}()"),
+
+            new Keybind(new Key[]{Key.A}, $"{Functions.SelectAll}()"),
+
+            new Keybind(new Key[]{Key.LShift}, $"{Functions.EnableMultiselect}()"),
+            new Keybind(new Key[]{Key.LShift}, $"{Functions.DisableMultiselect}()", true),
         };
 
         //State
@@ -92,11 +102,13 @@ namespace MusicGrid
 
         public struct Keybind
         {
-            public Key[] Keys;
-            public string Script;
+            public readonly Key[] Keys;
+            public readonly string Script;
+            public readonly bool ForKeyRelease;
 
-            public Keybind(Key[] keys, string script)
+            public Keybind(Key[] keys, string script, bool forKeyRelease = false)
             {
+                ForKeyRelease = forKeyRelease;
                 Keys = keys;
                 Script = script;
             }
@@ -107,10 +119,28 @@ namespace MusicGrid
                 {
                     if (i + 1 == Keys.Length)
                     {
-                        if (!Input.IsKeyPressed(Keys[i])) return false;
+                        if (ForKeyRelease)
+                        {
+                            if (!Input.IsKeyReleased(Keys[i]))
+                            {
+                                return false;
+                            }
+                        }
+                        else
+                        {
+                            if (!Input.IsKeyPressed(Keys[i]))
+                            {
+                                return false;
+                            }
+                        }
                     }
-                    else if (!Input.IsKeyHeld(Keys[i]))
-                        return false;
+                    else
+                    {
+                        if (!Input.IsKeyHeld(Keys[i]))
+                        {
+                            return false;
+                        }
+                    }
                 }
                 return true;
             }

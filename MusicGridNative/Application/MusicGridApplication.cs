@@ -65,17 +65,9 @@ namespace MusicGrid
             foreach (var district in Configuration.CurrentConfiguration.Districts)
                 districtManager.AddDistrict(district);
 
-            World.Lua.LinkFunction("quit", this, () => renderWindow.Close());
-            World.Lua.LinkFunction("set", this, new Action<string, dynamic>((s, d) => SetConfigKey(s, d)).Method);
-            World.Lua.LinkFunction("get", this, new Func<string, dynamic>((s) => GetConfigKey(s)).Method);
-            World.Lua.LinkFunction("bind", this, new Action<string[], string>(
-                (string[] keys, string script) =>
-                {
-                    Configuration.CurrentConfiguration.Keybinds.Add(
-                        new Configuration.Keybind(keys.Select(k => (OpenTK.Input.Key)Enum.Parse(typeof(OpenTK.Input.Key), k)).ToArray(),
-                        script)
-                        );
-                }).Method);
+            World.Lua.LinkFunction(Functions.Quit, this, () => renderWindow.Close());
+            World.Lua.LinkFunction(Functions.Set, this, new Action<string, dynamic>((s, d) => SetConfigKey(s, d)).Method);
+            World.Lua.LinkFunction(Functions.Get, this, new Func<string, dynamic>((s) => GetConfigKey(s)).Method);
 
             Toolkit.Init();
             GraphicsContext context = new GraphicsContext(ContextHandle.Zero, OpenTK.Platform.Utilities.CreateWindowsWindowInfo(renderWindow.SystemHandle));

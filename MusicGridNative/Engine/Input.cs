@@ -90,12 +90,14 @@ namespace MusicGrid
 
         private static void NativeWindow_KeyUp(object sender, OpenTK.Input.KeyboardKeyEventArgs e)
         {
+            if (e.IsRepeat) return;
             HeldKeys.Remove(e.Key);
             ReleasedKeys.Add(e.Key);
         }
 
         private static void NativeWindow_KeyDown(object sender, OpenTK.Input.KeyboardKeyEventArgs e)
         {
+            if (e.IsRepeat) return;
             HeldKeys.Add(e.Key);
             PressedKeys.Add(e.Key);
         }

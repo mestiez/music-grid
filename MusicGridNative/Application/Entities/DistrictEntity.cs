@@ -334,7 +334,7 @@ namespace MusicGrid
             temporaryPosition += Input.MouseDelta;
 
             float snapSize = Configuration.CurrentConfiguration.SnappingSize;
-            var snappedPosition = !Input.IsKeyHeld(OpenTK.Input.Key.LAlt) ?
+            var snappedPosition = manager.SnappingEnabled ?
                 new Vector2f((float)Math.Round(temporaryPosition.X / snapSize) * snapSize, (float)Math.Round(temporaryPosition.Y / snapSize) * snapSize) :
                 temporaryPosition
                 ;
@@ -353,7 +353,7 @@ namespace MusicGrid
             temporarySize += Input.MouseDelta;
 
             float snapSize = Configuration.CurrentConfiguration.SnappingSize;
-            var snappedSize = !Input.IsKeyHeld(OpenTK.Input.Key.LAlt) ?
+            var snappedSize = manager.SnappingEnabled ?
                 new Vector2f((float)Math.Round(temporarySize.X / snapSize) * snapSize, (float)Math.Round(temporarySize.Y / snapSize) * snapSize) :
                 temporarySize
                 ;

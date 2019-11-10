@@ -52,8 +52,10 @@ namespace MusicGrid
 
             backgroundTask = new ShapeRenderTask(background, int.MinValue);
             displayTask = new ShapeRenderTask(display, int.MinValue);
-            World.Lua.LinkFunction<object>("print", this, (o) => AddToHistory(o, "LUA"));
-            World.Lua.LinkFunction("exit", this, () => { ConsoleIsOpen = false; });
+            World.Lua.LinkFunction<object>(Functions.Print, this, (o) => AddToHistory(o, "LUA"));
+            World.Lua.LinkFunction(Functions.ToggleConsole, this, () => { ConsoleIsOpen = !ConsoleIsOpen; });
+            World.Lua.LinkFunction(Functions.CloseConsole, this, () => { ConsoleIsOpen = false; });
+            World.Lua.LinkFunction(Functions.OpenConsole, this, () => { ConsoleIsOpen = true; });
         }
 
         public override void Update()

@@ -11,22 +11,21 @@ namespace MusicGrid
     {
         private readonly View view = new View();
 
+        public override void Created()
+        {
+            World.Lua.LinkFunction(Functions.FitView, this, () => { FitToView(World.GetEntityByType<DistrictManager>().Districts); });
+            World.Lua.LinkFunction(Functions.FitViewToSelection, this, () =>
+            {
+                var selectedDistricts = World.GetEntitiesByType<DistrictEntity>().Where(d => d.IsSelected).Select(d => d.District).ToList();
+                FitToView(selectedDistricts);
+            });
+        }
+
         public override void Update()
         {
             if (!Input.WindowHasFocus) return;
             if (ConsoleEntity.Main.ConsoleIsOpen) return;
-
             var config = Configuration.CurrentConfiguration;
-
-            if (Input.IsKeyPressed(OpenTK.Input.Key.Home))
-                FitToView(World.GetEntityByType<DistrictManager>().Districts);
-
-            if (Input.IsKeyPressed(OpenTK.Input.Key.Period) || Input.IsKeyPressed(OpenTK.Input.Key.KeypadPeriod))
-            {
-                var selectedDistricts = World.GetEntitiesByType<DistrictEntity>().Where(d => d.IsSelected).Select(d => d.District).ToList();
-                FitToView(selectedDistricts);
-            }
-
             if (Input.IsButtonHeld(Mouse.Button.Middle))
                 config.Pan -= (Vector2f)Input.ScreenMouseDelta * config.Zoom;
             else

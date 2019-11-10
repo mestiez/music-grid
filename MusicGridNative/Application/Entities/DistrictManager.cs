@@ -17,15 +17,20 @@ namespace MusicGrid
         public const string ConsoleSourceIdentifier = "DISTRICT MANAGER";
         public IReadOnlyList<District> Districts => districts.AsReadOnly();
 
+        public bool SnappingEnabled { get; private set; } = true;
+
         public override void Created()
         {
-            World.Lua.LinkFunction<string>("save_grid", this, SaveGrid);
-            World.Lua.LinkFunction<string>("load_grid", this, LoadGrid);
-            World.Lua.LinkFunction<string>("import_district", this, ImportPlaylist);
+            World.Lua.LinkFunction<string>(Functions.SaveGrid, this, SaveGrid);
+            World.Lua.LinkFunction<string>(Functions.LoadGrid, this, LoadGrid);
+            World.Lua.LinkFunction<string>(Functions.ImportDistrict, this, ImportPlaylist);
 
-            World.Lua.LinkFunction("ask_save_grid", this, AskSaveGrid);
-            World.Lua.LinkFunction("ask_load_grid", this, AskLoadGrid);
-            World.Lua.LinkFunction("ask_import_district", this, AskImportPlaylist);
+            World.Lua.LinkFunction(Functions.AskSaveGrid, this, AskSaveGrid);
+            World.Lua.LinkFunction(Functions.AskLoadGrid, this, AskLoadGrid);
+            World.Lua.LinkFunction(Functions.AskImportDistrict, this, AskImportPlaylist);
+
+            World.Lua.LinkFunction(Functions.EnableSnap, this, () => { SnappingEnabled = true; });
+            World.Lua.LinkFunction(Functions.DisableSnap, this, () => { SnappingEnabled = false; });
         }
 
         public void AskImportPlaylist()

@@ -21,6 +21,13 @@ namespace MusicGrid
 
         public UiElement FocusedElement { get; set; }
 
+        public override void Created()
+        {
+            World.Lua.LinkFunction(Functions.SelectAll, this, () => { SelectAll(); });
+            World.Lua.LinkFunction(Functions.EnableMultiselect, this, () => { Multiselecting = true; });
+            World.Lua.LinkFunction(Functions.DisableMultiselect, this, () => { Multiselecting = false; });
+        }
+
         public void Register(UiElement element)
         {
             registerBuffer.Add(element);
@@ -129,19 +136,6 @@ namespace MusicGrid
             if (!Input.WindowHasFocus) return;
             if (ConsoleEntity.Main.ConsoleIsOpen) return;
 
-            if (Input.IsKeyPressed(OpenTK.Input.Key.A))
-            {
-                if (selected.Count == 0)
-                {
-                    ClearSelection();
-                    foreach (var item in elements)
-                        Select(item, true);
-                }
-                else
-                    ClearSelection();
-            }
-
-            Multiselecting = Input.IsKeyHeld(OpenTK.Input.Key.LShift) || Input.IsKeyHeld(OpenTK.Input.Key.LControl);
             if (requiresElementResort)
                 ReSortElements();
 
@@ -164,6 +158,18 @@ namespace MusicGrid
                 info.Pressed.HasValue && info.Pressed.Value != Mouse.Button.Middle ||
                 info.Released.HasValue && info.Released.Value != Mouse.Button.Middle
                 ))
+                ClearSelection();
+        }
+
+        private void SelectAll()
+        {
+            if (selected.Count == 0)
+            {
+                ClearSelection();
+                foreach (var item in elements)
+                    Select(item, true);
+            }
+            else
                 ClearSelection();
         }
     }

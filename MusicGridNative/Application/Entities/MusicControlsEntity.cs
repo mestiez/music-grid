@@ -34,12 +34,12 @@ namespace MusicGrid
             MusicPlayer.OnPlay += OnPlay;
             MusicPlayer.OnStop += OnStop;
 
-            World.Lua.LinkFunction("pause_or_play", this, () => { TogglePausePlay(); });
-            World.Lua.LinkFunction("pause", this, () => { MusicPlayer.Pause(); });
-            World.Lua.LinkFunction("play", this, () => { MusicPlayer.Play(); });
-            World.Lua.LinkFunction("stop", this, () => { MusicPlayer.Stop(); });
-            World.Lua.LinkFunction("set_volume", this, (float a) => { MusicPlayer.Volume = Math.Max(Math.Min(1, a), 0); ConsoleEntity.Log($"Volume set to {Math.Round(MusicPlayer.Volume * 100)}%", "MPE"); });
-            World.Lua.LinkFunction("set_track", this, (string track) => { MusicPlayer.Track = track; });
+            World.Lua.LinkFunction(Functions.ToggleStream, this, () => { TogglePausePlay(); });
+            World.Lua.LinkFunction(Functions.Pause, this, () => { MusicPlayer.Pause(); });
+            World.Lua.LinkFunction(Functions.Play, this, () => { MusicPlayer.Play(); });
+            World.Lua.LinkFunction(Functions.Stop, this, () => { MusicPlayer.Stop(); });
+            World.Lua.LinkFunction(Functions.SetVolume, this, (float a) => { MusicPlayer.Volume = Math.Max(Math.Min(1, a), 0); ConsoleEntity.Log($"Volume set to {Math.Round(MusicPlayer.Volume * 100)}%", "MPE"); });
+            World.Lua.LinkFunction(Functions.SetTrack, this, (string track) => { MusicPlayer.Track = track; });
         }
 
         private void OnStop(object sender, EventArgs e)
@@ -59,7 +59,8 @@ namespace MusicGrid
 
         public void TogglePausePlay()
         {
-            if (MusicPlayer.State == NAudio.Wave.PlaybackState.Paused)
+            ConsoleEntity.Log("CALLED");
+            if (MusicPlayer.State == PlaybackState.Paused)
                 MusicPlayer.Play();
             else
                 MusicPlayer.Pause();
