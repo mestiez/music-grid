@@ -10,6 +10,7 @@ namespace MusicGrid
     public partial class MusicControlsEntity : Entity
     {
         public MusicPlayer MusicPlayer { get; } = new MusicPlayer();
+        public TrackQueue TrackQueue { get; } = new TrackQueue();
         private PlaybackState stateBeforeTrackerPause;
 
         public MusicControlsEntity()
