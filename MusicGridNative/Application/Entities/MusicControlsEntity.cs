@@ -99,12 +99,13 @@ namespace MusicGrid
 
             if (resizeButton.Element.IsBeingHeld)
             {
+                var rS = RelativePlayerSize;
                 var min = minimumSize;
                 var max = maximumSize;
                 var d = (Vector2f)Input.ScreenMouseDelta;
-                background.Size = new Vector2f(
-                    Utilities.Clamp(background.Size.X + d.X, min.X, max.X),
-                    Utilities.Clamp(background.Size.Y - d.Y, min.Y, max.Y)
+                RelativePlayerSize = new Vector2f(
+                    Utilities.Clamp(rS.X + d.X, min.X, max.X),
+                    Utilities.Clamp(rS.Y - d.Y, min.Y, max.Y)
                     );
                 if (Utilities.SquaredMagnitude(d) > 0)
                     requiresRecalculation = true;

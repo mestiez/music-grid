@@ -31,13 +31,19 @@ namespace MusicGrid
         private Vector2f minimumSize => new Vector2f(buttonSize.X * buttonCount + margin * 2, 25 + margin * 4 + buttonSize.Y + 4);
         private Vector2f maximumSize => new Vector2f(Input.WindowSize.X, Input.WindowSize.Y - World.GetEntityByType<TaskMenu>().Height);
 
+        public Vector2f RelativePlayerSize
+        {
+            set => Configuration.CurrentConfiguration.PlayerSize = new Vector2f(value.X / Input.WindowSize.X, value.Y / Input.WindowSize.Y);
+            get => new Vector2f(Input.WindowSize.X * Configuration.CurrentConfiguration.PlayerSize.X, Input.WindowSize.Y * Configuration.CurrentConfiguration.PlayerSize.Y);
+        }
+
         private void SetupLayout()
         {
             var assets = MusicGridApplication.Assets;
 
             uiController = World.GetEntityByType<UiControllerEntity>();
 
-            background = new DrawableElement(uiController, Configuration.CurrentConfiguration.PlayerSize, new Vector2f(50, 50));
+            background = new DrawableElement(uiController, RelativePlayerSize, new Vector2f(50, 50));
             background.Position = new Vector2f(0, Input.WindowSize.Y - background.Size.Y);
             background.Element.IsScreenSpace = true;
             background.Element.ActiveColor = background.Element.Color;
@@ -148,13 +154,13 @@ namespace MusicGrid
             if (!requiresRecalculation) return;
             requiresRecalculation = false;
 
+            var relSize = RelativePlayerSize;
             var min = minimumSize;
             var max = maximumSize;
             background.Size = new Vector2f(
-                Utilities.Clamp(background.Size.X, min.X, max.X),
-                Utilities.Clamp(background.Size.Y, min.Y, max.Y)
+                Utilities.Clamp(relSize.X, min.X, max.X),
+                Utilities.Clamp(relSize.Y, min.Y, max.Y)
                 );
-            Configuration.CurrentConfiguration.PlayerSize = background.Size;
 
             background.Position = new Vector2f(0, Input.WindowSize.Y - background.Size.Y);
             buttonGap = Utilities.CalculateEvenSpaceGap(background.Size.X, buttonSize.X * buttonCount, buttonCount, margin);

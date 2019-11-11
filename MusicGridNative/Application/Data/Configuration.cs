@@ -92,7 +92,7 @@ namespace MusicGrid
         public int WindowWidth = 700;
         [RequiresRestart]
         public int WindowHeight = 500;
-        public Vector2f PlayerSize = new Vector2f();
+        public Vector2f PlayerSize = new Vector2f(0,0);
         public float Zoom = 1;
         public Vector2f Pan = default;
         [RequiresRestart]
@@ -122,25 +122,13 @@ namespace MusicGrid
                         if (ForKeyRelease)
                         {
                             if (!Input.IsKeyReleased(Keys[i]))
-                            {
                                 return false;
-                            }
                         }
-                        else
-                        {
-                            if (!Input.IsKeyPressed(Keys[i]))
-                            {
-                                return false;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        if (!Input.IsKeyHeld(Keys[i]))
-                        {
+                        else if (!Input.IsKeyPressed(Keys[i]))
                             return false;
-                        }
                     }
+                    else if (!Input.IsKeyHeld(Keys[i]))
+                        return false;
                 }
                 return true;
             }
