@@ -57,7 +57,7 @@ namespace MusicGrid
 
         public bool Selectable { get; set; }
         public bool Disabled { get; set; }
-        public float DoubleClickMaxDuration { get; set; } = 0.5f;
+        public float DoubleClickMaxDuration { get; set; } = 0.25f;
 
         public event EventHandler<MouseEventArgs> OnMouseDown;
         public event EventHandler<MouseEventArgs> OnMouseUp;

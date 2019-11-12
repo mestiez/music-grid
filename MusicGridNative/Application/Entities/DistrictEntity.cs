@@ -290,6 +290,7 @@ namespace MusicGrid
 
                 element.OnDoubleClick += (o, e) =>
                 {
+                    if (e.Button != SFML.Window.Mouse.Button.Left) return;
                     if (District.Muted) return;
                     var player = World.GetEntityByType<MusicControlsEntity>();
                     player.SetColor(District.Color);
