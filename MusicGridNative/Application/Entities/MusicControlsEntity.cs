@@ -19,6 +19,13 @@ namespace MusicGrid
             {
                 World.Add(new DialogboxEntity(m, new Vector2f(m.Length * DialogboxEntity.CharacterSize / 2 + 50, 150)), int.MaxValue);
             };
+
+            TrackQueue.OnTrackChange += OnTrackChange;
+        }
+
+        private void OnTrackChange(object sender, DistrictEntry e)
+        {
+            MusicPlayer.Track = e.Path;
         }
 
         public override void Created()
@@ -33,7 +40,8 @@ namespace MusicGrid
             Input.WindowResized += OnWindowResized;
             MusicPlayer.OnTrackChange += OnTrackChange;
             MusicPlayer.OnPlay += OnPlay;
-            MusicPlayer.OnStop += OnStop;
+            MusicPlayer.OnStop += OnStopOrPause;
+            MusicPlayer.OnPause += OnStopOrPause;
 
             World.Lua.LinkFunction(Functions.ToggleStream, this, () => { TogglePausePlay(); });
             World.Lua.LinkFunction(Functions.Pause, this, () => { MusicPlayer.Pause(); });
@@ -43,15 +51,8 @@ namespace MusicGrid
             World.Lua.LinkFunction(Functions.SetTrack, this, (string track) => { MusicPlayer.Track = track; });
         }
 
-        private void OnStop(object sender, EventArgs e)
-        {
-            playButton.Texture = MusicGridApplication.Assets.PlayButton;
-        }
-
-        private void OnPlay(object sender, EventArgs e)
-        {
-            playButton.Texture = MusicGridApplication.Assets.PauseButton;
-        }
+        private void OnStopOrPause(object sender, EventArgs e) => playButton.Texture = MusicGridApplication.Assets.PlayButton;
+        private void OnPlay(object sender, EventArgs e) => playButton.Texture = MusicGridApplication.Assets.PauseButton;
 
         private void PlayPausePressed(object sender, MouseEventArgs e)
         {
@@ -60,7 +61,6 @@ namespace MusicGrid
 
         public void TogglePausePlay()
         {
-            ConsoleEntity.Log("CALLED");
             if (MusicPlayer.State == PlaybackState.Paused)
                 MusicPlayer.Play();
             else

@@ -34,10 +34,9 @@ namespace MusicGrid
         {
             int index = Tracks.IndexOf(entry);
             if (index == -1)
-            {
+                Enqueue(entry);
 
-            }
-            else CurrentIndex = index;
+            CurrentIndex = Shuffle ? GetShuffledIndexOf(entry) : Tracks.IndexOf(entry);
         }
 
         public void Enqueue(DistrictEntry entry)
@@ -75,13 +74,22 @@ namespace MusicGrid
             CurrentIndex--;
         }
 
+        private int GetShuffledIndexOf(DistrictEntry entry)
+        {
+            int index = Tracks.IndexOf(entry);
+            if (index == -1)
+                return -1;
+
+            return Array.IndexOf(shuffleIndices, index);
+        }
+
         private void RepopulateShuffleIndices()
         {
             shuffleIndices = new int[Tracks.Count];
             for (int i = 0; i < shuffleIndices.Length; i++)
                 shuffleIndices[i] = i;
             shuffleIndices = shuffleIndices.OrderBy(i => random.Next(0, 100)).ToArray();
-            OnModification.Invoke(this, EventArgs.Empty);
+            OnModification?.Invoke(this, EventArgs.Empty);
         }
     }
 }

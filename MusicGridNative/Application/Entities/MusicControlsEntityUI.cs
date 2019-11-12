@@ -118,7 +118,6 @@ namespace MusicGrid
                 background.Size.Y - buttonSize.Y - margin);
         }
 
-
         private void OnWindowResized(object sender, SFML.Window.SizeEventArgs e)
         {
             requiresRecalculation = true;
