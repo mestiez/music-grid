@@ -25,7 +25,7 @@ namespace MusicGrid
         {
             if (wavePlayer == null || !isReadyToPlay)
             {
-                ConsoleEntity.Log($"Attempt to {action} before WaveOut is ready", ConsoleSourceIdentifier);
+                ConsoleEntity.Log($"Attempt to {action} before {nameof(wavePlayer)} is ready", ConsoleSourceIdentifier);
                 return true;
             }
             return false;
@@ -43,6 +43,7 @@ namespace MusicGrid
                 waveStream?.Dispose();
 
                 wavePlayer = new WaveOut();
+                wavePlayer.PlaybackStopped += EndOfPlayback;
                 waveStream = WavePlayerCascade.CreateStream(readablePath);
                 if (waveStream == null)
                 {
@@ -65,6 +66,11 @@ namespace MusicGrid
                     OnFailure?.Invoke(this, e.Message);
                 }
             }
+        }
+
+        private void EndOfPlayback(object sender, StoppedEventArgs e)
+        {
+            OnStop?.Invoke(this, EventArgs.Empty);
         }
 
         public PlaybackState State => wavePlayer?.PlaybackState ?? default;
@@ -108,14 +114,14 @@ namespace MusicGrid
         {
             if (AssertReadyTo("stop music")) return;
             wavePlayer.Stop();
-            OnPause?.Invoke(this, EventArgs.Empty);
+            OnStop?.Invoke(this, EventArgs.Empty);
         }
 
         public void Pause()
         {
             if (AssertReadyTo("pause music")) return;
             wavePlayer.Pause();
-            OnStop?.Invoke(this, EventArgs.Empty);
+            OnPause?.Invoke(this, EventArgs.Empty);
         }
 
         public void Dispose()

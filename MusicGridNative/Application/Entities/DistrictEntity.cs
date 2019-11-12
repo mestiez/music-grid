@@ -293,7 +293,7 @@ namespace MusicGrid
                     if (District.Muted) return;
                     var player = World.GetEntityByType<MusicControlsEntity>();
                     player.SetColor(District.Color);
-                    player.MusicPlayer.Track = entry.Path;
+                    player.TrackQueue.SkipToOrEnqueue(entry);
                     player.MusicPlayer.Play();
                 };
 
