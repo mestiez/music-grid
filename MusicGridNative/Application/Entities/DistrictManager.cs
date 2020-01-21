@@ -175,5 +175,10 @@ namespace MusicGrid
                 World.Destroy(entity);
             districts.Clear();
         }
+
+        public District GetDistrictFromEntry(DistrictEntry entry)
+        {
+            return districts.FirstOrDefault(d => d.Entries.Contains(entry));
+        }
     }
 }

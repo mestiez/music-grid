@@ -1,6 +1,7 @@
 ﻿using NAudio.Wave;
 using SFML.Graphics;
 using SFML.System;
+using System;
 using System.Collections.Generic;
 
 namespace MusicGrid
@@ -28,8 +29,8 @@ namespace MusicGrid
         private IRenderTask trackerBackgroundTask;
         private float progress;
 
-        private Vector2f minimumSize => new Vector2f(buttonSize.X * buttonCount + margin * 2, 25 + margin * 4 + buttonSize.Y + 4);
-        private Vector2f maximumSize => new Vector2f(Input.WindowSize.X, Input.WindowSize.Y - World.GetEntityByType<TaskMenu>().Height);
+        private Vector2f MinimumSize => new Vector2f(buttonSize.X * buttonCount + margin * 2, 25 + margin * 4 + buttonSize.Y + 4);
+        private Vector2f MaximumSize => new Vector2f(Input.WindowSize.X, Input.WindowSize.Y - World.GetEntityByType<TaskMenu>().Height);
 
         public Vector2f RelativePlayerSize
         {
@@ -91,6 +92,8 @@ namespace MusicGrid
             SetupButton(ref shuffleButton);
 
             playButton.Element.OnMouseDown += PlayPausePressed;
+            nextButton.Element.OnMouseDown += (o,e) => TrackQueue.Next();
+            previousButton.Element.OnMouseDown += (o, e) => TrackQueue.Previous();
 
             shuffleButton.Texture = assets.ShuffleButton;
             repeatButton.Texture = assets.RepeatButton;
@@ -154,8 +157,8 @@ namespace MusicGrid
             requiresRecalculation = false;
 
             var relSize = RelativePlayerSize;
-            var min = minimumSize;
-            var max = maximumSize;
+            var min = MinimumSize;
+            var max = MaximumSize;
             background.Size = new Vector2f(
                 Utilities.Clamp(relSize.X, min.X, max.X),
                 Utilities.Clamp(relSize.Y, min.Y, max.Y)
@@ -182,6 +185,12 @@ namespace MusicGrid
             PositionButton(ref playButton, 2);
             PositionButton(ref nextButton, 3);
             PositionButton(ref shuffleButton, 4);
+        }
+
+        public void PlayEntry(DistrictEntry entry)
+        {
+            TrackQueue.SkipToOrEnqueue(entry);
+            MusicPlayer.Play();
         }
     }
 }

@@ -10,16 +10,17 @@ namespace MusicGrid
 
         private bool isReadyToPlay;
         private float volume;
-        private string track;
+        private DistrictEntry track;
         private WaveStream waveStream;
         private IWavePlayer wavePlayer;
         private bool isDisposed = false;
 
         public event EventHandler<string> OnFailure;
-        public event EventHandler<string> OnTrackChange;
+        public event EventHandler<DistrictEntry> OnTrackChange;
         public event EventHandler OnPlay;
         public event EventHandler OnPause;
         public event EventHandler OnStop;
+        public event EventHandler OnEndReached;
 
         private bool AssertReadyTo(string action = "interact")
         {
@@ -31,14 +32,17 @@ namespace MusicGrid
             return false;
         }
 
-        public string Track
+        public DistrictEntry Track
         {
             get => track;
             set
             {
-                if (track == value) return;
+                bool wasPlaying = State == PlaybackState.Playing;
                 isReadyToPlay = false;
-                string readablePath = value.Normalize();
+                string readablePath = value.Path.Normalize();
+
+                wavePlayer?.Stop();
+
                 wavePlayer?.Dispose();
                 waveStream?.Dispose();
 
@@ -59,6 +63,7 @@ namespace MusicGrid
                     track = value;
                     ConsoleEntity.Log($"Set track to {value}", ConsoleSourceIdentifier);
                     isReadyToPlay = true;
+                    if (wasPlaying) Play();
                     OnTrackChange?.Invoke(this, value);
                 }
                 catch (Exception e)
@@ -71,6 +76,7 @@ namespace MusicGrid
         private void EndOfPlayback(object sender, StoppedEventArgs e)
         {
             OnStop?.Invoke(this, EventArgs.Empty);
+            OnEndReached?.Invoke(this, EventArgs.Empty);
         }
 
         public PlaybackState State => wavePlayer?.PlaybackState ?? default;
@@ -114,6 +120,7 @@ namespace MusicGrid
         {
             if (AssertReadyTo("stop music")) return;
             wavePlayer.Stop();
+            waveStream.Position = 0;
             OnStop?.Invoke(this, EventArgs.Empty);
         }
 

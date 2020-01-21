@@ -9,24 +9,10 @@ namespace MusicGrid
 {
     public partial class MusicControlsEntity : Entity
     {
+        public Repeat RepeatMode { get; set; } = Repeat.RepeatQueue;
         public MusicPlayer MusicPlayer { get; } = new MusicPlayer();
         public TrackQueue TrackQueue { get; } = new TrackQueue();
         private PlaybackState stateBeforeTrackerPause;
-
-        public MusicControlsEntity()
-        {
-            MusicPlayer.OnFailure += (o, m) =>
-            {
-                World.Add(new DialogboxEntity(m, new Vector2f(m.Length * DialogboxEntity.CharacterSize / 2 + 50, 150)), int.MaxValue);
-            };
-
-            TrackQueue.OnTrackChange += OnTrackChange;
-        }
-
-        private void OnTrackChange(object sender, DistrictEntry e)
-        {
-            MusicPlayer.Track = e.Path;
-        }
 
         public override void Created()
         {
@@ -38,17 +24,34 @@ namespace MusicGrid
             };
 
             Input.WindowResized += OnWindowResized;
+            MusicPlayer.OnFailure += (o, m) => World.Add(new DialogboxEntity(m, new Vector2f(m.Length * DialogboxEntity.CharacterSize / 2 + 50, 150)), int.MaxValue);
             MusicPlayer.OnTrackChange += OnTrackChange;
             MusicPlayer.OnPlay += OnPlay;
             MusicPlayer.OnStop += OnStopOrPause;
             MusicPlayer.OnPause += OnStopOrPause;
+            MusicPlayer.OnEndReached += OnEndReached; ;
+            TrackQueue.OnTrackChange += (o, e) => { MusicPlayer.Track = e; };
 
             World.Lua.LinkFunction(Functions.ToggleStream, this, () => { TogglePausePlay(); });
             World.Lua.LinkFunction(Functions.Pause, this, () => { MusicPlayer.Pause(); });
             World.Lua.LinkFunction(Functions.Play, this, () => { MusicPlayer.Play(); });
             World.Lua.LinkFunction(Functions.Stop, this, () => { MusicPlayer.Stop(); });
             World.Lua.LinkFunction(Functions.SetVolume, this, (float a) => { MusicPlayer.Volume = Math.Max(Math.Min(1, a), 0); ConsoleEntity.Log($"Volume set to {Math.Round(MusicPlayer.Volume * 100)}%", "MPE"); });
-            World.Lua.LinkFunction(Functions.SetTrack, this, (string track) => { MusicPlayer.Track = track; });
+        }
+
+        private void OnEndReached(object sender, EventArgs e)
+        {
+            switch (RepeatMode)
+            {
+                case Repeat.RepeatTrack:
+                    //MusicPlayer.Time = TimeSpan.Zero;
+                    //MusicPlayer.Play();
+                    break;
+                case Repeat.RepeatQueue:
+                    TrackQueue.Next();
+                    MusicPlayer.Play();
+                    break;
+            }
         }
 
         private void OnStopOrPause(object sender, EventArgs e) => playButton.Texture = MusicGridApplication.Assets.PlayButton;
@@ -61,15 +64,16 @@ namespace MusicGrid
 
         public void TogglePausePlay()
         {
-            if (MusicPlayer.State == PlaybackState.Paused)
+            if (MusicPlayer.State != PlaybackState.Playing)
                 MusicPlayer.Play();
             else
                 MusicPlayer.Pause();
         }
 
-        private void OnTrackChange(object sender, string e)
+        private void OnTrackChange(object sender, DistrictEntry e)
         {
-            trackName.Text = Path.GetFileNameWithoutExtension(e);
+            trackName.Text = e.Name;
+            SetColor(World.GetEntityByType<DistrictManager>().GetDistrictFromEntry(e)?.Color ?? Color.Magenta);
         }
 
         public void SetColor(Color color)
@@ -101,8 +105,8 @@ namespace MusicGrid
             if (resizeButton.Element.IsBeingHeld)
             {
                 var rS = RelativePlayerSize;
-                var min = minimumSize;
-                var max = maximumSize;
+                var min = MinimumSize;
+                var max = MaximumSize;
                 var d = (Vector2f)Input.ScreenMouseDelta;
                 RelativePlayerSize = new Vector2f(
                     Utilities.Clamp(rS.X + d.X, min.X, max.X),
@@ -123,6 +127,13 @@ namespace MusicGrid
             nextButton.Deregister();
             trackInfo.Deregister();
             trackName.Deregister();
+        }
+
+        public enum Repeat
+        {
+            NoRepeat,
+            RepeatTrack,
+            RepeatQueue
         }
     }
 }

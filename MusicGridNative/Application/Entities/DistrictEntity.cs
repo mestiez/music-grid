@@ -293,9 +293,7 @@ namespace MusicGrid
                     if (e.Button != SFML.Window.Mouse.Button.Left) return;
                     if (District.Muted) return;
                     var player = World.GetEntityByType<MusicControlsEntity>();
-                    player.SetColor(District.Color);
-                    player.TrackQueue.SkipToOrEnqueue(entry);
-                    player.MusicPlayer.Play();
+                    player.PlayEntry(entry);
                 };
 
                 entryTexts[i] = new Text("Entry", MusicGridApplication.Assets.DefaultFont)
