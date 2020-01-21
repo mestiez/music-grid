@@ -6,8 +6,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MusicGrid
 {
@@ -22,8 +20,8 @@ namespace MusicGrid
         public override void Created()
         {
             World.Lua.LinkFunction<string>(Functions.SaveGrid, this, SaveGrid);
-            World.Lua.LinkFunction<string>(Functions.LoadGrid, this, LoadGrid);
-            World.Lua.LinkFunction<string>(Functions.ImportDistrict, this, ImportPlaylist);
+            World.Lua.LinkFunction<string>(Functions.LoadGrid, this, (string a) => LoadGrid(a));
+            World.Lua.LinkFunction<string>(Functions.ImportDistrict, this, (string a) => ImportPlaylist(a));
 
             World.Lua.LinkFunction(Functions.AskSaveGrid, this, AskSaveGrid);
             World.Lua.LinkFunction(Functions.AskLoadGrid, this, AskLoadGrid);
@@ -31,6 +29,38 @@ namespace MusicGrid
 
             World.Lua.LinkFunction(Functions.EnableSnap, this, () => { SnappingEnabled = true; });
             World.Lua.LinkFunction(Functions.DisableSnap, this, () => { SnappingEnabled = false; });
+
+            Input.FileDrop += OnFileDrop;
+        }
+
+        private void OnFileDrop(object sender, string filename)
+        {
+            FileInfo file = new FileInfo(filename);
+            ConsoleEntity.Log($"Attempt to import {filename}", ConsoleSourceIdentifier);
+            switch (file.Extension.ToLower())
+            {
+                case ".m3u8":
+                    var p = ImportPlaylist(filename);
+                    p.Position = Input.MousePosition;
+                    break;
+                case ".mgd":
+                case ".json":
+                    LoadGrid(filename);
+                    break;
+                default:
+                    var d = ImportAudioAsPlaylist(filename);
+                    d.Position = Input.MousePosition;
+                    break;
+            }
+        }
+
+        public District ImportAudioAsPlaylist(string filename)
+        {
+            FileInfo file = new FileInfo(filename);
+            District district = new District(file.Name);
+            district.Entries.Add(new DistrictEntry(filename, filename));
+            AddDistrict(district, true);
+            return district;
         }
 
         public void AskImportPlaylist()
@@ -75,10 +105,11 @@ namespace MusicGrid
             SaveGrid(dialog.FileName);
         }
 
-        public void ImportPlaylist(string path)
+        public District ImportPlaylist(string path)
         {
             var district = FileModelConverter.LoadM3U(path);
             AddDistrict(district, true);
+            return district;
         }
 
         public void AddDistrict(District district, bool giveRandomProperties = false)
@@ -138,7 +169,7 @@ namespace MusicGrid
             ConsoleEntity.Log($"Grid succesfully saved", ConsoleSourceIdentifier);
         }
 
-        public void LoadGrid(string path)
+        public Grid LoadGrid(string path)
         {
             Grid grid = null;
             try
@@ -150,7 +181,7 @@ namespace MusicGrid
             catch (Exception e)
             {
                 ConsoleEntity.Log(e.Message, ConsoleSourceIdentifier);
-                return;
+                return null;
             }
 
             RemoveAllDistricts();
@@ -166,6 +197,8 @@ namespace MusicGrid
                 AddDistrict(copy);
             }
             ConsoleEntity.Log($"Grid succesfully loaded", ConsoleSourceIdentifier);
+
+            return grid;
         }
 
         public void RemoveAllDistricts()

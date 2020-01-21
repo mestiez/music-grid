@@ -38,13 +38,14 @@ namespace MusicGrid
 
         public static event EventHandler<SizeEventArgs> WindowResized;
         public static event EventHandler WindowClosed;
+        public static event EventHandler<string> FileDrop;
 
         public static void SetWindow(RenderWindow window, NativeWindow nativeWindow)
         {
             if (window != null)
             {
-                window.MouseWheelScrolled -= MouseWheelScrolled;
-                window.MouseMoved -= MouseMoved;
+                nativeWindow.MouseWheel -= MouseWheelScrolled;
+                nativeWindow.MouseMove -= MouseMoved;
 
                 nativeWindow.KeyDown -= NativeWindow_KeyDown;
                 nativeWindow.KeyUp -= NativeWindow_KeyUp;
@@ -68,8 +69,8 @@ namespace MusicGrid
             Input.window = window;
             Input.nativeWindow = nativeWindow;
 
-            window.MouseWheelScrolled += MouseWheelScrolled;
-            window.MouseMoved += MouseMoved;
+            nativeWindow.MouseWheel += MouseWheelScrolled;
+            nativeWindow.MouseMove += MouseMoved;
 
             nativeWindow.KeyDown += NativeWindow_KeyDown;
             nativeWindow.KeyUp += NativeWindow_KeyUp;
@@ -133,7 +134,7 @@ namespace MusicGrid
 
         private static void OnFileDrop(object sender, OpenTK.Input.FileDropEventArgs e)
         {
-            ConsoleEntity.Log(e.FileName);
+            FileDrop?.Invoke(sender, e.FileName);
         }
 
         private static void OnWindowResized(object sender, SizeEventArgs e) => WindowResized?.Invoke(sender, e);
@@ -180,28 +181,15 @@ namespace MusicGrid
             PressedButtons.Add(e.Button);
         }
 
-        private static void KeyReleased(object sender, KeyEventArgs e)
-        {
-            // HeldKeys.Remove(e.Code);
-            // ReleasedKeys.Add(e.Code);
-        }
-
-        private static void KeyPressed(object sender, KeyEventArgs e)
-        {
-            //HeldKeys.Add(e.Code);
-            // PressedKeys.Add(e.Code);
-        }
-
-        private static void MouseMoved(object sender, MouseMoveEventArgs e)
+        private static void MouseMoved(object sender, OpenTK.Input.MouseMoveEventArgs e)
         {
             ScreenMousePosition = new Vector2i(e.X, e.Y);
             MousePosition = window.MapPixelToCoords(ScreenMousePosition);
         }
 
-        private static void MouseWheelScrolled(object sender, MouseWheelScrollEventArgs e)
+        private static void MouseWheelScrolled(object sender, OpenTK.Input.MouseWheelEventArgs e)
         {
             MouseWheelDelta = e.Delta;
         }
     }
 }
-;
