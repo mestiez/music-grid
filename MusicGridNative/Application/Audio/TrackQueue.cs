@@ -8,7 +8,7 @@ namespace MusicGrid
     public class TrackQueue
     {
         private int currentIndex;
-        private int[] shuffleIndices;
+        private int[] shuffleIndices = { };
         private readonly Random random = new Random();
 
         public List<DistrictEntry> Tracks { get; private set; } = new List<DistrictEntry>();
@@ -26,8 +26,8 @@ namespace MusicGrid
             {
                 currentIndex = value;
                 if (currentIndex < 0) currentIndex = Tracks.Count - 1;
-                if (currentIndex >= Tracks.Count) currentIndex = 0;
-                OnTrackChange?.Invoke(this, CurrentTrack);
+                if (currentIndex < Tracks.Count)
+                    OnTrackChange?.Invoke(this, CurrentTrack);
             }
         }
 

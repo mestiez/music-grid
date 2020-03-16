@@ -80,6 +80,19 @@ namespace MusicGrid
                 ImportPlaylist(path);
         }
 
+        public void AskNewGrid()
+        {
+            World.Add(new DialogboxEntity(
+                "This will clear the current grid.",
+                new Vector2f(300, 120),
+                new Vector2f(Input.WindowSize.X / 2, Input.WindowSize.Y / 2) - new Vector2f(150, 60),
+                buttons: new[]
+                {
+                    new Button("Proceed", () => {  RemoveAllDistricts(); }),
+                    new Button("Cancel"),
+                }
+            ));
+        }
         public void AskLoadGrid()
         {
             OpenFileDialog dialog = new OpenFileDialog

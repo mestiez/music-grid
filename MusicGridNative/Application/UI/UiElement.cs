@@ -67,11 +67,12 @@ namespace MusicGrid
 
         public FloatRect GetLocalBounds() => new FloatRect(Position, Size);
 
+        public bool MouseOverlap => Utilities.IsInside(RelevantMousePosition, Position, Size);
+
         public bool EvaluateInteraction(InteractionInfo info)
         {
             ComputedColor = Color;
-
-            var mousePos = IsScreenSpace ? (Vector2f)Input.ScreenMousePosition : Input.MousePosition;
+            Vector2f mousePos = RelevantMousePosition;
 
             if (info.FirstServed)
             {
@@ -132,6 +133,8 @@ namespace MusicGrid
             ComputeColors();
             return IsUnderMouse || IsBeingHeld;
         }
+
+        private Vector2f RelevantMousePosition => IsScreenSpace ? (Vector2f)Input.ScreenMousePosition : Input.MousePosition;
 
         public void ComputeColors()
         {

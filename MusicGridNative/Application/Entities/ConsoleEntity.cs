@@ -15,8 +15,9 @@ namespace MusicGrid
 
         private Text display;
         private RectangleShape background;
-        private static readonly Stack<string> history = new Stack<string>();
+        private static readonly Queue<string> history = new Queue<string>();
 
+        private EventTextWriter textWriter = new EventTextWriter();
         private readonly List<string> inputHistory = new List<string>();
         private int inputHistoryIndex = 0;
         private int framesCounted = 0;
@@ -32,6 +33,9 @@ namespace MusicGrid
         {
             ShowFramerate = showFramerate;
             MaximumMessages = maximumMessages;
+
+            Console.SetOut(textWriter);
+            textWriter.OnWriteLine += (s, e) => { Log(e.Item1, e.Item2); };
         }
 
         public bool ConsoleIsOpen { get; set; }
@@ -148,8 +152,8 @@ namespace MusicGrid
                 return;
             }
 
-            if (history.Count >= (Main?.MaximumMessages ?? 32)) history.Pop();
-            history.Push($"[{sender ?? "?"}] " + message.ToString());
+            if (history.Count >= (Main?.MaximumMessages ?? 32)) history.Dequeue();
+            history.Enqueue($"[{sender ?? "?"}] " + message.ToString());
         }
 
         private void AddToHistory(object message, object sender)
@@ -168,7 +172,7 @@ namespace MusicGrid
             string userInput = input + (MusicGridApplication.Globals.Time % 2f > 1f ? "_" : " ");
 
             if (ConsoleIsOpen)
-                display.DisplayedString = $"MUSIC GRID v{ApplicationVersion.Version} ({ApplicationVersion.Build}) by mestiez {fps}\n{separator}\n{userInput}\n\n{string.Join("\n", history)}";
+                display.DisplayedString = $"MUSIC GRID v{ApplicationVersion.Version} ({ApplicationVersion.Build}) by mestiez {fps}\n{separator}\n{userInput}\n\n{string.Join("\n", history.Reverse())}";
             else if (ShowFramerate)
                 display.DisplayedString = fps;
         }

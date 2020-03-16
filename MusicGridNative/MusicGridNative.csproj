@@ -137,6 +137,7 @@
     <Compile Include="Application\Entities\CameraControllerEnity.cs" />
     <Compile Include="Application\Entities\ConsoleEntity.cs" />
     <Compile Include="Application\Entities\DistrictEntity.cs" />
+    <Compile Include="Application\Entities\EventTextWriter.cs" />
     <Compile Include="Application\Entities\KeybindExecutor.cs" />
     <Compile Include="Application\Entities\MusicControlsEntity.cs" />
     <Compile Include="Application\Entities\MusicControlsEntityUI.cs" />

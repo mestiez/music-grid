@@ -13,7 +13,6 @@ namespace VLCPlayer
         private float volume;
         private DistrictEntry track;
         private bool isDisposed = false;
-        private bool hasReachedEnd = false;
 
         private MediaPlayer player;
         private Media media;
@@ -24,16 +23,14 @@ namespace VLCPlayer
         public event EventHandler OnPlay;
         public event EventHandler OnPause;
         public event EventHandler OnStop;
-        public event EventHandler OnEndReached;
 
         public VLCAudioPlayer()
         {
             Core.Initialize();
 
             vlc = new LibVLC();
-            vlc.Log += VlcLogWrap;
             player = new MediaPlayer(vlc);
-            player.EndReached += (o, e) => { hasReachedEnd = true; };
+            vlc.Log += VlcLogWrap;
         }
 
         private void VlcLogWrap(object sender, LogEventArgs e)
@@ -47,6 +44,13 @@ namespace VLCPlayer
             get => track;
             set
             {
+                if (player == null)
+                {
+                    Console.WriteLine("Attempt to set track while player is null", this);
+                    return;
+                }
+
+                bool wasPlaying = State == PlayerState.Playing;
                 string readablePath = value.Path.Normalize();
                 isReadyToPlay = false;
                 track = value;
@@ -61,7 +65,8 @@ namespace VLCPlayer
                 }
                 player.Media = media;
                 isReadyToPlay = true;
-                Play();
+                if (wasPlaying)
+                    Play();
                 OnTrackChange?.Invoke(this, value);
             }
         }
@@ -69,8 +74,6 @@ namespace VLCPlayer
         private void EndOfPlayback(object sender, EventArgs e)
         {
             OnStop?.Invoke(this, EventArgs.Empty);
-            OnEndReached?.Invoke(this, EventArgs.Empty);
-            hasReachedEnd = false;
             isReadyToPlay = false;
         }
 
@@ -78,7 +81,7 @@ namespace VLCPlayer
         {
             get
             {
-                switch (player.State)
+                switch (player?.State ?? VLCState.Error)
                 {
                     case VLCState.NothingSpecial:
                         return PlayerState.Stopped;
@@ -93,11 +96,11 @@ namespace VLCPlayer
                     case VLCState.Stopped:
                         return PlayerState.Stopped;
                     case VLCState.Ended:
-                        return PlayerState.Stopped;
+                        return PlayerState.Ended;
                     case VLCState.Error:
-                        return PlayerState.Stopped;
+                        return PlayerState.Ended;
                     default:
-                        return default;
+                        return PlayerState.Stopped;
                 }
             }
         }
@@ -106,7 +109,7 @@ namespace VLCPlayer
         {
             get
             {
-                if (AssertReadyTo("get position")) return TimeSpan.Zero;
+                if (player == null) return TimeSpan.Zero;
                 return TimeSpan.FromMilliseconds(player.Time);
             }
 

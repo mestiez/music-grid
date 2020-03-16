@@ -38,14 +38,13 @@ namespace MusicGrid
             World.Lua.LinkFunction(Functions.SetVolume, this, (float a) => { MusicPlayer.Volume = Math.Max(Math.Min(1, a), 0); ConsoleEntity.Log($"Volume set to {Math.Round(MusicPlayer.Volume * 100)}%", "MPE"); });
         }
 
-        // TODO connect to custom check
-        private void OnEndReached(object sender, EventArgs e)
+        private void HandleTrackEnd()
         {
             switch (RepeatMode)
             {
                 case Repeat.RepeatTrack:
-                    //MusicPlayer.Time = TimeSpan.Zero;
-                    //MusicPlayer.Play();
+                    MusicPlayer.Time = TimeSpan.Zero;
+                    MusicPlayer.Play();
                     break;
                 case Repeat.RepeatQueue:
                     TrackQueue.Next();
@@ -115,6 +114,9 @@ namespace MusicGrid
                 if (Utilities.SquaredMagnitude(d) > 0)
                     requiresRecalculation = true;
             }
+
+            if (MusicPlayer.State == PlayerState.Ended)
+                HandleTrackEnd();
         }
 
         public override void Destroyed()

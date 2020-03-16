@@ -14,6 +14,7 @@ namespace NAudioPlayer
         private WaveStream waveStream;
         private IWavePlayer wavePlayer;
         private bool isDisposed = false;
+        private bool hasEnded = false;
 
         public event EventHandler<string> OnFailure;
         public event EventHandler<DistrictEntry> OnTrackChange;
@@ -61,6 +62,8 @@ namespace NAudioPlayer
                     track = value;
                     Console.WriteLine($"Set track to {value}", ConsoleSourceIdentifier);
                     isReadyToPlay = true;
+                    hasEnded = false;
+                    wavePlayer.PlaybackStopped += (o, e) => { hasEnded = true; OnStop?.Invoke(this, EventArgs.Empty); isReadyToPlay = false; };
                     if (wasPlaying) Play();
                     OnTrackChange?.Invoke(this, value);
                 }
@@ -71,7 +74,13 @@ namespace NAudioPlayer
             }
         }
 
-        public PlayerState State => (PlayerState)(wavePlayer?.PlaybackState ?? default);
+        public PlayerState State
+        {
+            get
+            {
+                return (PlayerState)(wavePlayer?.PlaybackState ?? 0);
+            }
+        }
 
         public TimeSpan Time
         {

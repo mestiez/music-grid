@@ -18,6 +18,7 @@ namespace MusicGrid
 
         private HashSet<UiElement> selected = new HashSet<UiElement>();
         public IReadOnlyList<UiElement> Selected => selected.ToList().AsReadOnly();
+        public IReadOnlyList<UiElement> Elements => elements.Concat(registerBuffer).ToList().AsReadOnly();
         public bool Multiselecting { get; private set; } = false;
 
         public UiElement FocusedElement { get; set; }

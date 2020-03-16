@@ -15,13 +15,15 @@ namespace MusicGrid
         public float ButtonHeight { get; set; } = 24;
         public float ButtonPadding { get; set; } = 8;
         public float MinimumWidth { get; set; } = 150;
+        public int ButtonHash { get; private set; }
+
+        private UiElement[] relevantElements = { };
 
         private readonly List<Button> buttons = new List<Button>();
         private UiElement[] elements;
         private ActionRenderTask[] renderTasks;
         private float computedMaxWidth;
         private Vector2f position;
-
         private static readonly uint CharacterSize = 16;
 
         private Text text;
@@ -29,14 +31,39 @@ namespace MusicGrid
 
         private UiControllerEntity uiController;
 
-        public static void Open(IEnumerable<Button> buttons, Vector2f position)
+        public static void Open(IEnumerable<Button> buttons, Vector2f position, params UiElement[] parents)
         {
             Main.buttons.Clear();
             Main.buttons.AddRange(buttons);
-            Main.position = position;
+
             Main.GenerateButtons();
+            position = ClampToScreen(position);
+            Main.position = position;
+
+            Main.GenerateButtons(); //second time for post-clamping :)
             Main.Active = true;
             Main.Visible = true;
+            Main.ButtonHash = GenerateHash(buttons);
+
+            Main.relevantElements = Main.elements.Concat(parents ?? new UiElement[0]).ToArray();
+        }
+
+        public static void ToggleOpen(IEnumerable<Button> buttons, Vector2f position, params UiElement[] parents)
+        {
+            if (Main.Visible && Main.ButtonHash == GenerateHash(buttons))
+                Close();
+            else
+                Open(buttons, position, parents);
+        }
+
+        private static int GenerateHash(IEnumerable<Button> buttons) => string.Join("", buttons.Select(c => c.GetHashCode())).GetHashCode();
+
+        private static Vector2f ClampToScreen(Vector2f position)
+        {
+            var maxPos = new Vector2f(Input.WindowSize.X - Main.computedMaxWidth, Input.WindowSize.Y - Main.ButtonHeight * Main.buttons.Count());
+            position.X = Math.Min(maxPos.X, position.X);
+            position.Y = Math.Min(maxPos.Y, position.Y);
+            return position;
         }
 
         public static void Close()
@@ -46,6 +73,7 @@ namespace MusicGrid
 
             Main.Active = false;
             Main.Visible = false;
+            Main.ButtonHash = 0;
         }
 
         public override void Created()
@@ -70,7 +98,7 @@ namespace MusicGrid
         public override void Update()
         {
             if (Input.IsAnyButtonPressed)
-                if (!elements.Any(e => e.IsUnderMouse))
+                if (!relevantElements.Any(e => e.IsUnderMouse))
                     Close();
         }
 

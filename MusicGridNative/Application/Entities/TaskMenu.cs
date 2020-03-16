@@ -58,14 +58,15 @@ namespace MusicGrid
             buttons.Add(new Button("file", () =>
             {
                 ContextMenuEntity.Main.MinimumWidth = buttonElements[0].Size.X;
-                ContextMenuEntity.Open(new[] {
+                ContextMenuEntity.ToggleOpen(new[] {
                     new Button("import m3u8", districtManager.AskImportPlaylist),
+                    new Button("new grid", districtManager.AskNewGrid),
                     new Button("load grid", districtManager.AskLoadGrid),
                     new Button("save grid", districtManager.AskSaveGrid),
                     Button.HorizontalSeparator,
                     new Button("quit", () => { World.Add(DialogboxEntity.CreateConfirmationDialog("Are you sure you want to quit?", () => { World.Lua.Execute("quit()"); })); }),
                 },
-                    buttonElements[0].Position + new Vector2f(0, Height));
+                    buttonElements[0].Position + new Vector2f(0, Height), buttonElements[0]);
             }));
 
             buttons.Add(new Button("preferences", interactive: false));
@@ -73,17 +74,17 @@ namespace MusicGrid
             buttons.Add(new Button("view", () =>
             {
                 ContextMenuEntity.Main.MinimumWidth = buttonElements[2].Size.X;
-                ContextMenuEntity.Open(new[] {
+                ContextMenuEntity.ToggleOpen(new[] {
                     new Button("fit view to grid", () => { World.GetEntityByType<CameraControllerEnity>().FitToView(districtManager.Districts); }),
                     new Button("reset view", () => { Configuration.CurrentConfiguration.Pan = default; Configuration.CurrentConfiguration.Zoom = 1; }),
                 },
-                    buttonElements[2].Position + new Vector2f(0, Height));
+                    buttonElements[2].Position + new Vector2f(0, Height), buttonElements[2]);
             }));
 
             buttons.Add(new Button("help", () =>
             {
                 ContextMenuEntity.Main.MinimumWidth = buttonElements[3].Size.X;
-                ContextMenuEntity.Open(new[] {
+                ContextMenuEntity.ToggleOpen(new[] {
                     new Button("about", () => { World.Add(new DialogboxEntity(
                         Properties.Resources.AboutText,
                         new Vector2f(700,120),
@@ -97,7 +98,7 @@ namespace MusicGrid
                     }),
                     new Button("open console", () => { ConsoleEntity.Main.ConsoleIsOpen = true; }),
                 },
-                    buttonElements[3].Position + new Vector2f(0, Height));
+                    buttonElements[3].Position + new Vector2f(0, Height), buttonElements[3]);
             }));
         }
 

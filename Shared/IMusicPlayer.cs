@@ -21,9 +21,4 @@ namespace Shared
         void Play();
         void Stop();
     }
-
-    public enum PlayerState
-    {
-        Stopped, Playing, Paused
-    }
 }
