@@ -2,7 +2,7 @@
 using NAudio.Wave;
 using System;
 
-namespace MusicGrid
+namespace NAudioPlayer
 {
     public struct WavePlayerCascade
     {
@@ -33,7 +33,7 @@ namespace MusicGrid
             {
                 return false;
             }
-            ConsoleEntity.Log($"Using {typeof(T).Name}", ConsoleSourceIdentifier);
+            Console.WriteLine($"Using {typeof(T).Name}", ConsoleSourceIdentifier);
             return true;
         }
     }

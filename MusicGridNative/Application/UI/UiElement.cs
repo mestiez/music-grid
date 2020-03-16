@@ -2,10 +2,9 @@
 using SFML.System;
 using SFML.Window;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Shared;
+using Color = SFML.Graphics.Color;
 
 namespace MusicGrid
 {
@@ -86,7 +85,7 @@ namespace MusicGrid
 
                 if (IsUnderMouse && info.Pressed.HasValue && !Disabled)
                 {
-                    var args = new MouseEventArgs(info.Pressed.Value, mousePos);
+                    var args = new MouseEventArgs((int)info.Pressed.Value, mousePos.ToNumerics());
                     OnMouseDown?.Invoke(this, args);
                     if (lastClickedTime > 0 && MusicGridApplication.Globals.Time - lastClickedTime < DoubleClickMaxDuration)
                     {
@@ -111,9 +110,9 @@ namespace MusicGrid
                                 Controller.HandleSelection(this);
 
                             if (IsSelected)
-                                OnSelect?.Invoke(this, new SelectionEventArgs(info.Pressed.Value, mousePos));
+                                OnSelect?.Invoke(this, new SelectionEventArgs((int)info.Pressed.Value, mousePos.ToNumerics()));
                             else
-                                OnDeselect?.Invoke(this, new SelectionEventArgs(info.Pressed.Value, mousePos));
+                                OnDeselect?.Invoke(this, new SelectionEventArgs((int)info.Pressed.Value, mousePos.ToNumerics()));
                         }
                         else Controller.ClearSelection();
                         Controller.FocusedElement = this;
@@ -128,7 +127,7 @@ namespace MusicGrid
                 if (Controller.FocusedElement == this)
                     Controller.FocusedElement = null;
                 IsBeingHeld = false;
-                OnMouseUp?.Invoke(this, new MouseEventArgs(info.Released.Value, mousePos));
+                OnMouseUp?.Invoke(this, new MouseEventArgs((int)info.Released.Value, mousePos.ToNumerics()));
             }
             ComputeColors();
             return IsUnderMouse || IsBeingHeld;

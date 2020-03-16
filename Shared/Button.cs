@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace MusicGrid
+namespace Shared
 {
     public struct Button
     {

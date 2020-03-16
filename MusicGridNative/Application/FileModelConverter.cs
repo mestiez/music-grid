@@ -1,12 +1,8 @@
 ﻿using M3U.NET;
-using SFML.Graphics;
-using SFML.System;
+using Shared;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MusicGrid
 {

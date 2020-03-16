@@ -3,8 +3,8 @@ using SFML.System;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Shared;
+using Color = SFML.Graphics.Color;
 
 namespace MusicGrid
 {
@@ -99,10 +99,10 @@ namespace MusicGrid
 
                 var elem = new UiElement()
                 {
-                    Color = Style.Background,
-                    ActiveColor = Style.BackgroundActive,
-                    HoverColor = Style.BackgroundHover,
-                    DisabledColor = Style.BackgroundDisabled,
+                    Color = Style.Background.ToSFML(),
+                    ActiveColor = Style.BackgroundActive.ToSFML(),
+                    HoverColor = Style.BackgroundHover.ToSFML(),
+                    DisabledColor = Style.BackgroundDisabled.ToSFML(),
                     Disabled = !button.Interactive,
                     Depth = -1,
                     IsScreenSpace = true,
@@ -117,7 +117,7 @@ namespace MusicGrid
 
                     text.DisplayedString = button.Label;
                     text.Position = elem.Position + new Vector2f(ButtonPadding, 0);
-                    text.FillColor = button.Interactive ? Style.Foreground : Style.ForegroundDisabled;
+                    text.FillColor = button.Interactive ? Style.Foreground.ToSFML() : Style.ForegroundDisabled.ToSFML();
 
                     background.Position = elem.Position;
                     background.Size = elem.Size;

@@ -2,10 +2,12 @@
 using Newtonsoft.Json;
 using SFML.Graphics;
 using SFML.System;
+using Shared;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Color = Shared.Color;
 
 namespace MusicGrid
 {
@@ -41,7 +43,7 @@ namespace MusicGrid
             {
                 case ".m3u8":
                     var p = ImportPlaylist(filename);
-                    p.Position = Input.MousePosition;
+                    p.Position = Input.MousePosition.ToNumerics();
                     break;
                 case ".mgd":
                 case ".json":
@@ -49,7 +51,7 @@ namespace MusicGrid
                     break;
                 default:
                     var d = ImportAudioAsPlaylist(filename);
-                    d.Position = Input.MousePosition;
+                    d.Position = Input.MousePosition.ToNumerics();
                     break;
             }
         }
@@ -118,8 +120,8 @@ namespace MusicGrid
             districts.Add(district);
             if (giveRandomProperties)
             {
-                district.Size = new Vector2f(250 * (float)Math.Ceiling(district.Entries.Count / 20f), 64 * Math.Min(district.Entries.Count, 30));
-                district.Position = MusicGridApplication.Main.ScreenToWorld(new Vector2i(15, 15));
+                district.Size = new Vector2f(250 * (float)Math.Ceiling(district.Entries.Count / 20f), 64 * Math.Min(district.Entries.Count, 30)).ToNumerics();
+                district.Position = MusicGridApplication.Main.ScreenToWorld(new Vector2i(15, 15)).ToNumerics();
                 district.Color = new Color(Utilities.RandomByte(), Utilities.RandomByte(), Utilities.RandomByte());
             }
             World.Add(new DistrictEntity(district));

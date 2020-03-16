@@ -1,6 +1,8 @@
 ﻿using SFML.Graphics;
 using SFML.System;
 using System.Collections.Generic;
+using Shared;
+using Color = SFML.Graphics.Color;
 
 namespace MusicGrid
 {
@@ -109,7 +111,7 @@ namespace MusicGrid
             {
                 Size = new Vector2f(Input.WindowSize.X, height),
                 Position = default,
-                FillColor = Style.Background
+                FillColor = Style.Background.ToSFML()
             };
 
             backgroundElement.Position = default;
@@ -152,7 +154,7 @@ namespace MusicGrid
                 buttonPos += width + margin * 2;
                 textTasks[i] = new ActionRenderTask((target) =>
                 {
-                    buttonText.FillColor = button.Interactive ? Style.Foreground : Style.ForegroundDisabled;
+                    buttonText.FillColor = button.Interactive ? Style.Foreground.ToSFML() : Style.ForegroundDisabled.ToSFML();
                     buttonText.DisplayedString = button.Label;
                     buttonText.Position = elem.Position + new Vector2f(margin, -halfCharSize + height / 2);
 

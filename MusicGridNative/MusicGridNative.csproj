@@ -77,26 +77,17 @@
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="KeraLua, Version=1.0.22.0, Culture=neutral, PublicKeyToken=6a194c04b9c89217, processorArchitecture=MSIL">
-      <HintPath>..\packages\KeraLua.1.0.22\lib\net45\KeraLua.dll</HintPath>
+    <Reference Include="KeraLua, Version=1.0.29.0, Culture=neutral, PublicKeyToken=6a194c04b9c89217, processorArchitecture=MSIL">
+      <HintPath>..\packages\KeraLua.1.0.29\lib\net45\KeraLua.dll</HintPath>
     </Reference>
     <Reference Include="M3U.NET, Version=1.0.0.3, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\M3U.NET.1.0.0.3\lib\net45\M3U.NET.dll</HintPath>
     </Reference>
-    <Reference Include="NAudio, Version=1.9.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\NAudio.1.9.0\lib\net35\NAudio.dll</HintPath>
-    </Reference>
-    <Reference Include="NAudio.Vorbis, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\NAudio.Vorbis.1.0.0.0\lib\net35\NAudio.Vorbis.dll</HintPath>
-    </Reference>
     <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.12.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
-    <Reference Include="NLua, Version=1.4.25.0, Culture=neutral, PublicKeyToken=6a194c04b9c89217, processorArchitecture=MSIL">
-      <HintPath>..\packages\NLua.1.4.25\lib\net45\NLua.dll</HintPath>
-    </Reference>
-    <Reference Include="NVorbis, Version=0.8.6.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\NVorbis.0.8.6\lib\net35\NVorbis.dll</HintPath>
+    <Reference Include="NLua, Version=1.4.30.0, Culture=neutral, PublicKeyToken=6a194c04b9c89217, processorArchitecture=MSIL">
+      <HintPath>..\packages\NLua.1.4.30\lib\net45\NLua.dll</HintPath>
     </Reference>
     <Reference Include="OpenTK, Version=3.1.0.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL">
       <HintPath>..\packages\OpenTK.3.1.0\lib\net20\OpenTK.dll</HintPath>
@@ -118,6 +109,13 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Numerics" />
+    <Reference Include="System.Numerics.Vectors, Version=4.1.4.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Numerics.Vectors.4.5.0\lib\net46\System.Numerics.Vectors.dll</HintPath>
+    </Reference>
+    <Reference Include="System.ValueTuple, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.ValueTuple.4.5.0\lib\net47\System.ValueTuple.dll</HintPath>
+    </Reference>
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -130,17 +128,8 @@
   <ItemGroup>
     <Compile Include="Application\Assets.cs" />
     <Compile Include="Application\Audio\TrackQueue.cs" />
-    <Compile Include="Application\Audio\WavePlayerCascade.cs" />
-    <Compile Include="Application\Data\Configuration.cs" />
-    <Compile Include="Application\Data\District.cs" />
-    <Compile Include="Application\Data\DistrictEntry.cs" />
-    <Compile Include="Application\Data\Functions.cs" />
-    <Compile Include="Application\Data\Grid.cs" />
     <Compile Include="ApplicationVersion.cs" />
-    <Compile Include="Application\Data\MouseEventArgs.cs" />
-    <Compile Include="Application\Data\Button.cs" />
-    <Compile Include="Application\Data\SelectionEventArgs.cs" />
-    <Compile Include="Application\Data\Style.cs" />
+    <Compile Include="Application\ColorExtensions.cs" />
     <Compile Include="Application\DrawableElement.cs" />
     <Compile Include="Application\Entities\DialogboxEntity.cs" />
     <Compile Include="Application\Entities\ContextMenuEntity.cs" />
@@ -150,9 +139,10 @@
     <Compile Include="Application\Entities\DistrictEntity.cs" />
     <Compile Include="Application\Entities\KeybindExecutor.cs" />
     <Compile Include="Application\Entities\MusicControlsEntity.cs" />
-    <Compile Include="Application\Audio\MusicPlayer.cs" />
     <Compile Include="Application\Entities\MusicControlsEntityUI.cs" />
     <Compile Include="Application\UI\InteractionInfo.cs" />
+    <Compile Include="Application\VectorExtensions.cs" />
+    <Compile Include="Configuration.cs" />
     <Compile Include="Engine\ILuaConsole.cs" />
     <Compile Include="Application\LuaConsole.cs" />
     <Compile Include="Application\Entities\TaskMenu.cs" />
@@ -218,12 +208,22 @@
       <Install>false</Install>
     </BootstrapperPackage>
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Shared\Shared.csproj">
+      <Project>{049A2E8B-D8AA-4C2D-9691-F8E1674B7A8D}</Project>
+      <Name>Shared</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\VLCPlayer\VLCPlayer.csproj">
+      <Project>{D0F8541A-C26D-4D64-B1F7-F09FC0D28D80}</Project>
+      <Name>VLCPlayer</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Import Project="..\packages\KeraLua.1.0.22\build\net45\KeraLua.targets" Condition="Exists('..\packages\KeraLua.1.0.22\build\net45\KeraLua.targets')" />
+  <Import Project="..\packages\KeraLua.1.0.29\build\net45\KeraLua.targets" Condition="Exists('..\packages\KeraLua.1.0.29\build\net45\KeraLua.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('..\packages\KeraLua.1.0.22\build\net45\KeraLua.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\KeraLua.1.0.22\build\net45\KeraLua.targets'))" />
+    <Error Condition="!Exists('..\packages\KeraLua.1.0.29\build\net45\KeraLua.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\KeraLua.1.0.29\build\net45\KeraLua.targets'))" />
   </Target>
 </Project>

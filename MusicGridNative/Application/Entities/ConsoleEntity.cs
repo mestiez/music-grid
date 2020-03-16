@@ -1,6 +1,7 @@
 ﻿using SFML.Graphics;
 using SFML.System;
 using SFML.Window;
+using Shared;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -14,7 +15,7 @@ namespace MusicGrid
 
         private Text display;
         private RectangleShape background;
-        private static readonly Queue<string> history = new Queue<string>();
+        private static readonly Stack<string> history = new Stack<string>();
 
         private readonly List<string> inputHistory = new List<string>();
         private int inputHistoryIndex = 0;
@@ -44,11 +45,11 @@ namespace MusicGrid
             display = new Text("", MusicGridApplication.Assets.DefaultFont, 16)
             {
                 Position = new Vector2f(5, 5),
-                FillColor = Style.Foreground
+                FillColor = Style.Foreground.ToSFML()
             };
 
             background = new RectangleShape(new Vector2f(40000, 40000));
-            background.FillColor = Style.Background;
+            background.FillColor = Style.Background.ToSFML();
 
             backgroundTask = new ShapeRenderTask(background, int.MinValue);
             displayTask = new ShapeRenderTask(display, int.MinValue);
@@ -147,8 +148,8 @@ namespace MusicGrid
                 return;
             }
 
-            if (history.Count >= (Main?.MaximumMessages ?? 32)) history.Dequeue();
-            history.Enqueue($"[{sender ?? "?"}] " + message.ToString());
+            if (history.Count >= (Main?.MaximumMessages ?? 32)) history.Pop();
+            history.Push($"[{sender ?? "?"}] " + message.ToString());
         }
 
         private void AddToHistory(object message, object sender)
@@ -167,7 +168,7 @@ namespace MusicGrid
             string userInput = input + (MusicGridApplication.Globals.Time % 2f > 1f ? "_" : " ");
 
             if (ConsoleIsOpen)
-                display.DisplayedString = $"MUSIC GRID v{ApplicationVersion.Version} ({ApplicationVersion.Build}) by mestiez {fps}\n{separator}\n{userInput}\n\n{string.Join("\n", history.Reverse())}";
+                display.DisplayedString = $"MUSIC GRID v{ApplicationVersion.Version} ({ApplicationVersion.Build}) by mestiez {fps}\n{separator}\n{userInput}\n\n{string.Join("\n", history)}";
             else if (ShowFramerate)
                 display.DisplayedString = fps;
         }

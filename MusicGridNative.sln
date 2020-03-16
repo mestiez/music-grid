@@ -5,6 +5,12 @@ VisualStudioVersion = 16.0.29209.62
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MusicGridNative", "MusicGridNative\MusicGridNative.csproj", "{0D7B8483-EC4B-430E-8EE1-852786E3257D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NAudioPlayer", "NAUdioPlayer\NAudioPlayer.csproj", "{D4BCDBCF-50DC-4114-BCBA-A94300C4C2CF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VLCPlayer", "VLCPlayer\VLCPlayer.csproj", "{D0F8541A-C26D-4D64-B1F7-F09FC0D28D80}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shared", "Shared\Shared.csproj", "{049A2E8B-D8AA-4C2D-9691-F8E1674B7A8D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +27,30 @@ Global
 		{0D7B8483-EC4B-430E-8EE1-852786E3257D}.Release|Any CPU.Build.0 = Release|Any CPU
 		{0D7B8483-EC4B-430E-8EE1-852786E3257D}.Release|x64.ActiveCfg = Release|x64
 		{0D7B8483-EC4B-430E-8EE1-852786E3257D}.Release|x64.Build.0 = Release|x64
+		{D4BCDBCF-50DC-4114-BCBA-A94300C4C2CF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D4BCDBCF-50DC-4114-BCBA-A94300C4C2CF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D4BCDBCF-50DC-4114-BCBA-A94300C4C2CF}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{D4BCDBCF-50DC-4114-BCBA-A94300C4C2CF}.Debug|x64.Build.0 = Debug|Any CPU
+		{D4BCDBCF-50DC-4114-BCBA-A94300C4C2CF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D4BCDBCF-50DC-4114-BCBA-A94300C4C2CF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D4BCDBCF-50DC-4114-BCBA-A94300C4C2CF}.Release|x64.ActiveCfg = Release|Any CPU
+		{D4BCDBCF-50DC-4114-BCBA-A94300C4C2CF}.Release|x64.Build.0 = Release|Any CPU
+		{D0F8541A-C26D-4D64-B1F7-F09FC0D28D80}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D0F8541A-C26D-4D64-B1F7-F09FC0D28D80}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D0F8541A-C26D-4D64-B1F7-F09FC0D28D80}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{D0F8541A-C26D-4D64-B1F7-F09FC0D28D80}.Debug|x64.Build.0 = Debug|Any CPU
+		{D0F8541A-C26D-4D64-B1F7-F09FC0D28D80}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D0F8541A-C26D-4D64-B1F7-F09FC0D28D80}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D0F8541A-C26D-4D64-B1F7-F09FC0D28D80}.Release|x64.ActiveCfg = Release|Any CPU
+		{D0F8541A-C26D-4D64-B1F7-F09FC0D28D80}.Release|x64.Build.0 = Release|Any CPU
+		{049A2E8B-D8AA-4C2D-9691-F8E1674B7A8D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{049A2E8B-D8AA-4C2D-9691-F8E1674B7A8D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{049A2E8B-D8AA-4C2D-9691-F8E1674B7A8D}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{049A2E8B-D8AA-4C2D-9691-F8E1674B7A8D}.Debug|x64.Build.0 = Debug|Any CPU
+		{049A2E8B-D8AA-4C2D-9691-F8E1674B7A8D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{049A2E8B-D8AA-4C2D-9691-F8E1674B7A8D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{049A2E8B-D8AA-4C2D-9691-F8E1674B7A8D}.Release|x64.ActiveCfg = Release|Any CPU
+		{049A2E8B-D8AA-4C2D-9691-F8E1674B7A8D}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

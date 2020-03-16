@@ -1,6 +1,4 @@
-﻿using SFML.Graphics;
-
-namespace MusicGrid
+﻿namespace Shared
 {
     public struct Style
     {
@@ -9,7 +7,7 @@ namespace MusicGrid
         public static Color BackgroundHover => new Color(60, 60, 60, 200);
         public static Color BackgroundActive => new Color(30, 30, 30, 200);
 
-        public static Color Foreground => Color.White;
+        public static Color Foreground => new Color(255,255,255,255);
         public static Color ForegroundDisabled => new Color(125, 125, 125);
     }
 }

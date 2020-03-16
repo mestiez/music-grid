@@ -1,6 +1,7 @@
 ﻿using SFML.Graphics;
 using SFML.System;
 using SFML.Window;
+using Shared;
 using System;
 using System.Collections.Generic;
 using System.Linq;

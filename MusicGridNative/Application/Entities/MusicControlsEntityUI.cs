@@ -1,8 +1,8 @@
-﻿using NAudio.Wave;
-using SFML.Graphics;
+﻿using SFML.Graphics;
 using SFML.System;
-using System;
+using Shared;
 using System.Collections.Generic;
+using Color = SFML.Graphics.Color;
 
 namespace MusicGrid
 {
@@ -77,7 +77,7 @@ namespace MusicGrid
             trackInfo.DepthContainer = background.Element;
             trackInfo.Depth = -1;
             trackInfo.Element.OnMouseDown += (o, e) => { stateBeforeTrackerPause = MusicPlayer.State; MusicPlayer.Pause(); };
-            trackInfo.Element.OnMouseUp += (o, e) => { if (stateBeforeTrackerPause == PlaybackState.Playing) MusicPlayer.Play(); };
+            trackInfo.Element.OnMouseUp += (o, e) => { if (stateBeforeTrackerPause == PlayerState.Playing) MusicPlayer.Play(); };
 
             tracker = new RectangleShape();
             trackerBackground = new RectangleShape();

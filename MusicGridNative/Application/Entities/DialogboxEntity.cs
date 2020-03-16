@@ -1,6 +1,7 @@
 ﻿using SFML.Graphics;
 using SFML.System;
 using SFML.Window;
+using Shared;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -62,28 +63,28 @@ namespace MusicGrid
 
             background = new RectangleShape()
             {
-                OutlineColor = Style.BackgroundHover,
+                OutlineColor = Style.BackgroundHover.ToSFML(),
                 OutlineThickness = 1
             };
             contentText = new Text(Content, MusicGridApplication.Assets.DefaultFont)
             {
-                FillColor = Style.Foreground,
+                FillColor = Style.Foreground.ToSFML(),
                 CharacterSize = CharacterSize,
             };
             buttonBackground = new RectangleShape();
             buttonText = new Text("invalid!", MusicGridApplication.Assets.DefaultFont)
             {
-                FillColor = Style.Foreground,
+                FillColor = Style.Foreground.ToSFML(),
                 Position = default,
                 CharacterSize = CharacterSize
             };
             backgroundElement = new UiElement()
             {
                 Selectable = false,
-                Color = Style.Background,
-                ActiveColor = Style.Background,
-                HoverColor = Style.Background,
-                DisabledColor = Style.Background,
+                Color = Style.Background.ToSFML(),
+                ActiveColor = Style.Background.ToSFML(),
+                HoverColor = Style.Background.ToSFML(),
+                DisabledColor = Style.Background.ToSFML(),
                 IsScreenSpace = true,
                 Depth = 0,
                 Position = position,
@@ -108,10 +109,10 @@ namespace MusicGrid
                 var elem = new UiElement()
                 {
                     Selectable = false,
-                    Color = Style.Background,
-                    ActiveColor = Style.BackgroundActive,
-                    HoverColor = Style.BackgroundHover,
-                    DisabledColor = Style.BackgroundDisabled,
+                    Color = Style.Background.ToSFML(),
+                    ActiveColor = Style.BackgroundActive.ToSFML(),
+                    HoverColor = Style.BackgroundHover.ToSFML(),
+                    DisabledColor = Style.BackgroundDisabled.ToSFML(),
                     Disabled = !button.Interactive,
                     IsScreenSpace = true,
                     DepthContainer = backgroundElement
@@ -119,7 +120,7 @@ namespace MusicGrid
 
                 elem.OnMouseDown += (o, e) =>
                 {
-                    if (e.Button != Mouse.Button.Left) return;
+                    if (e.Button != (int)Mouse.Button.Left) return;
                     button.Action?.Invoke();
                     if (CloseOnButtonPress)
                         World.Destroy(this);
@@ -143,7 +144,7 @@ namespace MusicGrid
         private void SetupButton(Button button, UiElement elem)
         {
             buttonText.DisplayedString = button.Label;
-            buttonText.FillColor = elem.Disabled ? Style.BackgroundDisabled : Style.Foreground;
+            buttonText.FillColor = elem.Disabled ? Style.BackgroundDisabled.ToSFML() : Style.Foreground.ToSFML();
 
             var localSize = buttonText.GetLocalBounds();
             if (buttons.Count < 2)

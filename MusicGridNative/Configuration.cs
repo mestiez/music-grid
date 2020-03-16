@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using OpenTK.Input;
 using SFML.System;
+using Shared;
 using System;
 using System.Collections.Generic;
 using System.IO;

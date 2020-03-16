@@ -1,18 +1,18 @@
 ﻿using System;
-using System.IO;
-using System.Linq;
-using NAudio.Wave;
 using SFML.Graphics;
 using SFML.System;
+using Shared;
+using VLCPlayer;
+using Color = SFML.Graphics.Color;
 
 namespace MusicGrid
 {
     public partial class MusicControlsEntity : Entity
     {
         public Repeat RepeatMode { get; set; } = Repeat.RepeatQueue;
-        public MusicPlayer MusicPlayer { get; } = new MusicPlayer();
+        public IMusicPlayer MusicPlayer { get; } = new VLCAudioPlayer();
         public TrackQueue TrackQueue { get; } = new TrackQueue();
-        private PlaybackState stateBeforeTrackerPause;
+        private PlayerState stateBeforeTrackerPause;
 
         public override void Created()
         {
@@ -29,7 +29,6 @@ namespace MusicGrid
             MusicPlayer.OnPlay += OnPlay;
             MusicPlayer.OnStop += OnStopOrPause;
             MusicPlayer.OnPause += OnStopOrPause;
-            MusicPlayer.OnEndReached += OnEndReached; ;
             TrackQueue.OnTrackChange += (o, e) => { MusicPlayer.Track = e; };
 
             World.Lua.LinkFunction(Functions.ToggleStream, this, () => { TogglePausePlay(); });
@@ -39,6 +38,7 @@ namespace MusicGrid
             World.Lua.LinkFunction(Functions.SetVolume, this, (float a) => { MusicPlayer.Volume = Math.Max(Math.Min(1, a), 0); ConsoleEntity.Log($"Volume set to {Math.Round(MusicPlayer.Volume * 100)}%", "MPE"); });
         }
 
+        // TODO connect to custom check
         private void OnEndReached(object sender, EventArgs e)
         {
             switch (RepeatMode)
@@ -64,7 +64,7 @@ namespace MusicGrid
 
         public void TogglePausePlay()
         {
-            if (MusicPlayer.State != PlaybackState.Playing)
+            if (MusicPlayer.State != PlayerState.Playing)
                 MusicPlayer.Play();
             else
                 MusicPlayer.Pause();
@@ -73,16 +73,16 @@ namespace MusicGrid
         private void OnTrackChange(object sender, DistrictEntry e)
         {
             trackName.Text = e.Name;
-            SetColor(World.GetEntityByType<DistrictManager>().GetDistrictFromEntry(e)?.Color ?? Color.Magenta);
+            SetColor(World.GetEntityByType<DistrictManager>().GetDistrictFromEntry(e)?.Color.ToSFML() ?? Color.Magenta);
         }
 
-        public void SetColor(Color color)
+        public void SetColor(SFML.Graphics.Color color)
         {
             trackInfo.TextColor = Utilities.IsTooBright(color) ? Color.Black : Color.White;
             tracker.FillColor = color;
             trackerBackground.FillColor = new Color(color.R, color.G, color.B, 100);
 
-            background.Element.Color = Utilities.Lerp(Style.Background, color, 0.5f);
+            background.Element.Color = Utilities.Lerp(Style.Background.ToSFML(), color, 0.5f);
             background.Element.ActiveColor = background.Element.Color;
             background.Element.DisabledColor = background.Element.Color;
             background.Element.HoverColor = background.Element.Color;
@@ -95,7 +95,7 @@ namespace MusicGrid
                 trackInfo.Text = $"{Utilities.ToHumanReadableString(MusicPlayer.Time)}/{Utilities.ToHumanReadableString(MusicPlayer.Duration)}";
             else trackInfo.Text = "";
 
-            if (trackInfo.Element.IsBeingHeld && MusicPlayer.State != PlaybackState.Stopped)
+            if (trackInfo.Element.IsBeingHeld && MusicPlayer.State != PlayerState.Stopped)
             {
                 progress = Utilities.Clamp((Input.ScreenMousePosition.X - background.Position.X - margin) / (background.Size.X - margin * 2), 0, 1);
                 MusicPlayer.Time = TimeSpan.FromSeconds(progress * MusicPlayer.Duration.TotalSeconds);

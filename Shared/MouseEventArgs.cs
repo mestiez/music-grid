@@ -1,15 +1,14 @@
-﻿using SFML.System;
-using SFML.Window;
-using System;
+﻿using System;
+using System.Numerics;
 
-namespace MusicGrid
+namespace Shared
 {
     public class MouseEventArgs : EventArgs
     {
-        public Mouse.Button Button;
-        public Vector2f Point;
+        public int Button;
+        public Vector2 Point;
 
-        public MouseEventArgs(Mouse.Button button, Vector2f point)
+        public MouseEventArgs(int button, Vector2 point)
         {
             Button = button;
             Point = point;

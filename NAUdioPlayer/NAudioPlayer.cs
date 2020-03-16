@@ -1,10 +1,10 @@
 ﻿using NAudio.Wave;
+using Shared;
 using System;
-using System.IO;
 
-namespace MusicGrid
+namespace NAudioPlayer
 {
-    public sealed class MusicPlayer : IDisposable
+    public sealed class NAudioPlayer : IDisposable, IMusicPlayer
     {
         public const string ConsoleSourceIdentifier = "MUSIC PLAYER";
 
@@ -20,13 +20,12 @@ namespace MusicGrid
         public event EventHandler OnPlay;
         public event EventHandler OnPause;
         public event EventHandler OnStop;
-        public event EventHandler OnEndReached;
 
         private bool AssertReadyTo(string action = "interact")
         {
             if (wavePlayer == null || !isReadyToPlay)
             {
-                ConsoleEntity.Log($"Attempt to {action} before {nameof(wavePlayer)} is ready", ConsoleSourceIdentifier);
+                Console.WriteLine($"Attempt to {action} before {nameof(wavePlayer)} is ready", ConsoleSourceIdentifier);
                 return true;
             }
             return false;
@@ -37,7 +36,7 @@ namespace MusicGrid
             get => track;
             set
             {
-                bool wasPlaying = State == PlaybackState.Playing;
+                bool wasPlaying = State == PlayerState.Playing;
                 isReadyToPlay = false;
                 string readablePath = value.Path.Normalize();
 
@@ -46,13 +45,12 @@ namespace MusicGrid
                 wavePlayer?.Dispose();
                 waveStream?.Dispose();
 
-                wavePlayer = new WaveOut();
-                wavePlayer.PlaybackStopped += EndOfPlayback;
+                wavePlayer = new WaveOutEvent();
                 waveStream = WavePlayerCascade.CreateStream(readablePath);
                 if (waveStream == null)
                 {
                     var m = $"File {value} is unsupported";
-                    ConsoleEntity.Log(m, ConsoleSourceIdentifier);
+                    Console.WriteLine(m, ConsoleSourceIdentifier);
                     OnFailure?.Invoke(this, m);
                     return;
                 }
@@ -61,7 +59,7 @@ namespace MusicGrid
                     wavePlayer.Init(waveStream);
                     wavePlayer.Volume = Volume;
                     track = value;
-                    ConsoleEntity.Log($"Set track to {value}", ConsoleSourceIdentifier);
+                    Console.WriteLine($"Set track to {value}", ConsoleSourceIdentifier);
                     isReadyToPlay = true;
                     if (wasPlaying) Play();
                     OnTrackChange?.Invoke(this, value);
@@ -73,13 +71,7 @@ namespace MusicGrid
             }
         }
 
-        private void EndOfPlayback(object sender, StoppedEventArgs e)
-        {
-            OnStop?.Invoke(this, EventArgs.Empty);
-            OnEndReached?.Invoke(this, EventArgs.Empty);
-        }
-
-        public PlaybackState State => wavePlayer?.PlaybackState ?? default;
+        public PlayerState State => (PlayerState)(wavePlayer?.PlaybackState ?? default);
 
         public TimeSpan Time
         {

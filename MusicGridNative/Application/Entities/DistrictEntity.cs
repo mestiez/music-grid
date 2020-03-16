@@ -1,9 +1,11 @@
 ﻿using SFML.Graphics;
 using SFML.System;
+using Shared;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Color = SFML.Graphics.Color;
 
 namespace MusicGrid
 {
@@ -98,14 +100,14 @@ namespace MusicGrid
             resizeHandle.OnMouseDown += (o, e) => BringToFront();
             backgroundElement.OnMouseDown += (o, e) =>
             {
-                if (e.Button == SFML.Window.Mouse.Button.Middle)
+                if (e.Button == (int)SFML.Window.Mouse.Button.Middle)
                     e.PropagateEvent();
                 else BringToFront();
             };
 
             backgroundElement.OnSelect += (o, e) =>
             {
-                if (e.Button == SFML.Window.Mouse.Button.Right)
+                if (e.Button == (int)SFML.Window.Mouse.Button.Right)
                     OpenContextMenu();
             };
 
@@ -120,8 +122,8 @@ namespace MusicGrid
             handleTask = new PrimitiveRenderTask(resizeHandleVertices, PrimitiveType.Triangles, backgroundElement.Depth);
             lockedIconTask = new ShapeRenderTask(lockedIcon, backgroundElement.Depth);
 
-            temporarySize = District.Size;
-            temporaryPosition = District.Position;
+            temporarySize = District.Size.ToSFML();
+            temporaryPosition = District.Position.ToSFML();
 
             BringToFront();
         }
@@ -132,13 +134,22 @@ namespace MusicGrid
             var selectedDistricts = World.GetEntitiesByType<DistrictEntity>().Where(d => d.backgroundElement.IsSelected).Select(d => d.District).ToList();
             int count = selectedDistricts.Count();
             string displayNames = string.Join(",", selectedDistricts.Take(maxDisplayValues)) + (count > maxDisplayValues ? $" + {count - maxDisplayValues} more" : "");
+            string districtWord = selectedDistricts.Count() == 1 ? "district" : "districts";
 
             var buttons = new List<Button>(new[] {
                 new Button(displayNames, default, false),
-                new Button($"delete {(selectedDistricts.Count() == 1 ? "district" : "selected districts")}", () => {
+                new Button($"delete {districtWord}", () => {
                     OpenDeletionConfirmationDialog(selectedDistricts, displayNames);
                 }),
-                new Button($"fit view to {(selectedDistricts.Count() == 1 ? "district" : "selected districts")}", () => {
+                new Button($"play {districtWord} in isolation", () => {
+                    var player = World.GetEntityByType<MusicControlsEntity>();
+                    var manager = World.GetEntityByType<DistrictManager>();
+                    player.TrackQueue.ClearQueue();
+                    player.TrackQueue.Enqueue(District);
+                    player.TrackQueue.CurrentIndex = 0;
+                    player.MusicPlayer.Play();
+                }),
+                new Button($"fit view to {districtWord}", () => {
                     World.GetEntityByType<CameraControllerEnity>().FitToView(selectedDistricts);
                 }),
             });
@@ -150,22 +161,22 @@ namespace MusicGrid
             }
             else
             {
-                buttons.Add(new Button("lock selected districts", () =>
+                buttons.Add(new Button("lock districts", () =>
                 {
                     foreach (var district in selectedDistricts)
                         district.Locked = true;
                 }));
-                buttons.Add(new Button("unlock selected districts", () =>
+                buttons.Add(new Button("unlock districts", () =>
                 {
                     foreach (var district in selectedDistricts)
                         district.Locked = false;
                 }));
-                buttons.Add(new Button("mute selected districts", () =>
+                buttons.Add(new Button("mute districts", () =>
                 {
                     foreach (var district in selectedDistricts)
                         district.Muted = true;
                 }));
-                buttons.Add(new Button("unmute selected districts", () =>
+                buttons.Add(new Button("unmute districts", () =>
                 {
                     foreach (var district in selectedDistricts)
                         district.Muted = false;
@@ -193,7 +204,7 @@ namespace MusicGrid
 
         private Color GetFrontColor(byte alpha = 125)
         {
-            return Utilities.IsTooBright(District.Color) ? new Color(0, 0, 0, alpha) : new Color(255, 255, 255, alpha);
+            return Utilities.IsTooBright(District.Color.ToSFML()) ? new Color(0, 0, 0, alpha) : new Color(255, 255, 255, alpha);
         }
 
         public override void Update()
@@ -242,7 +253,7 @@ namespace MusicGrid
                     UiElement element = entryElements.Values.ElementAt(totalIndex);
 
                     element.Size = new Vector2f(flexSpace + preferredSize, entryHeight);
-                    element.Position = new Vector2f(0, 0) + District.Position + new Vector2f(previousEndPosition + scaledMargin, scaledMargin + (entryHeight + scaledMargin) * rowIndex);
+                    element.Position = new Vector2f(0, 0) + District.Position.ToSFML() + new Vector2f(previousEndPosition + scaledMargin, scaledMargin + (entryHeight + scaledMargin) * rowIndex);
 
                     int vertexIndex = totalIndex * 4;
                     var computed = element.Color;
@@ -290,7 +301,7 @@ namespace MusicGrid
 
                 element.OnDoubleClick += (o, e) =>
                 {
-                    if (e.Button != SFML.Window.Mouse.Button.Left) return;
+                    if (e.Button != (int)SFML.Window.Mouse.Button.Left) return;
                     if (District.Muted) return;
                     var player = World.GetEntityByType<MusicControlsEntity>();
                     player.PlayEntry(entry);
@@ -298,7 +309,7 @@ namespace MusicGrid
 
                 entryTexts[i] = new Text("Entry", MusicGridApplication.Assets.DefaultFont)
                 {
-                    FillColor = Style.Foreground,
+                    FillColor = Style.Foreground.ToSFML(),
                     Position = new Vector2f(0, 0),
                     CharacterSize = CharacterSize
                 };
@@ -337,9 +348,9 @@ namespace MusicGrid
                 new Vector2f((float)Math.Round(temporaryPosition.X / snapSize) * snapSize, (float)Math.Round(temporaryPosition.Y / snapSize) * snapSize) :
                 temporaryPosition
                 ;
-            if (Utilities.SquaredMagnitude(snappedPosition - District.Position) > .01f)
+            if (Utilities.SquaredMagnitude(snappedPosition - District.Position.ToSFML()) > .01f)
             {
-                District.Position = snappedPosition;
+                District.Position = snappedPosition.ToNumerics();
                 needToRecalculateLayout = true;
             }
         }
@@ -363,9 +374,9 @@ namespace MusicGrid
             if (snappedSize.Y < 64)
                 snappedSize.Y = 64;
 
-            if (Utilities.SquaredMagnitude(snappedSize - District.Size) > .01f)
+            if (Utilities.SquaredMagnitude(snappedSize - District.Size.ToSFML()) > .01f)
             {
-                District.Size = snappedSize;
+                District.Size = snappedSize.ToNumerics();
                 needToRecalculateLayout = true;
             }
         }
@@ -382,13 +393,13 @@ namespace MusicGrid
                     Configuration.CurrentConfiguration.SelectionWaveFrequency,
                     Configuration.CurrentConfiguration.SelectionWaveSmoothness) + .5f;
                 backgroundElement.SelectedColor = Utilities.Lerp(
-                    Utilities.Lerp(District.Color, Color.Black, .3f),
-                    Utilities.Lerp(District.Color, Color.White, .3f),
+                    Utilities.Lerp(District.Color.ToSFML(), Color.Black, .3f),
+                    Utilities.Lerp(District.Color.ToSFML(), Color.White, .3f),
                     intensity);
             }
 
-            backgroundElement.Position = District.Position;
-            backgroundElement.Size = District.Size;
+            backgroundElement.Position = District.Position.ToSFML();
+            backgroundElement.Size = District.Size.ToSFML();
 
             background.Position = backgroundElement.Position;
             background.Size = backgroundElement.Size;
@@ -403,7 +414,7 @@ namespace MusicGrid
             title.FillColor = GetFrontColor();
 
             if (District.Locked)
-                lockedIcon.Position = District.Position - new Vector2f(EntryMargin, EntryMargin) + District.Size;
+                lockedIcon.Position = District.Position.ToSFML() - new Vector2f(EntryMargin, EntryMargin) + District.Size.ToSFML();
         }
 
         private void UpdateDistrictLinkedValues()
@@ -411,17 +422,17 @@ namespace MusicGrid
             if (!District.Dirty) return;
             District.Dirty = false;
 
-            backgroundElement.Color = District.Color;
-            backgroundElement.ActiveColor = District.Color;
-            backgroundElement.HoverColor = District.Color;
-            backgroundElement.DisabledColor = District.Color;
+            backgroundElement.Color = District.Color.ToSFML();
+            backgroundElement.ActiveColor = District.Color.ToSFML();
+            backgroundElement.HoverColor = District.Color.ToSFML();
+            backgroundElement.DisabledColor = District.Color.ToSFML();
             title.DisplayedString = District.Name;
         }
 
         private void SyncResizeHandle()
         {
             if (District.Locked) return;
-            Vector2f offset = District.Position + District.Size;
+            Vector2f offset = District.Position.ToSFML() + District.Size.ToSFML();
 
             resizeHandleVertices[0].Position = offset + handleShape[0];
             resizeHandleVertices[1].Position = offset + handleShape[1];

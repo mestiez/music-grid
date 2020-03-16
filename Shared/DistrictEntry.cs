@@ -1,7 +1,6 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
 
-namespace MusicGrid
+namespace Shared
 {
     [Serializable]
     public class DistrictEntry

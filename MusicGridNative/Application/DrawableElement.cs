@@ -1,6 +1,8 @@
 ﻿using OpenTK.Graphics.ES20;
 using SFML.Graphics;
 using SFML.System;
+using Shared;
+using Color = SFML.Graphics.Color;
 
 namespace MusicGrid
 {
@@ -39,17 +41,17 @@ namespace MusicGrid
             finalTask = new ActionRenderTask(null, depth);
             finalTask.Action = Render;
 
-            Element.Color = Style.Background;
-            Element.HoverColor = Style.BackgroundHover;
-            Element.ActiveColor = Style.BackgroundActive;
-            Element.DisabledColor = Style.BackgroundDisabled;
-            Element.SelectedColor = Style.BackgroundHover;
+            Element.Color = new Color(Style.Background);
+            Element.HoverColor = new Color(Style.BackgroundHover);
+            Element.ActiveColor = new Color(Style.BackgroundActive);
+            Element.DisabledColor = new Color(Style.BackgroundDisabled);
+            Element.SelectedColor = new Color(Style.BackgroundHover);
 
             Depth = depth;
             CharacterSize = characterSize;
             Size = size;
             Position = position;
-            TextColor = Style.Foreground;
+            TextColor = new Color(Style.Foreground);
 
             Register();
         }

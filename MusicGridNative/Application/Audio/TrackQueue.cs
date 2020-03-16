@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Shared;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -13,7 +14,7 @@ namespace MusicGrid
         public List<DistrictEntry> Tracks { get; private set; } = new List<DistrictEntry>();
         public DistrictEntry CurrentTrack => Tracks[shuffleIndices[CurrentIndex]];
         public DistrictEntry CurrentTrackRaw => Tracks[CurrentIndex];
-        public bool Shuffle { get; set; }
+        public bool Shuffle { get; set; } = true;
 
         public event EventHandler<DistrictEntry> OnTrackChange;
         public event EventHandler OnModification;
@@ -26,7 +27,7 @@ namespace MusicGrid
                 currentIndex = value;
                 if (currentIndex < 0) currentIndex = Tracks.Count - 1;
                 if (currentIndex >= Tracks.Count) currentIndex = 0;
-                OnTrackChange?.Invoke(this, CurrentTrackRaw);
+                OnTrackChange?.Invoke(this, CurrentTrack);
             }
         }
 
