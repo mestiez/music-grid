@@ -32,7 +32,8 @@ namespace MusicGrid
         private static readonly HashSet<Mouse.Button> ReleasedButtons = new HashSet<Mouse.Button>();
 
         public static Vector2u WindowSize => window.Size;
-        public static bool WindowHasFocus => window.HasFocus();
+        public static bool WindowHasFocus => nativeWindow.Focused;
+        public static bool Minimised => nativeWindow.WindowState == WindowState.Minimized;
 
         public static string TextEntered { get; private set; }
 

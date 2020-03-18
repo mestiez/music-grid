@@ -79,7 +79,7 @@ namespace MusicGrid
                 if (entity.Active)
                     entity.PostUpdate();
 
-            if (Input.WindowHasFocus)
+            if (Utilities.IsActive)
             {
                 foreach (var entity in entities)
                     if (entity.Visible)

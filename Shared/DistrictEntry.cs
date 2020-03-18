@@ -7,6 +7,8 @@ namespace Shared
     {
         public string Name;
         public string Path;
+        [NonSerialized]
+        public District District;
 
         public DistrictEntry(string name, string path)
         {

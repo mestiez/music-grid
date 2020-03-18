@@ -56,8 +56,10 @@ namespace MusicGrid
 
         public DistrictEntity(District district)
         {
-            District = district;
             CharacterSize = (uint)Configuration.CurrentConfiguration.TextClarity;
+            District = district;
+            foreach (var entry in District.Entries)
+                entry.District = district;
         }
 
         public override void Created()
@@ -148,6 +150,7 @@ namespace MusicGrid
                     player.TrackQueue.Enqueue(District);
                     player.TrackQueue.CurrentIndex = 0;
                     player.MusicPlayer.Play();
+                    District.Muted = false;
                 }),
                 new Button($"fit view to {districtWord}", () => {
                     World.GetEntityByType<CameraControllerEnity>().FitToView(selectedDistricts);
@@ -451,12 +454,15 @@ namespace MusicGrid
 
         public override IEnumerable<IRenderTask> Render()
         {
+            if (IsOutOfBounds) yield break;
+            var renderEntries = !District.Muted && Input.WindowHasFocus;
+
             backgroundTask.Depth = backgroundElement.Depth;
             titleTask.Depth = backgroundElement.Depth;
             handleTask.Depth = backgroundElement.Depth;
             lockedIconTask.Depth = backgroundElement.Depth;
 
-            if (!District.Muted)
+            if (renderEntries)
                 for (int i = 0; i < District.Entries.Count; i++)
                 {
                     var entry = District.Entries[i];
@@ -475,17 +481,16 @@ namespace MusicGrid
             yield return backgroundTask;
             yield return titleTask;
 
-            if (!District.Muted)
-                if (District.Entries.Any())
+            if (renderEntries && District.Entries.Any())
+            {
+                yield return entryTask;
+                foreach (var entry in District.Entries)
                 {
-                    yield return entryTask;
-                    foreach (var entry in District.Entries)
-                    {
-                        var task = renderTasks[entry];
-                        task.Depth = backgroundElement.Depth;
-                        yield return task;
-                    }
+                    var task = renderTasks[entry];
+                    task.Depth = backgroundElement.Depth;
+                    yield return task;
                 }
+            }
 
             if (District.Locked)
                 yield return lockedIconTask;
@@ -508,5 +513,20 @@ namespace MusicGrid
         public override string ToString() => District + " entity";
 
         public bool IsSelected => backgroundElement.IsSelected;
+
+        private bool IsOutOfBounds
+        {
+            get
+            {
+                var pos = World.RenderTarget.MapCoordsToPixel(backgroundElement.Position);
+                var siz = backgroundElement.Size / Configuration.CurrentConfiguration.Zoom;
+                const float padding = 0;
+                return
+                    pos.X + siz.X - padding < padding ||
+                    pos.Y + siz.Y - padding < padding ||
+                    pos.X + padding > Input.WindowSize.X ||
+                    pos.Y + padding > Input.WindowSize.Y;
+            }
+        }
     }
 }

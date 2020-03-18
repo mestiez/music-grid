@@ -66,6 +66,9 @@ namespace NAudioPlayer
                     wavePlayer.PlaybackStopped += (o, e) => { hasEnded = true; OnStop?.Invoke(this, EventArgs.Empty); isReadyToPlay = false; };
                     if (wasPlaying) Play();
                     OnTrackChange?.Invoke(this, value);
+
+                    byte[] data = new byte[waveStream.Length];
+                    waveStream.Read(data, 0, data.Length);
                 }
                 catch (Exception e)
                 {

@@ -95,5 +95,12 @@ namespace MusicGrid
         {
             return (byte)random.Next(0, 256);
         }
+
+        public static float RandomFloat()
+        {
+            return (float)random.NextDouble();
+        }
+
+        public static bool IsActive => !Input.Minimised && (!Configuration.CurrentConfiguration.EcoRender || Input.WindowHasFocus);
     }
 }

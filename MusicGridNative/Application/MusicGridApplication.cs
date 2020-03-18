@@ -150,7 +150,7 @@ namespace MusicGrid
                 renderWindow.DispatchEvents();
                 World.Step();
 
-                if (Input.WindowHasFocus)
+                if (Utilities.IsActive)
                     renderWindow.Display();
                 else Thread.Sleep(100);
 

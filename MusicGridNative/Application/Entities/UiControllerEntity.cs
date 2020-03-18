@@ -22,10 +22,11 @@ namespace MusicGrid
         public bool Multiselecting { get; private set; } = false;
 
         public UiElement FocusedElement { get; set; }
+        public bool IsPointerOverElement { get; private set; }
 
         public override void Created()
         {
-            World.Lua.LinkFunction(Functions.SelectAll, this, () => { SelectAll(); });
+            World.Lua.LinkFunction(Functions.SelectAll, this, () => { ToggleSelectAll(); });
             World.Lua.LinkFunction(Functions.EnableMultiselect, this, () => { Multiselecting = true; });
             World.Lua.LinkFunction(Functions.DisableMultiselect, this, () => { Multiselecting = false; });
         }
@@ -135,7 +136,7 @@ namespace MusicGrid
 
         public override void Update()
         {
-            if (!Input.WindowHasFocus) return;
+            var focus = Input.WindowHasFocus;
             if (ConsoleEntity.Main.ConsoleIsOpen) return;
 
             if (requiresElementResort)
@@ -151,9 +152,19 @@ namespace MusicGrid
             if (FocusedElement != null)
                 info.FirstServed = FocusedElement.EvaluateInteraction(info);
             else
+            {
+                IsPointerOverElement = false;
                 foreach (UiElement element in elements)
-                    if (element.EvaluateInteraction(info))
+                {
+                    if (!focus)
+                        element.ComputeColors();
+                    else if (element.EvaluateInteraction(info))
+                    {
+                        IsPointerOverElement = true;
                         info.FirstServed = true;
+                    }
+                }
+            }
 
             if (!info.FirstServed && (
                 info.Held.HasValue && info.Held.Value != Mouse.Button.Middle ||
@@ -163,14 +174,17 @@ namespace MusicGrid
                 ClearSelection();
         }
 
-        private void SelectAll()
+        public void SelectAll()
+        {
+            ClearSelection();
+            foreach (var item in elements)
+                Select(item, true);
+        }
+
+        public void ToggleSelectAll()
         {
             if (selected.Count == 0)
-            {
-                ClearSelection();
-                foreach (var item in elements)
-                    Select(item, true);
-            }
+                SelectAll();
             else
                 ClearSelection();
         }

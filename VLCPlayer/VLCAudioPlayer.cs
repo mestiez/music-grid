@@ -1,7 +1,7 @@
 ﻿using LibVLCSharp.Shared;
 using Shared;
 using System;
-using System.IO;
+using System.Threading;
 
 namespace VLCPlayer
 {
@@ -26,8 +26,14 @@ namespace VLCPlayer
 
         public VLCAudioPlayer()
         {
-            Core.Initialize();
-
+            try
+            {
+                Core.Initialize();
+            }
+            catch (VLCException)
+            {
+                throw;
+            }
             vlc = new LibVLC();
             player = new MediaPlayer(vlc);
             vlc.Log += VlcLogWrap;
@@ -54,7 +60,6 @@ namespace VLCPlayer
                 string readablePath = value.Path.Normalize();
                 isReadyToPlay = false;
                 track = value;
-
                 media?.Dispose();
 
                 media = new Media(vlc, readablePath, FromType.FromPath);
@@ -116,7 +121,7 @@ namespace VLCPlayer
             set
             {
                 if (AssertReadyTo("seek") || !player.IsSeekable) return;
-                player.Position = (float)(value.TotalMilliseconds / player.Length);
+                player.Time = (long)value.TotalMilliseconds;
             }
         }
 

@@ -1,7 +1,9 @@
 ﻿using SFML.Graphics;
 using SFML.System;
 using Shared;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using Color = SFML.Graphics.Color;
 
 namespace MusicGrid
@@ -92,14 +94,25 @@ namespace MusicGrid
             SetupButton(ref shuffleButton);
 
             playButton.Element.OnMouseDown += PlayPausePressed;
-            nextButton.Element.OnMouseDown += (o,e) => TrackQueue.Next();
+            nextButton.Element.OnMouseDown += (o, e) => TrackQueue.Next();
             previousButton.Element.OnMouseDown += (o, e) => TrackQueue.Previous();
+            shuffleButton.Element.OnMouseDown += (o, e) => { TrackQueue.Shuffle = !TrackQueue.Shuffle; };
 
-            shuffleButton.Texture = assets.ShuffleButton;
+            shuffleButton.Texture = TrackQueue.Shuffle ? MusicGridApplication.Assets.ShuffleButton : MusicGridApplication.Assets.ShuffleDisabledButton;
             repeatButton.Texture = assets.RepeatButton;
             previousButton.Texture = assets.PreviousButton;
             playButton.Texture = assets.PlayButton;
             nextButton.Texture = assets.NextButton;
+        }
+
+        private void OnStopOrPause(object sender, EventArgs e) => playButton.Texture = MusicGridApplication.Assets.PlayButton;
+        
+        private void OnPlay(object sender, EventArgs e) => playButton.Texture = MusicGridApplication.Assets.PauseButton;
+
+        private void OnShuffleChange(object sender, bool e)
+        {
+            shuffleButton.Texture = e ? MusicGridApplication.Assets.ShuffleButton : MusicGridApplication.Assets.ShuffleDisabledButton;
+            Configuration.CurrentConfiguration.Shuffle = e;
         }
 
         private void SetupButton(ref DrawableElement reference)
@@ -128,12 +141,20 @@ namespace MusicGrid
 
         public override void PreRender()
         {
-            tracker.Size = new Vector2f((background.Size.X - margin * 2) * progress, background.Size.Y - margin * 4 - trackName.Size.Y - buttonSize.Y);
+            tracker.Size = new Vector2f((background.Size.X - margin * 2) * Utilities.Clamp(smoothTime / (float)MusicPlayer.Duration.TotalSeconds, 0, 1), background.Size.Y - margin * 4 - trackName.Size.Y - buttonSize.Y);
         }
 
         public override IEnumerable<IRenderTask> RenderScreen()
         {
             RecalculateLayout();
+
+            if (EnableVisualiser && audioData != null && audioData.Length != 0)
+            {
+                uint progress = (uint)System.Math.Round(smoothTime / MusicPlayer.Duration.TotalSeconds * audioData.Length);
+                ConsoleEntity.Log(progress);
+                if (progress < audioData.Length)
+                    background.Element.Color = Utilities.Lerp(Color.Black, Color.Red, audioData[progress]);
+            }
 
             yield return background.RenderTask;
 
@@ -185,12 +206,6 @@ namespace MusicGrid
             PositionButton(ref playButton, 2);
             PositionButton(ref nextButton, 3);
             PositionButton(ref shuffleButton, 4);
-        }
-
-        public void PlayEntry(DistrictEntry entry)
-        {
-            TrackQueue.SkipToOrEnqueue(entry);
-            MusicPlayer.Play();
         }
     }
 }

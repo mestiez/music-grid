@@ -5,11 +5,11 @@ VisualStudioVersion = 16.0.29209.62
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MusicGridNative", "MusicGridNative\MusicGridNative.csproj", "{0D7B8483-EC4B-430E-8EE1-852786E3257D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NAudioPlayer", "NAUdioPlayer\NAudioPlayer.csproj", "{D4BCDBCF-50DC-4114-BCBA-A94300C4C2CF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NAudioImpl", "NAUdioPlayer\NAudioImpl.csproj", "{D4BCDBCF-50DC-4114-BCBA-A94300C4C2CF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VLCPlayer", "VLCPlayer\VLCPlayer.csproj", "{D0F8541A-C26D-4D64-B1F7-F09FC0D28D80}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VLCPlayer", "VLCPlayer\VLCPlayer.csproj", "{D0F8541A-C26D-4D64-B1F7-F09FC0D28D80}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shared", "Shared\Shared.csproj", "{049A2E8B-D8AA-4C2D-9691-F8E1674B7A8D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Shared", "Shared\Shared.csproj", "{049A2E8B-D8AA-4C2D-9691-F8E1674B7A8D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

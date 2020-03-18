@@ -137,7 +137,12 @@ namespace MusicGrid
                     Position = position + new Vector2f(0, i * ButtonHeight),
                 };
 
-                elem.OnMouseDown += (o, e) => { Close(); button.Action(); };
+                elem.OnMouseDown += (o, e) =>
+                {
+                    if (e.Button != 0) return;
+                    Close();
+                    button.Action?.Invoke();
+                };
 
                 renderTasks[i] = new ActionRenderTask((target) =>
                 {

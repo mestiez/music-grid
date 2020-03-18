@@ -162,6 +162,16 @@ namespace MusicGrid.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap repeatDisabled {
+            get {
+                object obj = ResourceManager.GetObject("repeatDisabled", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap resize {
             get {
                 object obj = ResourceManager.GetObject("resize", resourceCulture);
@@ -184,6 +194,16 @@ namespace MusicGrid.Properties {
         internal static System.Drawing.Bitmap shuffle {
             get {
                 object obj = ResourceManager.GetObject("shuffle", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap shuffleDisabled {
+            get {
+                object obj = ResourceManager.GetObject("shuffleDisabled", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

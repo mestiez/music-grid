@@ -59,6 +59,7 @@ namespace MusicGrid
 
         //Settings
         public int FramerateCap = 60;
+        public bool EcoRender = false;
         public bool OpenLastOpenedAtLaunch = true;
         public float ZoomSensitivity = 1;
         public float ZoomLowerBound = .01f;
@@ -98,6 +99,8 @@ namespace MusicGrid
         public Vector2f Pan = default;
         [RequiresRestart]
         public District[] Districts = { };
+        public bool Shuffle = true;
+        public bool Repeat = true;
 
         public class RequiresRestartAttribute : Attribute { }
 

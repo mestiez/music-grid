@@ -9,15 +9,27 @@ namespace MusicGrid
     {
         private int currentIndex;
         private int[] shuffleIndices = { };
+        private bool shuffle = false;
         private readonly Random random = new Random();
 
         public List<DistrictEntry> Tracks { get; private set; } = new List<DistrictEntry>();
-        public DistrictEntry CurrentTrack => Tracks[shuffleIndices[CurrentIndex]];
-        public DistrictEntry CurrentTrackRaw => Tracks[CurrentIndex];
-        public bool Shuffle { get; set; } = true;
+        public DistrictEntry CurrentTrack => Shuffle ? Tracks[shuffleIndices[CurrentIndex]] : CurrentTrackRaw;
+        public DistrictEntry CurrentTrackRaw => Tracks.Count == 0 ? null : Tracks[CurrentIndex];
+
+        public bool Shuffle
+        {
+            get => shuffle;
+
+            set
+            {
+                OnShuffleChange?.Invoke(this, value);
+                shuffle = value;
+            }
+        }
 
         public event EventHandler<DistrictEntry> OnTrackChange;
         public event EventHandler OnModification;
+        public event EventHandler<bool> OnShuffleChange;
 
         public int CurrentIndex
         {
@@ -26,8 +38,9 @@ namespace MusicGrid
             {
                 currentIndex = value;
                 if (currentIndex < 0) currentIndex = Tracks.Count - 1;
-                if (currentIndex < Tracks.Count)
-                    OnTrackChange?.Invoke(this, CurrentTrack);
+                if (currentIndex >= Tracks.Count) currentIndex = 0;
+
+                OnTrackChange?.Invoke(this, CurrentTrack);
             }
         }
 
@@ -67,12 +80,42 @@ namespace MusicGrid
 
         public void Next()
         {
-            CurrentIndex++;
+            for (int i = 1; i < Tracks.Count - 1; i++)
+            {
+                int index = LoopBackIndex(CurrentIndex + i);
+                if (!GetTrackAt(index)?.District.Muted ?? false)
+                {
+                    CurrentIndex = index;
+                    return;
+                }
+            }
         }
 
         public void Previous()
         {
-            CurrentIndex--;
+            for (int i = 1; i < Tracks.Count - 1; i++)
+            {
+                int index = LoopBackIndex(CurrentIndex - i);
+                if (!GetTrackAt(index)?.District.Muted ?? false)
+                {
+                    CurrentIndex = index;
+                    return;
+                }
+            }
+        }
+
+        private DistrictEntry GetTrackAt(int index)
+        {
+            index = LoopBackIndex(index);
+            if (Shuffle) return Tracks[shuffleIndices[index]];
+            return Tracks[index];
+        }
+
+        private int LoopBackIndex(int index)
+        {
+            if (index < 0) index = Tracks.Count - (Math.Abs(index) % Tracks.Count);
+            if (index >= Tracks.Count) index %= Tracks.Count;
+            return index;
         }
 
         private int GetShuffledIndexOf(DistrictEntry entry)
@@ -84,12 +127,12 @@ namespace MusicGrid
             return Array.IndexOf(shuffleIndices, index);
         }
 
-        private void RepopulateShuffleIndices()
+        public void RepopulateShuffleIndices()
         {
             shuffleIndices = new int[Tracks.Count];
             for (int i = 0; i < shuffleIndices.Length; i++)
                 shuffleIndices[i] = i;
-            shuffleIndices = shuffleIndices.OrderBy(i => random.Next(0, 100)).ToArray();
+            shuffleIndices = shuffleIndices.OrderBy(i => random.Next(0, Tracks.Count)).ToArray();
             OnModification?.Invoke(this, EventArgs.Empty);
         }
     }
