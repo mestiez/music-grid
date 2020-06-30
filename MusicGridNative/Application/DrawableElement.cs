@@ -123,7 +123,7 @@ namespace MusicGrid
         public void ForceRecalculateLayout()
         {
             if (string.IsNullOrWhiteSpace(Text)) return;
-            if (!EncapsulateText && !IsCenteringText)
+            if (!EncapsulateText && !IsSpecialTextAlignment)
             {
                 ConsoleEntity.Log("Recalculation of layout is unwarranted!", this);
                 return;
@@ -139,7 +139,6 @@ namespace MusicGrid
 
             Vector2f pos = Element.Position;
 
-            //should use flag enum haha :) Get your shit together.
             switch (TextAlignment)
             {
                 case TextAlignmentMode.Horizontally:
@@ -147,6 +146,16 @@ namespace MusicGrid
                     break;
                 case TextAlignmentMode.Vertically:
                     pos.Y += Element.Size.Y / 2 - localBounds.Height * TextScale / 2;
+                    break;
+                case TextAlignmentMode.TopRight:
+                    pos.X += Element.Size.X - localBounds.Width * TextScale;
+                    break;
+                case TextAlignmentMode.BottomLeft:
+                    pos.Y += Element.Size.Y - localBounds.Height * TextScale;
+                    break;
+                case TextAlignmentMode.BottomRight:
+                    pos.X += Element.Size.X - localBounds.Width * TextScale;
+                    pos.Y += Element.Size.Y - localBounds.Height * TextScale;
                     break;
                 case TextAlignmentMode.Both:
                     pos += new Vector2f(Element.Size.X / 2 - localBounds.Width * TextScale / 2, Element.Size.Y / 2 - localBounds.Height * TextScale / 2);
@@ -219,7 +228,7 @@ namespace MusicGrid
             }
         }
 
-        public bool IsCenteringText => TextAlignment != TextAlignmentMode.None;
+        private bool IsSpecialTextAlignment => TextAlignment != TextAlignmentMode.TopLeft;
 
         public int Depth
         {
@@ -241,7 +250,7 @@ namespace MusicGrid
                 if (characterSize == value) return;
                 characterSize = value;
                 text.CharacterSize = characterSize;
-                if (IsCenteringText || EncapsulateText)
+                if (IsSpecialTextAlignment || EncapsulateText)
                     ForceRecalculateLayout();
             }
         }
@@ -254,7 +263,7 @@ namespace MusicGrid
                 if (displayString == value) return;
                 displayString = value ?? "";
                 text.DisplayedString = displayString;
-                if (IsCenteringText || EncapsulateText)
+                if (IsSpecialTextAlignment || EncapsulateText)
                     ForceRecalculateLayout();
             }
         }
@@ -275,7 +284,7 @@ namespace MusicGrid
                 position = value;
                 Element.Position = position;
                 background.Position = position;
-                if (IsCenteringText || EncapsulateText) return;
+                if (IsSpecialTextAlignment || EncapsulateText) return;
                 text.Position = position;
             }
         }
@@ -293,7 +302,7 @@ namespace MusicGrid
                 size = value;
                 Element.Size = size;
                 background.Size = size;
-                if (IsCenteringText)
+                if (IsSpecialTextAlignment)
                     ForceRecalculateLayout();
             }
         }
@@ -311,7 +320,10 @@ namespace MusicGrid
 
         public enum TextAlignmentMode
         {
-            None,
+            TopLeft,
+            TopRight,
+            BottomLeft,
+            BottomRight,
             Horizontally,
             Vertically,
             Both

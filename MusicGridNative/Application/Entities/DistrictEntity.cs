@@ -39,6 +39,8 @@ namespace MusicGrid
         private DrawableElement colourInputBox;
         private TextBoxController colourInputBoxController;
 
+        private DrawableElement detailsElement;
+
         private Vertex[] entryVertices;
 
         private Text[] entryTexts;
@@ -149,7 +151,18 @@ namespace MusicGrid
                     District.Color = c.ToShared();
                 District.Dirty = true;
                 needToRecalculateLayout = true;
+                var cc = GetFrontColor();
+                foreach (var item in entryTexts)
+                    item.FillColor = cc;
             };
+
+            detailsElement = new DrawableElement(uiController, new Vector2f(120, 30), new Vector2f(), 0, 72);
+            detailsElement.TextScale = 12 / 72f;
+            detailsElement.Element.Interactable = false;
+            detailsElement.DrawBackground = false;
+            detailsElement.HideOverflow = true;
+            detailsElement.TextOffset = new Vector2f(4,-4);
+            detailsElement.TextAlignment = DrawableElement.TextAlignmentMode.BottomLeft;
 
             backgroundTask = new ShapeRenderTask(background, backgroundElement.Depth);
             titleTask = new ShapeRenderTask(title, backgroundElement.Depth);
@@ -252,15 +265,8 @@ namespace MusicGrid
                     CurrentPage = Page.Entries;
                     break;
             }
+            detailsElement.Text = $"{District.Entries.Count} entries (?? missing)";
             needToRecalculateLayout = true;
-            //var entity = World.GetEntitiesByType<DistrictPreferencesEntity>().FirstOrDefault(f => f.DistrictEntity == this);
-            //if (entity != null)
-            //{
-            //    entity.BringToFront();
-            //    return;
-            //}
-            //entity = new DistrictPreferencesEntity(this);
-            //World.Add(entity);
         }
 
         private void OpenDeletionConfirmationDialog(IEnumerable<District> selectedDistricts, string displayNames)
@@ -493,6 +499,10 @@ namespace MusicGrid
             background.Size = backgroundElement.Size;
             background.FillColor = backgroundElement.ComputedColor;
 
+            detailsElement.TextColor = GetFrontColor();
+            detailsElement.Size = new Vector2f(background.Size.X, 30);
+            detailsElement.Position = background.Position + background.Size - detailsElement.Size;
+
             var titleBounds = title.GetLocalBounds();
             title.Origin = new Vector2f(titleBounds.Width, titleBounds.Height) / 2;
 
@@ -564,6 +574,7 @@ namespace MusicGrid
             handleTask.Depth = backgroundElement.Depth;
             yield return backgroundTask;
 
+            yield return detailsElement.RenderTask;
             yield return nameInputBox.RenderTask;
             yield return colourInputBox.RenderTask;
 
