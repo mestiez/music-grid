@@ -24,11 +24,12 @@ namespace MusicGrid
         private Vector2f position;
         private Color textColor;
         private bool encapsulateText;
-        private bool centerText;
+        private TextAlignmentMode textAlignment;
         private Vector2f encapsulationMargin = new Vector2f(20, 15);
 
         private bool registered;
-        private const string ConsoleSourceIdentifier = "DRAWABLE ELEMENT";
+        private float textScale = 1;
+        private Vector2f alignmentPadding;
 
         public DrawableElement(UiControllerEntity controller, Vector2f size = default, Vector2f position = default, int depth = 0, uint characterSize = 16)
         {
@@ -60,7 +61,7 @@ namespace MusicGrid
         {
             if (registered)
             {
-                ConsoleEntity.Log("Attempt to register registered object", ConsoleSourceIdentifier);
+                ConsoleEntity.Log("Attempt to register registered object", this);
                 return;
             }
             controller.Register(Element);
@@ -71,7 +72,7 @@ namespace MusicGrid
         {
             if (!registered)
             {
-                ConsoleEntity.Log("Attempt to deregister unregistered object", ConsoleSourceIdentifier);
+                ConsoleEntity.Log("Attempt to deregister unregistered object", this);
                 return;
             }
             controller.Deregister(Element);
@@ -89,34 +90,70 @@ namespace MusicGrid
             {
                 if (HideOverflow)
                 {
-                    GL.Scissor((int)Position.X, ((int)target.Size.Y - (int)(Position.Y + Size.Y)), (int)Size.X, (int)Size.Y);
+                    int x, y, w, h;
+
+                    if (Element.IsScreenSpace)
+                    {
+                        x = (int)Position.X;
+                        y = ((int)target.Size.Y - (int)(Position.Y + Size.Y));
+                        w = (int)Size.X;
+                        h = (int)Size.Y;
+                    }
+                    else
+                    {
+                        var sPos = target.MapCoordsToPixel(Position);
+                        var sSize = target.MapCoordsToPixel(Position + Size) - sPos;
+
+                        x = (int)sPos.X;
+                        y = ((int)target.Size.Y - (int)(sPos.Y + sSize.Y));
+                        w = (int)sSize.X;
+                        h = (int)sSize.Y;
+                    }
+
+                    GL.Scissor(x, y, w, h);
                     GL.Enable(EnableCap.ScissorTest);
-                }
-                target.Draw(text);
-                if (HideOverflow)
+                    target.Draw(text);
                     GL.Disable(EnableCap.ScissorTest);
+                }
+                else
+                    target.Draw(text);
             }
         }
 
         public void ForceRecalculateLayout()
         {
             if (string.IsNullOrWhiteSpace(Text)) return;
-            if (!EncapsulateText && !CenterText)
+            if (!EncapsulateText && !IsCenteringText)
             {
-                ConsoleEntity.Log("Recalculation of layout is unwarranted!", ConsoleSourceIdentifier);
+                ConsoleEntity.Log("Recalculation of layout is unwarranted!", this);
                 return;
             }
-
             var localBounds = text.GetLocalBounds();
             if (EncapsulateText)
             {
-                var newSize = new Vector2f(EncapsulationMargin.X * 2 + localBounds.Width, EncapsulationMargin.Y * 2 + localBounds.Height);
+                var newSize = new Vector2f(EncapsulationPadding.X * 2 + localBounds.Width * TextScale, EncapsulationPadding.Y * 2 + localBounds.Height * TextScale);
                 size = newSize;
                 Element.Size = size;
                 background.Size = size;
             }
-            var pos = Element.Position + new Vector2f(Element.Size.X / 2 - localBounds.Width / 2, Element.Size.Y / 2 - localBounds.Height / 2);
-            text.Position = Utilities.Round(pos);
+
+            Vector2f pos = Element.Position;
+
+            //should use flag enum haha :) Get your shit together.
+            switch (TextAlignment)
+            {
+                case TextAlignmentMode.Horizontally:
+                    pos.X += Element.Size.X / 2 - localBounds.Width * TextScale / 2;
+                    break;
+                case TextAlignmentMode.Vertically:
+                    pos.Y += Element.Size.Y / 2 - localBounds.Height * TextScale / 2;
+                    break;
+                case TextAlignmentMode.Both:
+                    pos += new Vector2f(Element.Size.X / 2 - localBounds.Width * TextScale / 2, Element.Size.Y / 2 - localBounds.Height * TextScale / 2);
+                    break;
+            }
+
+            text.Position = Utilities.Round(pos) + TextOffset;
         }
 
         #region Properties
@@ -139,7 +176,17 @@ namespace MusicGrid
             }
         }
 
-        public Vector2f EncapsulationMargin
+        public float TextScale
+        {
+            get => textScale;
+            set
+            {
+                textScale = value;
+                text.Scale = new Vector2f(value, value);
+            }
+        }
+
+        public Vector2f EncapsulationPadding
         {
             get => encapsulationMargin;
             set
@@ -150,16 +197,29 @@ namespace MusicGrid
             }
         }
 
-        public bool CenterText
+        public Vector2f TextOffset
         {
-            get => centerText;
+            get => alignmentPadding;
             set
             {
-                if (centerText == value) return;
-                centerText = value;
+                if (alignmentPadding == value) return;
+                alignmentPadding = value;
                 ForceRecalculateLayout();
             }
         }
+
+        public TextAlignmentMode TextAlignment
+        {
+            get => textAlignment;
+            set
+            {
+                if (textAlignment == value) return;
+                textAlignment = value;
+                ForceRecalculateLayout();
+            }
+        }
+
+        public bool IsCenteringText => TextAlignment != TextAlignmentMode.None;
 
         public int Depth
         {
@@ -181,7 +241,7 @@ namespace MusicGrid
                 if (characterSize == value) return;
                 characterSize = value;
                 text.CharacterSize = characterSize;
-                if (CenterText || EncapsulateText)
+                if (IsCenteringText || EncapsulateText)
                     ForceRecalculateLayout();
             }
         }
@@ -194,7 +254,7 @@ namespace MusicGrid
                 if (displayString == value) return;
                 displayString = value ?? "";
                 text.DisplayedString = displayString;
-                if (CenterText || EncapsulateText)
+                if (IsCenteringText || EncapsulateText)
                     ForceRecalculateLayout();
             }
         }
@@ -215,7 +275,7 @@ namespace MusicGrid
                 position = value;
                 Element.Position = position;
                 background.Position = position;
-                if (CenterText || EncapsulateText) return;
+                if (IsCenteringText || EncapsulateText) return;
                 text.Position = position;
             }
         }
@@ -227,13 +287,13 @@ namespace MusicGrid
             {
                 if (EncapsulateText)
                 {
-                    ConsoleEntity.Log("Can't set size when it's controlled by the element", ConsoleSourceIdentifier);
+                    ConsoleEntity.Log("Can't set size when it's controlled by the element", this);
                     return;
                 }
                 size = value;
                 Element.Size = size;
                 background.Size = size;
-                if (CenterText)
+                if (IsCenteringText)
                     ForceRecalculateLayout();
             }
         }
@@ -248,5 +308,13 @@ namespace MusicGrid
             }
         }
         #endregion
+
+        public enum TextAlignmentMode
+        {
+            None,
+            Horizontally,
+            Vertically,
+            Both
+        }
     }
 }

@@ -1,16 +1,17 @@
 ﻿using SFML.Graphics;
 using SFML.System;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MusicGrid
 {
     public struct Utilities
     {
         private static Random random = new Random();
+
+        public static bool IsInside(System.Numerics.Vector2 point, System.Numerics.Vector2 topleft, System.Numerics.Vector2 size)
+        {
+            return IsInside(point.ToSFML(), topleft.ToSFML(), size.ToSFML());
+        }
 
         public static bool IsInside(Vector2f point, Vector2f topleft, Vector2f size)
         {
@@ -102,5 +103,40 @@ namespace MusicGrid
         }
 
         public static bool IsActive => !Input.Minimised && (!Configuration.CurrentConfiguration.EcoRender || Input.WindowHasFocus);
+
+        public static string ColourToHexString(Color color)
+        {
+            string r = color.R.ToString("X2");
+            string g = color.G.ToString("X2");
+            string b = color.B.ToString("X2");
+            return "#" + r + g + b;
+        }
+
+        public static Color HexStringToColour(string color)
+        {
+            if (color.StartsWith("#"))
+                color = color.Substring(1);
+            else if (color.StartsWith("0x"))
+                color = color.Substring(2);
+
+            byte r = byte.Parse(color.Substring(0, 2), System.Globalization.NumberStyles.HexNumber);
+            byte g = byte.Parse(color.Substring(2, 2), System.Globalization.NumberStyles.HexNumber);
+            byte b = byte.Parse(color.Substring(4, 2), System.Globalization.NumberStyles.HexNumber);
+            return new Color(r, g, b);
+        }
+
+        public static bool TryParseHexColour(string hex, out Color color)
+        {
+            color = default;
+            try
+            {
+                color = HexStringToColour(hex);
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
     }
 }

@@ -21,19 +21,19 @@ namespace MusicGrid
                 string raw = File.ReadAllText(path);
                 Configuration parsed = JsonConvert.DeserializeObject<Configuration>(raw);
                 CurrentConfiguration = parsed;
-                ConsoleEntity.Log("Configuration succesfully loaded", "CONFIG");
+                ConsoleEntity.Log("Configuration succesfully loaded", typeof(Configuration).Name);
             }
             catch (Exception e)
             {
                 switch (e)
                 {
                     case FileNotFoundException fe:
-                        ConsoleEntity.Log("Configuration not found at " + path, "CONFIG");
-                        ConsoleEntity.Log(fe.Message, "CONFIG");
+                        ConsoleEntity.Log("Configuration not found at " + path, typeof(Configuration).Name);
+                        ConsoleEntity.Log(fe.Message, typeof(Configuration).Name);
                         break;
                     case JsonException je:
-                        ConsoleEntity.Log("Invalid configuration at " + path, "CONFIG");
-                        ConsoleEntity.Log(je.Message, "CONFIG");
+                        ConsoleEntity.Log("Invalid configuration at " + path, typeof(Configuration).Name);
+                        ConsoleEntity.Log(je.Message, typeof(Configuration).Name);
                         break;
                     default:
                         ConsoleEntity.Log(e.Message.ToString());
@@ -48,11 +48,11 @@ namespace MusicGrid
             {
                 string raw = JsonConvert.SerializeObject(CurrentConfiguration, Formatting.Indented);
                 File.WriteAllText(path, raw);
-                ConsoleEntity.Log("Configuration succesfully saved", "CONFIG");
+                ConsoleEntity.Log("Configuration succesfully saved", typeof(Configuration).Name);
             }
             catch (Exception e)
             {
-                ConsoleEntity.Log(e.Message, "CONFIG");
+                ConsoleEntity.Log(e.Message, typeof(Configuration).Name);
                 return;
             }
         }

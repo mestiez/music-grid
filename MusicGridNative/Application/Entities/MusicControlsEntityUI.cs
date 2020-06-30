@@ -54,7 +54,7 @@ namespace MusicGrid
 
             trackName = new DrawableElement(uiController);
             trackName.Element.IsScreenSpace = true;
-            trackName.CenterText = true;
+            trackName.TextAlignment = DrawableElement.TextAlignmentMode.Both;
             trackName.HideOverflow = true;
             trackName.DepthContainer = background.Element;
             trackName.Element.Color = new Color(0, 0, 0, 25);
@@ -73,7 +73,7 @@ namespace MusicGrid
             trackInfo = new DrawableElement(uiController);
             trackInfo.Element.IsScreenSpace = true;
             trackInfo.HideOverflow = true;
-            trackInfo.CenterText = true;
+            trackInfo.TextAlignment = DrawableElement.TextAlignmentMode.Both;
             trackInfo.DrawBackground = false;
             trackInfo.CharacterSize = 12;
             trackInfo.DepthContainer = background.Element;
@@ -151,7 +151,6 @@ namespace MusicGrid
             if (EnableVisualiser && audioData != null && audioData.Length != 0)
             {
                 uint progress = (uint)System.Math.Round(smoothTime / MusicPlayer.Duration.TotalSeconds * audioData.Length);
-                ConsoleEntity.Log(progress);
                 if (progress < audioData.Length)
                     background.Element.Color = Utilities.Lerp(Color.Black, Color.Red, audioData[progress]);
             }

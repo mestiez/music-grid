@@ -83,7 +83,7 @@ namespace MusicGrid
             for (int i = 1; i < Tracks.Count - 1; i++)
             {
                 int index = LoopBackIndex(CurrentIndex + i);
-                if (!GetTrackAt(index)?.District.Muted ?? false)
+                if (!GetTrackAt(index)?.District?.Muted ?? false)
                 {
                     CurrentIndex = index;
                     return;
@@ -96,7 +96,7 @@ namespace MusicGrid
             for (int i = 1; i < Tracks.Count - 1; i++)
             {
                 int index = LoopBackIndex(CurrentIndex - i);
-                if (!GetTrackAt(index)?.District.Muted ?? false)
+                if (!GetTrackAt(index)?.District?.Muted ?? false)
                 {
                     CurrentIndex = index;
                     return;

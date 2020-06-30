@@ -16,14 +16,14 @@ namespace MusicGrid
             }
             catch (ArgumentException e)
             {
-                ConsoleEntity.Log(e, "KEYBINDER");
+                ConsoleEntity.Log(e, this);
             }
             
         }
 
         public override void Update()
         {
-            if (ConsoleEntity.Main.ConsoleIsOpen) return;
+            if (ConsoleEntity.Main.ConsoleIsOpen || World.GetEntitiesByType<UiControllerEntity>().Any(u => u.UserIsInputting)) return;
 
             foreach (var keybind in Configuration.CurrentConfiguration.Keybinds)
                 if (keybind.IsSatisfied())

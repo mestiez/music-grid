@@ -61,7 +61,8 @@ namespace MusicGrid.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Music Grid is a Windows application that displays playlists in an infinite 2D world. 
+        ///   Looks up a localized string similar to Music Grid is a Windows application that displays playlists in an infinite 2D world.
+        ///It uses VLC and SFML to get audio and video on the screen.
         ///Written by Mestiez..
         /// </summary>
         internal static string AboutText {

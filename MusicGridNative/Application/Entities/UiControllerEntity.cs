@@ -17,12 +17,15 @@ namespace MusicGrid
         private List<UiElement> deregisterBuffer = new List<UiElement>();
 
         private HashSet<UiElement> selected = new HashSet<UiElement>();
+        private int inputCount;
+
         public IReadOnlyList<UiElement> Selected => selected.ToList().AsReadOnly();
         public IReadOnlyList<UiElement> Elements => elements.Concat(registerBuffer).ToList().AsReadOnly();
         public bool Multiselecting { get; private set; } = false;
 
         public UiElement FocusedElement { get; set; }
         public bool IsPointerOverElement { get; private set; }
+        public bool UserIsInputting => inputCount > 0;
 
         public override void Created()
         {
@@ -43,13 +46,25 @@ namespace MusicGrid
             requiresElementResort = true;
         }
 
+        public void NotifyInputStart()
+        {
+            inputCount++;
+            ConsoleEntity.Log($"Added input block #{inputCount}", this);
+        }
+
+        public void NotifyInputEnd()
+        {
+            ConsoleEntity.Log($"Removed input block #{inputCount}", this);
+            inputCount--;
+        }
+
         private void HandleBuffers()
         {
             foreach (var elem in deregisterBuffer)
             {
                 if (elem == null)
                 {
-                    ConsoleEntity.Log($"Attempt to deregister null UI element", "UI CONTROLLER");
+                    ConsoleEntity.Log($"Attempt to deregister null UI element", this);
                     return;
                 }
                 elements.Remove(elem);
@@ -107,7 +122,7 @@ namespace MusicGrid
 
         public void Select(UiElement element, bool multiselect = false)
         {
-            if (!element.Selectable) return;
+            if (!element.Selectable || !element.Interactable) return;
             if (!multiselect)
                 ClearSelection();
             element.IsSelected = true;
@@ -117,7 +132,7 @@ namespace MusicGrid
 
         public void Deselect(UiElement element)
         {
-            if (!element.Selectable) return;
+            if (!element.Selectable || !element.Interactable) return;
             if (!selected.Contains(element)) return;
             element.IsSelected = false;
             selected.Remove(element);
@@ -177,8 +192,9 @@ namespace MusicGrid
         public void SelectAll()
         {
             ClearSelection();
-            foreach (var item in elements)
-                Select(item, true);
+            foreach (var elem in elements)
+                if (elem.SelectInSelectAll)
+                    Select(elem, true);
         }
 
         public void ToggleSelectAll()

@@ -97,21 +97,21 @@ namespace MusicGrid
 
             if (field == null)
             {
-                ConsoleEntity.Log($"{name} is not a valid configuration key", "APP");
+                ConsoleEntity.Log($"{name} is not a valid configuration key", this);
                 return;
             }
             try
             {
                 var takesEffectAfter = field.GetCustomAttributes(typeof(Configuration.RequiresRestartAttribute), true).Any();
                 field.SetValue(Configuration.CurrentConfiguration, Convert.ChangeType(value, field.FieldType));
-                ConsoleEntity.Log($"Set {name} to {value}", "APP");
+                ConsoleEntity.Log($"Set {name} to {value}", this);
                 if (takesEffectAfter)
-                    ConsoleEntity.Log($"This change will take effect after restart!", "APP");
+                    ConsoleEntity.Log($"This change will take effect after restart!", this);
                 ApplyConfig();
             }
             catch (Exception e)
             {
-                ConsoleEntity.Log($"Error while setting {name} to {value}:\n{e.Message}", "APP");
+                ConsoleEntity.Log($"Error while setting {name} to {value}:\n{e.Message}", this);
             }
         }
 
@@ -120,14 +120,14 @@ namespace MusicGrid
             var field = typeof(Configuration).GetField(name);
 
             if (field == null)
-                ConsoleEntity.Log($"{name} is not a valid configuration key", "APP");
+                ConsoleEntity.Log($"{name} is not a valid configuration key", this);
             try
             {
                 return field.GetValue(Configuration.CurrentConfiguration);
             }
             catch (Exception e)
             {
-                ConsoleEntity.Log($"Error while retrieving {name}:\n{e.Message}", "APP");
+                ConsoleEntity.Log($"Error while retrieving {name}:\n{e.Message}", this);
             }
             return null;
         }

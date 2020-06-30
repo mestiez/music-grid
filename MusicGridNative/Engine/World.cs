@@ -40,11 +40,11 @@ namespace MusicGrid
             var dir = Properties.Resources.ScriptsFolder;
             if (!Directory.Exists(dir))
             {
-                ConsoleEntity.Log($"Can't find scripts folder at {dir}", "WORLD");
+                ConsoleEntity.Log($"Can't find scripts folder at {dir}", this);
                 return;
             }
             var files = Directory.GetFiles(dir, "*.lua");
-            ConsoleEntity.Log($"Found {files.Length} {(files.Length == 1 ? "script" : "scripts")}", "WORLD");
+            ConsoleEntity.Log($"Found {files.Length} {(files.Length == 1 ? "script" : "scripts")}", this);
             foreach (var path in files)
             {
                 try
@@ -53,7 +53,7 @@ namespace MusicGrid
                 }
                 catch (Exception e)
                 {
-                    ConsoleEntity.Log($"Error executing {path}: {e.Message}", "WORLD");
+                    ConsoleEntity.Log($"Error executing {path}: {e.Message}", this);
                 }
             }
         }
@@ -108,7 +108,7 @@ namespace MusicGrid
             {
                 if (t == null)
                 {
-                    ConsoleEntity.Log("Attempt to draw null task", "WORLD");
+                    ConsoleEntity.Log("Attempt to draw null task", this);
                     return 0;
                 }
                 return t.Depth;
@@ -123,7 +123,7 @@ namespace MusicGrid
             {
                 if (t == null)
                 {
-                    ConsoleEntity.Log("Attempt to draw null screen task", "WORLD");
+                    ConsoleEntity.Log("Attempt to draw null screen task", this);
                     return 0;
                 }
                 return t.Depth;

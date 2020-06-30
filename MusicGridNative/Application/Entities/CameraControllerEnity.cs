@@ -52,7 +52,6 @@ namespace MusicGrid
         private static void ClampZoom()
         {
             var config = Configuration.CurrentConfiguration;
-            Console.WriteLine(Configuration.CurrentConfiguration.Zoom);
             if (config.Zoom > config.ZoomUpperBound) config.Zoom = config.ZoomUpperBound;
             if (config.Zoom < config.ZoomLowerBound) config.Zoom = config.ZoomLowerBound;
         }

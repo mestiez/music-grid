@@ -43,8 +43,7 @@ namespace MusicGrid
             World.Lua.LinkFunction(Functions.Pause, this, () => { MusicPlayer.Pause(); });
             World.Lua.LinkFunction(Functions.Play, this, () => { MusicPlayer.Play(); });
             World.Lua.LinkFunction(Functions.Stop, this, () => { MusicPlayer.Stop(); });
-            World.Lua.LinkFunction(Functions.SetVolume, this, (float a) => { MusicPlayer.Volume = Math.Max(Math.Min(1, a), 0); ConsoleEntity.Log($"Volume set to {Math.Round(MusicPlayer.Volume * 100)}%", "MPE"); });
-
+            World.Lua.LinkFunction(Functions.SetVolume, this, (float a) => { MusicPlayer.Volume = Math.Max(Math.Min(1, a), 0); ConsoleEntity.Log($"Volume set to {Math.Round(MusicPlayer.Volume * 100)}%", this); });
         }
 
         private void HandleTrackEnd()

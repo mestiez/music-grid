@@ -28,14 +28,14 @@ namespace MusicGrid
                 }
                 catch (Exception e)
                 {
-                    ConsoleEntity.Log(e.Message, "FILE MODEL CONVERTER");
+                    ConsoleEntity.Log(e.Message, typeof(FileModelConverter).Name) ;
                 }
             }
 
             District district = new District(info.Name.Substring(0, info.Name.LastIndexOf('.')));
             district.Entries.AddRange(entries);
 
-            ConsoleEntity.Log($"Successfully loaded playlist at {path}", "FILE MODEL CONVERTER");
+            ConsoleEntity.Log($"Successfully loaded playlist at {path}", typeof(FileModelConverter).Name);
             return district;
         }
     }

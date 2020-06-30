@@ -8,37 +8,39 @@ using System.Linq;
 
 namespace MusicGrid
 {
+
     public class DialogboxEntity : Entity
     {
         public readonly string Content;
         public readonly bool CloseOnButtonPress;
 
-        private readonly Vector2f size;
-        private readonly Vector2f position;
-        private readonly List<Button> buttons;
+        protected readonly Vector2f size;
+        protected readonly Vector2f position;
+        protected readonly List<Button> buttons;
 
-        private RectangleShape background;
-        private Text contentText;
-        private RectangleShape buttonBackground;
-        private Text buttonText;
+        protected RectangleShape background;
+        protected Text contentText;
+        protected RectangleShape buttonBackground;
+        protected Text buttonText;
 
-        private ShapeRenderTask backgroundTask;
-        private ShapeRenderTask contentTask;
-        private ActionRenderTask[] buttonTasks;
+        protected ShapeRenderTask backgroundTask;
+        protected ShapeRenderTask contentTask;
+        protected ActionRenderTask[] buttonTasks;
 
-        private UiElement backgroundElement;
-        private UiElement[] buttonElements;
+        protected UiElement backgroundElement;
+        protected UiElement[] buttonElements;
 
-        private UiControllerEntity uiController;
-        private float buttonPosition = 0;
-        private float buttonSpacing = 0;
+        protected UiControllerEntity uiController;
+        protected DraggableController draggable;
+        protected float buttonPosition = 0;
+        protected float buttonSpacing = 0;
 
         public const uint CharacterSize = 16;
         public const float ButtonMargin = 16;
         public const float HorizontalButtonPadding = 20;
         public const float ButtonHeight = CharacterSize * 2;
 
-        private bool requiresRecalculation = true;
+        protected bool requiresRecalculation = true;
 
         public IReadOnlyList<Button> Buttons => buttons.AsReadOnly();
 
@@ -91,6 +93,8 @@ namespace MusicGrid
                 Size = size,
             };
 
+            draggable = new DraggableController(backgroundElement);
+
             backgroundTask = new ShapeRenderTask(background, backgroundElement.Depth);
             contentTask = new ShapeRenderTask(contentText, backgroundElement.Depth);
 
@@ -98,7 +102,7 @@ namespace MusicGrid
             GenerateButtons();
         }
 
-        private void GenerateButtons()
+        protected void GenerateButtons()
         {
             buttonTasks = new ActionRenderTask[buttons.Count];
             buttonElements = new UiElement[buttons.Count];
@@ -141,7 +145,7 @@ namespace MusicGrid
             }
         }
 
-        private void SetupButton(Button button, UiElement elem)
+        protected void SetupButton(Button button, UiElement elem)
         {
             buttonText.DisplayedString = button.Label;
             buttonText.FillColor = elem.Disabled ? Style.BackgroundDisabled.ToSFML() : Style.Foreground.ToSFML();
@@ -168,17 +172,11 @@ namespace MusicGrid
 
         public override void Update()
         {
-            HandleDragging();
+            draggable.Update();
+            requiresRecalculation |= draggable.HasMoved;
         }
 
-        private void HandleDragging()
-        {
-            if (!backgroundElement.IsBeingHeld || Input.HeldButton != Mouse.Button.Left) return;
-            backgroundElement.Position += (Vector2f)Input.ScreenMouseDelta;
-            requiresRecalculation = true;
-        }
-
-        private void RecalculateLayout()
+        protected void RecalculateLayout()
         {
             if (!requiresRecalculation) return;
             requiresRecalculation = false;

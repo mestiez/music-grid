@@ -1,12 +1,12 @@
 ﻿using Microsoft.Win32;
 using Newtonsoft.Json;
-using SFML.Graphics;
 using SFML.System;
 using Shared;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Numerics;
 using Color = Shared.Color;
 
 namespace MusicGrid
@@ -14,7 +14,6 @@ namespace MusicGrid
     public class DistrictManager : Entity
     {
         private readonly List<District> districts = new List<District>();
-        public const string ConsoleSourceIdentifier = "DISTRICT MANAGER";
         public IReadOnlyList<District> Districts => districts.AsReadOnly();
 
         public bool SnappingEnabled { get; private set; } = true;
@@ -38,7 +37,7 @@ namespace MusicGrid
         private void OnFileDrop(object sender, string filename)
         {
             FileInfo file = new FileInfo(filename);
-            ConsoleEntity.Log($"Attempt to import {filename}", ConsoleSourceIdentifier);
+            ConsoleEntity.Log($"Attempt to import {filename}", this);
             switch (file.Extension.ToLower())
             {
                 case ".m3u8":
@@ -47,12 +46,30 @@ namespace MusicGrid
                     break;
                 case ".mgd":
                 case ".json":
-                    LoadGrid(filename);
+                    DialogboxEntity.CreateConfirmationDialog("This will cause unsaved information to be lost. Continue?", () =>
+                    {
+                        LoadGrid(filename);
+                    });
                     break;
                 default:
-                    var d = ImportAudioAsPlaylist(filename);
-                    d.Position = Input.MousePosition.ToNumerics();
+                    InsertAudioIntoGridAtPoint(filename, Input.MousePosition.ToNumerics());
                     break;
+            }
+        }
+
+        private void InsertAudioIntoGridAtPoint(string filename, Vector2 point)
+        {
+            var district = GetDistractAtPoint(point);
+            FileInfo file = new FileInfo(filename);
+
+            if (district != null)
+            {
+                district.Entries.Add(new DistrictEntry(file.Name, filename));
+            }
+            else
+            {
+                var d = ImportAudioAsPlaylist(filename);
+                d.Position = point;
             }
         }
 
@@ -93,6 +110,7 @@ namespace MusicGrid
                 }
             ));
         }
+
         public void AskLoadGrid()
         {
             OpenFileDialog dialog = new OpenFileDialog
@@ -146,12 +164,12 @@ namespace MusicGrid
             foreach (var entity in entities.Where(e => e.District == district))
                 World.Destroy(entity);
             if (!districts.Remove(district))
-                ConsoleEntity.Log($"Attempt to remove non-existant district {district}", ConsoleSourceIdentifier);
+                ConsoleEntity.Log($"Attempt to remove non-existant district {district}", this);
         }
 
         public void SaveGrid(string targetPath)
         {
-            ConsoleEntity.Log($"Saving grid to {targetPath}", ConsoleSourceIdentifier);
+            ConsoleEntity.Log($"Saving grid to {targetPath}", this);
             targetPath = Path.GetFullPath(Path.Combine(Environment.CurrentDirectory, targetPath));
             var name = Path.GetFileName(targetPath);
             var fullPath = targetPath.Substring(0, targetPath.Length - name.Length);
@@ -178,10 +196,10 @@ namespace MusicGrid
             }
             catch (Exception e)
             {
-                ConsoleEntity.Log(e.Message, ConsoleSourceIdentifier);
+                ConsoleEntity.Log(e.Message, this);
                 return;
             }
-            ConsoleEntity.Log($"Grid succesfully saved", ConsoleSourceIdentifier);
+            ConsoleEntity.Log($"Grid succesfully saved", this);
         }
 
         public Grid LoadGrid(string path)
@@ -189,13 +207,13 @@ namespace MusicGrid
             Grid grid = null;
             try
             {
-                ConsoleEntity.Log($"Loading grid at {path}", ConsoleSourceIdentifier);
+                ConsoleEntity.Log($"Loading grid at {path}", this);
                 var json = File.ReadAllText(path);
                 grid = JsonConvert.DeserializeObject<Grid>(json);
             }
             catch (Exception e)
             {
-                ConsoleEntity.Log(e.Message, ConsoleSourceIdentifier);
+                ConsoleEntity.Log(e.Message, this);
                 return null;
             }
 
@@ -211,7 +229,7 @@ namespace MusicGrid
                 }).ToList();
                 AddDistrict(copy);
             }
-            ConsoleEntity.Log($"Grid succesfully loaded", ConsoleSourceIdentifier);
+            ConsoleEntity.Log($"Grid succesfully loaded", this);
 
             return grid;
         }
@@ -227,6 +245,14 @@ namespace MusicGrid
         public District GetDistrictFromEntry(DistrictEntry entry)
         {
             return districts.FirstOrDefault(d => d.Entries.Contains(entry));
+        }
+
+        public District GetDistractAtPoint(Vector2 point)
+        {
+            foreach (var district in World.GetEntitiesByType<DistrictEntity>().OrderBy(d => d.Depth).Select(d => d.District))
+                if (Utilities.IsInside(point, district.Position, district.Size))
+                    return district;
+            return null;
         }
     }
 }

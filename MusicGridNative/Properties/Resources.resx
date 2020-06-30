@@ -118,7 +118,8 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="AboutText" xml:space="preserve">
-    <value>Music Grid is a Windows application that displays playlists in an infinite 2D world. 
+    <value>Music Grid is a Windows application that displays playlists in an infinite 2D world.
+It uses VLC and SFML to get audio and video on the screen.
 Written by Mestiez.</value>
     <comment>Text displayed in the "about" dialog</comment>
   </data>

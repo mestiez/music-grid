@@ -2,9 +2,10 @@
 using SFML.System;
 using Shared;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Windows.Markup;
+using System.Windows.Media;
 using Color = SFML.Graphics.Color;
 
 namespace MusicGrid
@@ -32,10 +33,17 @@ namespace MusicGrid
         private PrimitiveRenderTask handleTask;
         private ShapeRenderTask lockedIconTask;
 
+        private DrawableElement nameInputBox;
+        private TextBoxController nameInputBoxController;
+
+        private DrawableElement colourInputBox;
+        private TextBoxController colourInputBoxController;
+
         private Vertex[] entryVertices;
 
         private Text[] entryTexts;
         private bool needToRecalculateLayout = true;
+        public Page CurrentPage { get; private set; }
 
         private readonly uint CharacterSize = 72;
         private static int MinimumDepth = 999999;
@@ -46,6 +54,12 @@ namespace MusicGrid
 
         private Vector2f temporarySize;
         private Vector2f temporaryPosition;
+
+        public enum Page
+        {
+            Entries,
+            Editing
+        }
 
         private static readonly Vector2f[] handleShape = new Vector2f[3]
         {
@@ -118,6 +132,25 @@ namespace MusicGrid
             uiController.Register(resizeHandle);
             uiController.Register(backgroundElement);
 
+            nameInputBox = setupTextBox(ref nameInputBoxController);
+            nameInputBoxController.Value = District.Name;
+            nameInputBoxController.OnInput += (o, e) =>
+            {
+                District.Name = nameInputBoxController.Value;
+                District.Dirty = true;
+                needToRecalculateLayout = true;
+            };
+
+            colourInputBox = setupTextBox(ref colourInputBoxController);
+            colourInputBoxController.Value = Utilities.ColourToHexString(District.Color.ToSFML());
+            colourInputBoxController.OnInput += (o, e) =>
+            {
+                if (Utilities.TryParseHexColour(colourInputBoxController.Value, out var c))
+                    District.Color = c.ToShared();
+                District.Dirty = true;
+                needToRecalculateLayout = true;
+            };
+
             backgroundTask = new ShapeRenderTask(background, backgroundElement.Depth);
             titleTask = new ShapeRenderTask(title, backgroundElement.Depth);
             entryTask = new PrimitiveRenderTask(entryVertices, PrimitiveType.Quads, backgroundElement.Depth);
@@ -128,6 +161,22 @@ namespace MusicGrid
             temporaryPosition = District.Position.ToSFML();
 
             BringToFront();
+
+            DrawableElement setupTextBox(ref TextBoxController textBox)
+            {
+                var e = new DrawableElement(uiController, new Vector2f(), new Vector2f(), -1, 72);
+                e.Element.IsScreenSpace = false;
+                e.DepthContainer = backgroundElement;
+                e.Text = "???";
+                e.TextScale = 16 / 72f;
+                e.HideOverflow = true;
+                e.TextOffset = new Vector2f(5, -2);
+                e.TextAlignment = DrawableElement.TextAlignmentMode.Vertically;
+
+                textBox = new TextBoxController(e);
+
+                return e;
+            }
         }
 
         private void OpenContextMenu()
@@ -136,14 +185,17 @@ namespace MusicGrid
             var selectedDistricts = World.GetEntitiesByType<DistrictEntity>().Where(d => d.backgroundElement.IsSelected).Select(d => d.District).ToList();
             int count = selectedDistricts.Count();
             string displayNames = string.Join(",", selectedDistricts.Take(maxDisplayValues)) + (count > maxDisplayValues ? $" + {count - maxDisplayValues} more" : "");
-            string districtWord = selectedDistricts.Count() == 1 ? "district" : "districts";
+            string districtPluralisation = selectedDistricts.Count() == 1 ? "district" : "districts";
 
             var buttons = new List<Button>(new[] {
                 new Button(displayNames, default, false),
-                new Button($"delete {districtWord}", () => {
+                new Button("edit", () => {
+                    OpenDistrictEditor();
+                }),
+                new Button($"delete", () => {
                     OpenDeletionConfirmationDialog(selectedDistricts, displayNames);
                 }),
-                new Button($"play {districtWord} in isolation", () => {
+                new Button($"play {districtPluralisation} in isolation", () => {
                     var player = World.GetEntityByType<MusicControlsEntity>();
                     var manager = World.GetEntityByType<DistrictManager>();
                     player.TrackQueue.ClearQueue();
@@ -152,7 +204,7 @@ namespace MusicGrid
                     player.MusicPlayer.Play();
                     District.Muted = false;
                 }),
-                new Button($"fit view to {districtWord}", () => {
+                new Button($"fit view to {districtPluralisation}", () => {
                     World.GetEntityByType<CameraControllerEnity>().FitToView(selectedDistricts);
                 }),
             });
@@ -189,6 +241,28 @@ namespace MusicGrid
             ContextMenuEntity.Open(buttons, (Vector2f)Input.ScreenMousePosition);
         }
 
+        public void OpenDistrictEditor()
+        {
+            switch (CurrentPage)
+            {
+                case Page.Entries:
+                    CurrentPage = Page.Editing;
+                    break;
+                case Page.Editing:
+                    CurrentPage = Page.Entries;
+                    break;
+            }
+            needToRecalculateLayout = true;
+            //var entity = World.GetEntitiesByType<DistrictPreferencesEntity>().FirstOrDefault(f => f.DistrictEntity == this);
+            //if (entity != null)
+            //{
+            //    entity.BringToFront();
+            //    return;
+            //}
+            //entity = new DistrictPreferencesEntity(this);
+            //World.Add(entity);
+        }
+
         private void OpenDeletionConfirmationDialog(IEnumerable<District> selectedDistricts, string displayNames)
         {
             World.Add(DialogboxEntity.CreateConfirmationDialog($"Are you sure you want to\ndelete {displayNames}", () =>
@@ -212,6 +286,9 @@ namespace MusicGrid
 
         public override void Update()
         {
+            nameInputBoxController.Update();
+            colourInputBoxController.Update();
+
             HandleDragging();
             HandleResizing();
 
@@ -228,6 +305,14 @@ namespace MusicGrid
         {
             if (!needToRecalculateLayout) return;
             needToRecalculateLayout = false;
+
+            nameInputBox.Position = background.Position + new Vector2f(5, 5);
+            nameInputBox.Size = new Vector2f(background.Size.X - 10, 30);
+            nameInputBox.Element.Interactable = CurrentPage == Page.Editing;
+
+            colourInputBox.Position = background.Position + new Vector2f(5, 5 + 30 + 5);
+            colourInputBox.Size = new Vector2f(background.Size.X - 10, 30);
+            colourInputBox.Element.Interactable = CurrentPage == Page.Editing;
 
             float preferredSize = 256;
             float scaledMargin = (float)Math.Min(EntryMargin, District.Size.X / 256);
@@ -454,6 +539,42 @@ namespace MusicGrid
 
         public override IEnumerable<IRenderTask> Render()
         {
+            IEnumerable<IRenderTask> tasks;
+
+            switch (CurrentPage)
+            {
+                case Page.Entries:
+                    tasks = EntriesPageTasks();
+                    break;
+                case Page.Editing:
+                    tasks = EditingPageTasks();
+                    break;
+                default:
+                    yield break;
+            }
+
+            foreach (var item in tasks)
+                yield return item;
+        }
+
+        private IEnumerable<IRenderTask> EditingPageTasks()
+        {
+            if (IsOutOfBounds) yield break;
+            backgroundTask.Depth = backgroundElement.Depth;
+            handleTask.Depth = backgroundElement.Depth;
+            yield return backgroundTask;
+
+            yield return nameInputBox.RenderTask;
+            yield return colourInputBox.RenderTask;
+
+            if (District.Locked)
+                yield return lockedIconTask;
+            else
+                yield return handleTask;
+        }
+
+        private IEnumerable<IRenderTask> EntriesPageTasks()
+        {
             if (IsOutOfBounds) yield break;
             var renderEntries = !District.Muted && Input.WindowHasFocus;
 
@@ -513,6 +634,8 @@ namespace MusicGrid
         public override string ToString() => District + " entity";
 
         public bool IsSelected => backgroundElement.IsSelected;
+
+        public int Depth => backgroundElement.Depth;
 
         private bool IsOutOfBounds
         {

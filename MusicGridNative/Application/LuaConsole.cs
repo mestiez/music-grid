@@ -11,7 +11,7 @@ namespace MusicGrid
         public LuaConsole()
         {
             state = new Lua();
-            ConsoleEntity.Log("Lua initialised: " + state.State.Status, "LUA CONSOLE");
+            ConsoleEntity.Log("Lua initialised: " + state.State.Status, this);
         }
 
         public void SetGlobal(string name, object value)

@@ -8,11 +8,12 @@ using Color = SFML.Graphics.Color;
 
 namespace MusicGrid
 {
-    public class UiElement
+    public class UiElement : IElement
     {
         private int depth;
         private float lastClickedTime = -1;
         private UiElement depthContainer;
+        private bool isSelected;
 
         public Vector2f Position { get; set; }
         public Vector2f Size { get; set; }
@@ -52,11 +53,24 @@ namespace MusicGrid
         public bool IsActive { get; private set; }
         public bool IsBeingHeld { get; private set; }
         public Color ComputedColor { get; private set; }
-        public bool IsSelected { get; set; }
+        public bool IsSelected
+        {
+            get => isSelected; 
+            set
+            {
+                isSelected = value;
+                if (value)
+                    OnSelect?.Invoke(this, new SelectionEventArgs((int)Input.HeldButton.GetValueOrDefault(), Input.ScreenMousePosition.ToNumerics()));
+                else
+                    OnDeselect?.Invoke(this, new SelectionEventArgs((int)Input.HeldButton.GetValueOrDefault(), Input.ScreenMousePosition.ToNumerics()));
+            }
+        }
 
         public bool Selectable { get; set; }
         public bool Disabled { get; set; }
         public float DoubleClickMaxDuration { get; set; } = 0.25f;
+        public bool Interactable { get; set; } = true;
+        public bool SelectInSelectAll { get; set; } = true;
 
         public event EventHandler<MouseEventArgs> OnMouseDown;
         public event EventHandler<MouseEventArgs> OnMouseUp;
@@ -74,7 +88,7 @@ namespace MusicGrid
             ComputedColor = Color;
             Vector2f mousePos = RelevantMousePosition;
 
-            if (info.FirstServed)
+            if (info.FirstServed || !Interactable)
             {
                 IsUnderMouse = false;
                 IsActive = false;
@@ -109,11 +123,6 @@ namespace MusicGrid
                             }
                             else
                                 Controller.HandleSelection(this);
-
-                            if (IsSelected)
-                                OnSelect?.Invoke(this, new SelectionEventArgs((int)info.Pressed.Value, mousePos.ToNumerics()));
-                            else
-                                OnDeselect?.Invoke(this, new SelectionEventArgs((int)info.Pressed.Value, mousePos.ToNumerics()));
                         }
                         else Controller.ClearSelection();
                         Controller.FocusedElement = this;
@@ -123,7 +132,7 @@ namespace MusicGrid
                 }
             }
 
-            if (!Disabled && IsBeingHeld && info.Released.HasValue)
+            if (!Disabled && IsBeingHeld && info.Released.HasValue && Interactable)
             {
                 if (Controller.FocusedElement == this)
                     Controller.FocusedElement = null;
