@@ -19,6 +19,7 @@
 
         public const string Set = "set";
         public const string Get = "get";
+        public const string ClearTextureCache = "cc_texture";
         public const string Quit = "quit";
 
         public const string EnableSnap = "enable_snap";

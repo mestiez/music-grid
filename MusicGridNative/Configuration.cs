@@ -85,6 +85,8 @@ namespace MusicGrid
 
             new Keybind(new Key[]{Key.LShift}, $"{Functions.EnableMultiselect}()"),
             new Keybind(new Key[]{Key.LShift}, $"{Functions.DisableMultiselect}()", true),
+
+            new Keybind(new Key[]{Key.F3}, $"{Functions.ClearTextureCache}()"),
         };
 
         //State

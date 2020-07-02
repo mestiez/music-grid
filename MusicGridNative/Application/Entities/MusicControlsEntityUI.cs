@@ -139,11 +139,6 @@ namespace MusicGrid
             requiresRecalculation = true;
         }
 
-        public override void PreRender()
-        {
-            tracker.Size = new Vector2f((background.Size.X - margin * 2) * Utilities.Clamp(smoothTime / (float)MusicPlayer.Duration.TotalSeconds, 0, 1), background.Size.Y - margin * 4 - trackName.Size.Y - buttonSize.Y);
-        }
-
         public override IEnumerable<IRenderTask> RenderScreen()
         {
             RecalculateLayout();
@@ -160,6 +155,9 @@ namespace MusicGrid
             yield return trackName.RenderTask;
             yield return trackerBackgroundTask;
             yield return trackInfo.RenderTask;
+
+            tracker.Position = trackInfo.Position;
+            tracker.Size = new Vector2f((background.Size.X - margin * 2) * Utilities.Clamp(smoothTime / (float)MusicPlayer.Duration.TotalSeconds, 0, 1), background.Size.Y - margin * 4 - trackName.Size.Y - buttonSize.Y);
             yield return trackerTask;
 
             yield return shuffleButton.RenderTask;
@@ -193,7 +191,6 @@ namespace MusicGrid
             trackInfo.Position = background.Position + new Vector2f(margin, margin + margin + trackName.Size.Y);
             trackInfo.Size = new Vector2f(background.Size.X - margin * 2, background.Size.Y - margin * 4 - trackName.Size.Y - buttonSize.Y);
 
-            tracker.Position = trackInfo.Position;
 
             trackerBackground.Size = trackInfo.Size;
             trackerBackground.Position = trackInfo.Position;

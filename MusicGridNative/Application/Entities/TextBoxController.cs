@@ -1,4 +1,5 @@
-﻿using Shared;
+﻿using SFML.Window;
+using Shared;
 using System;
 
 namespace MusicGrid
@@ -12,6 +13,8 @@ namespace MusicGrid
             get => DrawableElement.Text;
             set => DrawableElement.Text = value;
         }
+
+        //make placeholder
 
         public TextBoxController(DrawableElement element)
         {
@@ -52,7 +55,10 @@ namespace MusicGrid
                             Value = Value.Substring(0, Math.Max(0, Value.LastIndexOf(' ')));
                             break;
                         default:
-                            Value += c.ToString();
+                            if (c == 22 && (Input.IsKeyHeld(OpenTK.Input.Key.LControl) || Input.IsKeyHeld(OpenTK.Input.Key.RControl)))
+                                Value += Clipboard.Contents;
+                            else
+                                Value += c.ToString();
                             break;
                     }
                 }

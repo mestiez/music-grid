@@ -1,5 +1,7 @@
-﻿using Microsoft.Win32;
+﻿using LibVLCSharp.Shared.MediaPlayerElement;
+using Microsoft.Win32;
 using Newtonsoft.Json;
+using SFML.Graphics;
 using SFML.System;
 using Shared;
 using System;
@@ -15,8 +17,11 @@ namespace MusicGrid
     {
         private readonly List<District> districts = new List<District>();
         public IReadOnlyList<District> Districts => districts.AsReadOnly();
-
+        public bool AutoSpacing { get; private set; }
         public bool SnappingEnabled { get; private set; } = true;
+
+        private DialogboxEntity dialog;
+
 
         public override void Created()
         {
@@ -178,7 +183,7 @@ namespace MusicGrid
 
             foreach (var district in districts)
             {
-                var copy = new District(district.Name, district.Position, district.Size, district.Color, district.Locked, district.Muted);
+                var copy = new District(district.Name, district.Position, district.Size, district.Color, district.Locked, district.Muted, district.BackgroundPath == null ? null : Utilities.GetRelativePath(district.BackgroundPath ?? "", fullPath));
                 copy.Entries = district.Entries.Select((e) =>
                 {
                     return new DistrictEntry(e.Name, Utilities.GetRelativePath(e.Path, fullPath));
@@ -222,7 +227,7 @@ namespace MusicGrid
             path = path.Substring(0, path.Length - Path.GetFileName(path).Length);
             foreach (var district in grid.Districts)
             {
-                var copy = new District(district.Name, district.Position, district.Size, district.Color, district.Locked, district.Muted);
+                var copy = new District(district.Name, district.Position, district.Size, district.Color, district.Locked, district.Muted, district.BackgroundPath == null ? null : Path.GetFullPath(Path.Combine(path, district.BackgroundPath)));
                 copy.Entries = district.Entries.Select((e) =>
                 {
                     return new DistrictEntry(e.Name, Path.GetFullPath(Path.Combine(path, e.Path)));
@@ -253,6 +258,65 @@ namespace MusicGrid
                 if (Utilities.IsInside(point, district.Position, district.Size))
                     return district;
             return null;
+        }
+
+        public override void Update()
+        {
+            if (AutoSpacing)
+            {
+                AutomaticallySpace(out var finished);
+                if (finished)
+                {
+                    AutoSpacing = false;
+                    World.Destroy(dialog);
+                }
+            }
+        }
+
+        public void StartAutoSpace()
+        {
+            if (AutoSpacing) return;
+
+            AutoSpacing = true;
+            dialog = new DialogboxEntity(
+                "Spacing...",
+                size: new Vector2f(210, 100),
+                position: (Vector2f)Input.WindowSize/2 - new Vector2f(210, 100) / 2,
+                buttons: new[] {
+                    new Button("Cancel", () => { AutoSpacing = false; })
+                });
+
+            World.Add(dialog);
+        }
+
+        private void AutomaticallySpace(out bool finished, float strength = 1)
+        {
+            float s = 10000 * strength * MusicGridApplication.Globals.DeltaTime;
+            finished = true;
+
+            foreach (var a in districts)
+            {
+                foreach (var b in districts)
+                {
+                    if (a == b || b.Locked) continue;
+                    if (a.Position == b.Position)
+                    {
+                        a.Position.X += Utilities.RandomFloat() * 2 - 0.5f;
+                        a.Position.Y += Utilities.RandomFloat() * 2 - 0.5f;
+                    }
+
+                    var rectA = new FloatRect(a.Position.X, a.Position.Y, a.Size.X, a.Size.Y);
+                    var rectB = new FloatRect(b.Position.X, b.Position.Y, b.Size.X, b.Size.Y);
+                    if (!rectA.Intersects(rectB)) continue;
+
+                    var diff = (b.Position + b.Size / 2) - (a.Position + a.Size / 2);
+                    var distance = diff.Length();
+                    var dir = diff / distance;
+                    b.Position += dir * s / (b.Size.LengthSquared() * 0.0001f);
+                    b.Dirty = true;
+                    finished = false;
+                }
+            }
         }
     }
 }

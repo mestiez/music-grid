@@ -151,6 +151,7 @@
     <Compile Include="Application\Entities\DistrictEntity.cs" />
     <Compile Include="Application\Entities\DistrictPreferencesEntity.cs" />
     <Compile Include="Application\Entities\TextBoxController.cs" />
+    <Compile Include="Application\TextureCache.cs" />
     <Compile Include="Application\UI\DraggableController.cs" />
     <Compile Include="Application\Entities\EventTextWriter.cs" />
     <Compile Include="Application\Entities\KeybindExecutor.cs" />

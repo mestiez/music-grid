@@ -68,7 +68,8 @@ namespace MusicGrid
         public void Enqueue(District district)
         {
             foreach (var entry in district.Entries)
-                Tracks.Add(entry);
+                if (!Tracks.Contains(entry))
+                    Tracks.Add(entry);
             RepopulateShuffleIndices();
         }
 

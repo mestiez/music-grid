@@ -69,6 +69,12 @@ namespace MusicGrid
             World.Lua.LinkFunction(Functions.Quit, this, () => renderWindow.Close());
             World.Lua.LinkFunction(Functions.Set, this, new Action<string, dynamic>((s, d) => SetConfigKey(s, d)).Method);
             World.Lua.LinkFunction(Functions.Get, this, new Func<string, dynamic>((s) => GetConfigKey(s)).Method);
+            World.Lua.LinkFunction(Functions.ClearTextureCache, this, () =>
+            {
+                TextureCache.Clear();
+                foreach (var district in World.GetEntitiesByType<DistrictEntity>())
+                    district.ForceRecalculate();
+            });
 
             Toolkit.Init();
             GraphicsContext context = new GraphicsContext(ContextHandle.Zero, OpenTK.Platform.Utilities.CreateWindowsWindowInfo(renderWindow.SystemHandle));

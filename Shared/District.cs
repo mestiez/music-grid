@@ -13,13 +13,17 @@ namespace Shared
         public Color Color = new Color(52, 168, 235);
         public bool Locked;
         public bool Muted;
+        public string BackgroundPath;
+
+        [NonSerialized]
+        public Color DisplayColor = new Color(52, 168, 235);
 
         [NonSerialized]
         public bool Dirty = true;
 
         public List<DistrictEntry> Entries = new List<DistrictEntry>();
 
-        public District(string name, Vector2 position, Vector2 size, Color color, bool locked, bool muted)
+        public District(string name, Vector2 position, Vector2 size, Color color, bool locked, bool muted, string backgroundpath)
         {
             Name = name;
             Position = position;
@@ -27,6 +31,7 @@ namespace Shared
             Color = color;
             Locked = locked;
             Muted = muted;
+            BackgroundPath = backgroundpath;
         }
 
         public District(string name)

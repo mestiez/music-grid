@@ -12,7 +12,7 @@ namespace MusicGrid
         public Repeat RepeatMode { get; set; } = Repeat.RepeatQueue;
         public IMusicPlayer MusicPlayer { get; } = new VLCAudioPlayer();
         public TrackQueue TrackQueue { get; } = new TrackQueue();
-        public bool EnableVisualiser { get; set; } 
+        public bool EnableVisualiser { get; set; }
 
         private PlayerState stateBeforeTrackerPause;
         private readonly AudioDataProvider dataProvider = new AudioDataProvider();
@@ -78,7 +78,7 @@ namespace MusicGrid
         {
             smoothTime = 0;
             trackName.Text = e.Name;
-            SetColor(World.GetEntityByType<DistrictManager>().GetDistrictFromEntry(e)?.Color.ToSFML() ?? Color.Magenta);
+            SetColor(World.GetEntityByType<DistrictManager>().GetDistrictFromEntry(e)?.DisplayColor.ToSFML() ?? Color.Magenta);
             if (EnableVisualiser)
             {
                 try
@@ -142,14 +142,21 @@ namespace MusicGrid
 
             if (Input.IsButtonReleased(SFML.Window.Mouse.Button.Right) && !World.GetEntityByType<UiControllerEntity>().IsPointerOverElement)
                 ContextMenuEntity.Open(new[] {
-                    new Button("play entire grid", () => {
+                    new Button("play grid", () => {
                         MusicPlayer.Stop();
                         TrackQueue.ClearQueue();
                         foreach (var d in World.GetEntityByType<DistrictManager>().Districts)
                             TrackQueue.Enqueue(d);
                         TrackQueue.Next();
                         MusicPlayer.Play();
-                    })
+                    }),
+                    new Button("enqueue grid", () => {
+                        foreach (var d in World.GetEntityByType<DistrictManager>().Districts)
+                            TrackQueue.Enqueue(d);
+                    }),
+                    new Button("auto separate districts", () => {
+                        World.GetEntityByType<DistrictManager>().StartAutoSpace();
+                    },!World.GetEntityByType<DistrictManager>().AutoSpacing ),
                 },
                 (Vector2f)Input.ScreenMousePosition);
         }

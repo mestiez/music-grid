@@ -6,7 +6,7 @@ namespace MusicGrid
 {
     public struct Utilities
     {
-        private static Random random = new Random();
+        private static readonly Random random = new Random();
 
         public static bool IsInside(System.Numerics.Vector2 point, System.Numerics.Vector2 topleft, System.Numerics.Vector2 size)
         {
@@ -22,6 +22,78 @@ namespace MusicGrid
             if (point.Y > topleft.Y + size.Y) return false;
 
             return true;
+        }
+
+        public static bool AreTouching(System.Numerics.Vector2 aPos, System.Numerics.Vector2 aSize, System.Numerics.Vector2 bPos, System.Numerics.Vector2 bSize)
+        {
+            float aLeft = aPos.X;
+            float bLeft = bPos.X;
+            float aTop = aPos.Y;
+            float bTop = bPos.Y;
+
+            float aRight = aLeft + aSize.X;
+            float bRight = bLeft + bSize.X;
+            float aBottom = aTop - aSize.Y;
+            float bBottom = bTop - bSize.Y;
+
+            return (aLeft < bRight && aRight > bLeft && aTop > bBottom && aBottom < bTop);
+        }
+
+        public static Color GetMainColour(Texture texture)
+        {
+            const int stride = 4;
+            var pixels = texture.CopyToImage().Pixels;
+            float division = 0;
+
+            float aR = 0;
+            float aG = 0;
+            float aB = 0;
+            int index = 0;
+
+            for (int y = 0; y < texture.Size.Y; y++)
+            {
+                for (int x = 0; x < texture.Size.X; x++)
+                {
+                    byte r = pixels[index];
+                    byte g = pixels[index + 1];
+                    byte b = pixels[index + 2];
+
+                    float v = (float)Math.Pow(GetVibrance(r, g, b), 4);
+                    division += v;
+
+                    aR += r * v;
+                    aG += g * v;
+                    aB += b * v;
+
+                    index += stride;
+                }
+            }
+
+            return new Color(
+                (byte)(int)Clamp(aR / division, 0, 255),
+                (byte)(int)Clamp(aG / division, 0, 255),
+                (byte)(int)Clamp(aB / division, 0, 255),
+                255);
+        }
+
+        /// <summary>
+        /// range 0-1
+        /// </summary>
+        public static float GetVibrance(Color color)
+        {
+            return GetVibrance(color.R, color.G, color.B);
+        }
+
+        /// <summary>
+        /// range 0-1
+        /// </summary>
+        static float GetVibrance(byte R, byte G, byte B)
+        {
+            float average = (R + G + B) / 3f;
+            float r = Abs(average - R);
+            float g = Abs(average - G);
+            float b = Abs(average - B);
+            return Math.Min(r, Math.Min(g, b)) / 255f;
         }
 
         //from https://weblog.west-wind.com/posts/2010/Dec/20/Finding-a-Relative-Path-in-NET
@@ -50,6 +122,11 @@ namespace MusicGrid
                 string iss = i.ToString();
                 return iss.Length == 1 ? "0" + iss : iss;
             }
+        }
+
+        public static float Abs(float i)
+        {
+            return i < 0 ? -i : i;
         }
 
         public static Vector2f Round(Vector2f i)
@@ -89,7 +166,12 @@ namespace MusicGrid
 
         public static bool IsTooBright(Color color)
         {
-            return ((0.2126 * color.R + 0.7152 * color.G + 0.0722 * color.B) / 255) > 0.6;
+            return GetBrightness(color.R, color.G, color.B) > 0.6f;
+        }
+
+        public static float GetBrightness(byte r, byte g, byte b)
+        {
+            return ((0.2126f * r + 0.7152f * g + 0.0722f * b) / 255f);
         }
 
         public static byte RandomByte()

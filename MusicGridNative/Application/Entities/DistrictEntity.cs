@@ -4,8 +4,6 @@ using Shared;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Windows.Markup;
-using System.Windows.Media;
 using Color = SFML.Graphics.Color;
 
 namespace MusicGrid
@@ -38,6 +36,9 @@ namespace MusicGrid
 
         private DrawableElement colourInputBox;
         private TextBoxController colourInputBoxController;
+
+        private DrawableElement backgroundInputBox;
+        private TextBoxController backgroundInputBoxController;
 
         private DrawableElement detailsElement;
 
@@ -143,6 +144,15 @@ namespace MusicGrid
                 needToRecalculateLayout = true;
             };
 
+            backgroundInputBox = setupTextBox(ref backgroundInputBoxController);
+            backgroundInputBoxController.Value = District.BackgroundPath ?? "";
+            backgroundInputBoxController.OnInput += (o, e) =>
+            {
+                District.BackgroundPath = backgroundInputBoxController.Value;
+                District.Dirty = true;
+                needToRecalculateLayout = true;
+            };
+
             colourInputBox = setupTextBox(ref colourInputBoxController);
             colourInputBoxController.Value = Utilities.ColourToHexString(District.Color.ToSFML());
             colourInputBoxController.OnInput += (o, e) =>
@@ -151,9 +161,6 @@ namespace MusicGrid
                     District.Color = c.ToShared();
                 District.Dirty = true;
                 needToRecalculateLayout = true;
-                var cc = GetFrontColor();
-                foreach (var item in entryTexts)
-                    item.FillColor = cc;
             };
 
             detailsElement = new DrawableElement(uiController, new Vector2f(120, 30), new Vector2f(), 0, 72);
@@ -161,7 +168,7 @@ namespace MusicGrid
             detailsElement.Element.Interactable = false;
             detailsElement.DrawBackground = false;
             detailsElement.HideOverflow = true;
-            detailsElement.TextOffset = new Vector2f(4,-4);
+            detailsElement.TextOffset = new Vector2f(4, -4);
             detailsElement.TextAlignment = DrawableElement.TextAlignmentMode.BottomLeft;
 
             backgroundTask = new ShapeRenderTask(background, backgroundElement.Depth);
@@ -287,13 +294,14 @@ namespace MusicGrid
 
         private Color GetFrontColor(byte alpha = 125)
         {
-            return Utilities.IsTooBright(District.Color.ToSFML()) ? new Color(0, 0, 0, alpha) : new Color(255, 255, 255, alpha);
+            return Utilities.IsTooBright(District.DisplayColor.ToSFML()) ? new Color(0, 0, 0, alpha) : new Color(255, 255, 255, alpha);
         }
 
         public override void Update()
         {
             nameInputBoxController.Update();
             colourInputBoxController.Update();
+            backgroundInputBoxController.Update();
 
             HandleDragging();
             HandleResizing();
@@ -316,9 +324,13 @@ namespace MusicGrid
             nameInputBox.Size = new Vector2f(background.Size.X - 10, 30);
             nameInputBox.Element.Interactable = CurrentPage == Page.Editing;
 
-            colourInputBox.Position = background.Position + new Vector2f(5, 5 + 30 + 5);
+            colourInputBox.Position = background.Position + new Vector2f(5, 5 + 35);
             colourInputBox.Size = new Vector2f(background.Size.X - 10, 30);
             colourInputBox.Element.Interactable = CurrentPage == Page.Editing;
+
+            backgroundInputBox.Position = background.Position + new Vector2f(5, 5 + 35 * 2);
+            backgroundInputBox.Size = new Vector2f(background.Size.X - 10, 30);
+            backgroundInputBox.Element.Interactable = CurrentPage == Page.Editing;
 
             float preferredSize = 256;
             float scaledMargin = (float)Math.Min(EntryMargin, District.Size.X / 256);
@@ -520,11 +532,37 @@ namespace MusicGrid
             if (!District.Dirty) return;
             District.Dirty = false;
 
+            var newPos = District.Position.ToSFML();
+            if (backgroundElement.Position != newPos)
+            {
+                temporaryPosition = newPos;
+                backgroundElement.Position = newPos;
+                needToRecalculateLayout = true;
+            }
+
+            TextureCache.LoadAsync(District.BackgroundPath, SetTexture);
+            if (background.Texture == null)
+                District.DisplayColor = District.Color;
+
             backgroundElement.Color = District.Color.ToSFML();
             backgroundElement.ActiveColor = District.Color.ToSFML();
             backgroundElement.HoverColor = District.Color.ToSFML();
             backgroundElement.DisabledColor = District.Color.ToSFML();
+
             title.DisplayedString = District.Name;
+        }
+
+        private void SetTexture(Texture tex)
+        {
+            background.Texture = tex;
+            if (tex == null) return;
+            District.DisplayColor = Utilities.GetMainColour(background.Texture).ToShared() * District.Color;
+        }
+
+        public void ForceRecalculate()
+        {
+            needToRecalculateLayout = true;
+            District.Dirty = true;
         }
 
         private void SyncResizeHandle()
@@ -577,6 +615,7 @@ namespace MusicGrid
             yield return detailsElement.RenderTask;
             yield return nameInputBox.RenderTask;
             yield return colourInputBox.RenderTask;
+            yield return backgroundInputBox.RenderTask;
 
             if (District.Locked)
                 yield return lockedIconTask;
